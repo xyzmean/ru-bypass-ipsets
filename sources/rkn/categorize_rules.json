@@ -13,15 +13,15 @@
       "category": "ai",
       "geoblock": false,
       "match": "any",
-      "keywords": ["openai", "chatgpt", "claude", "anthropic", "midjourney", "stable-diffusion", "elevenlabs", "huggingface", "deepmind", "perplexity"],
-      "regex": ["(^|\\.)(openai|chatgpt|anthropic|claude|midjourney|huggingface)"]
+      "keywords": ["openai", "chatgpt", "claude", "anthropic", "midjourney", "stable-diffusion", "elevenlabs", "huggingface", "deepmind", "perplexity", "gemini", "bard.google", "aistudio", "generativelanguage", "notebooklm", "makersuite", "ai.google", "generativeai", "antigravity.google", "jules.google", "aisandbox"],
+      "regex": ["(^|\\.)(openai|chatgpt|anthropic|claude|midjourney|huggingface)", "(gemini|bard\\.google|aistudio\\.google|generativelanguage\\.googleapis)", "(notebooklm|makersuite|antigravity\\.google|jules\\.google)"]
     },
     {
       "category": "ai_GB",
       "geoblock": true,
       "match": "any",
-      "keywords": ["groq", "grok", "x.ai", "together.ai", "lightning.ai", "replicate.com", "poe.com", "character.ai", "sora.com", "elevenlabs.io", "mistral.ai", "cohere", "deepseek"],
-      "regex": ["(groq\\.com|together\\.ai|character\\.ai|cohere\\.com|mistral\\.ai)"]
+      "keywords": ["groq", "grok", "x.ai", "together.ai", "lightning.ai", "replicate.com", "poe.com", "character.ai", "sora.com", "elevenlabs.io", "mistral.ai", "cohere", "deepseek", "cursor", "windsurf", "v0.dev", "suno", "heygen", "synthesia", "runway"],
+      "regex": ["(groq\\.com|together\\.ai|character\\.ai|cohere\\.com|mistral\\.ai)", "(cursor\\.sh|windsurf|v0\\.dev|suno\\.com|runwayml)"]
     },
     {
       "category": "streaming",
