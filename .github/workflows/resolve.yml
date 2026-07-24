@@ -1,0 +1,82 @@
+name: Resolve & build lists
+
+on:
+  schedule:
+    # раз в 3 дня в 03:17 UTC
+    - cron: '17 3 */3 * *'
+  push:
+    branches: [main]
+    paths:
+      - 'sources/**'
+      - 'generator/**'
+      - '.github/workflows/resolve.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: resolve-build
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: generator/requirements.txt
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r generator/requirements.txt
+
+      - name: Run pipeline
+        run: |
+          cd generator
+          python aggregate.py
+
+      - name: Gate — ipsum.lst >= 5000 CIDR
+        run: |
+          set -e
+          n=$(grep -cE '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/[0-9]+$' lists/ipsum.lst)
+          echo "ipsum CIDR count: $n"
+          if [ "$n" -lt 5000 ]; then
+            echo "::error::ipsum.lst has $n CIDR (< 5000). Keeping previous lists."
+            exit 1
+          fi
+
+      - name: Commit lists
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add lists/
+          if git diff --cached --quiet; then
+            echo "Нет изменений — пропуск коммита."
+          else
+            git commit -m "chore(lists): auto-resolve $(date -u +%Y-%m-%d)"
+            git push
+          fi
+
+      - name: Create release
+        if: success()
+        run: |
+          tag="$(date -u +%Y-%m-%d_%H-%M)"
+          gh release create "$tag" lists/*.lst lists/categories.json \
+            --title "Lists $tag" \
+            --notes "Автоматическая сборка списков. См. lists/categories.json." \
+            --latest || echo "release не создан (возможно уже существует)"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

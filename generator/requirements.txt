@@ -1,0 +1,6 @@
+# Зависимости генератора (только резолв + ASN + summarization).
+# Контент-чек/selenium/binary-форматы отброшены намеренно.
+dnspython>=2.6.0
+idna>=3.6
+requests>=2.31.0
+geoip2>=4.8.0

@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Кеш генератора (GeoLite2 и мета — скачивается в CI заново)
+generator/.cache/
+generator/build.log
+
+# Временные артефакты резолва
+*.tmp
+*.log

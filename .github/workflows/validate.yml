@@ -1,0 +1,69 @@
+name: Validate lists
+
+on:
+  pull_request:
+    paths:
+      - 'lists/**'
+      - 'generator/**'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate .lst format
+        run: |
+          set -e
+          fail=0
+          CIDR_RE='^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/(3[0-2]|[12]?[0-9])$'
+          for f in lists/*.lst; do
+            [ -f "$f" ] || continue
+            # 1) каждая строка — валидный IPv4 CIDR
+            while IFS= read -r line; do
+              [ -z "$line" ] && continue
+              if ! [[ "$line" =~ $CIDR_RE ]]; then
+                echo "::error file=$f::невалидная строка: $line"
+                fail=1
+              fi
+            done < "$f"
+            # 2) октеты 0–255
+            while IFS= read -r line; do
+              [ -z "$line" ] && continue
+              IFS=/ read -r ip prefix <<< "$line"
+              IFS=. read -r o1 o2 o3 o4 <<< "$ip"
+              for o in "$o1" "$o2" "$o3" "$o4"; do
+                if [ "$o" -gt 255 ] 2>/dev/null; then
+                  echo "::error file=$f::октет >255: $line"
+                  fail=1
+                fi
+              done
+            done < "$f"
+            # 3) сортировка (численная для IP через -V)
+            if ! diff -q <(sort -V "$f") "$f" >/dev/null 2>&1; then
+              echo "::warning file=$f::не отсортирован (требуется -V порядок)"
+            fi
+            # 4) дедуп
+            dup=$(sort "$f" | uniq -d | head -3)
+            if [ -n "$dup" ]; then
+              echo "::error file=$f::дубликаты: $dup"
+              fail=1
+            fi
+            echo "✓ $f ($(wc -l < "$f") строк)"
+          done
+          exit $fail
+
+      - name: Validate categories.json
+        run: |
+          python -c "
+          import json, sys
+          d = json.load(open('lists/categories.json'))
+          assert 'categories' in d and 'aggregates' in d
+          assert d['categories'], 'пустые категории'
+          for c in d['categories']:
+              for k in ('id','name_ru','description_ru','file','default_on','is_geoblock','count'):
+                  assert k in c, f'категория {c} без {k}'
+          print('categories.json OK:', len(d['categories']), 'категорий')
+          "

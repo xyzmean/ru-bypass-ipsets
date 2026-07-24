@@ -1,0 +1,122 @@
+{
+  "_comment": "Правила распределения доменов по тематическим категориям. Проверка: substring (вхождение подстроки в домен) сначала, затем regex. Первый матч выигрывает. Категории без _GB = РКН-блок, с _GB = геоблок. Порядок rules важен (первый совпавший побеждает).",
+
+  "rules": [
+    {
+      "category": "adult",
+      "geoblock": false,
+      "match": "any",
+      "keywords": ["porn", "xxx", "sex", "hentai", "tube", "cam", "escort", "casino", "bet", "stavka", "wulkan", "vulkan", "azino", "pinco", "1xbet", "leon", "fonbet", "melbet", "slot", "gaminator", "joycasino", "riobet", "drake", "ladbrokes", "bwin", "poker", "lottery", "bookmaker"],
+      "regex": ["(^|\\.)(xxx|sex|porn|hentai)\\.", "(casino|vulkan|azart|stavk|bookmak|slot)", "(kinoporn|pornhub|xvideos|redtube|xnxx)"]
+    },
+    {
+      "category": "ai",
+      "geoblock": false,
+      "match": "any",
+      "keywords": ["openai", "chatgpt", "claude", "anthropic", "midjourney", "stable-diffusion", "elevenlabs", "huggingface", "deepmind", "perplexity"],
+      "regex": ["(^|\\.)(openai|chatgpt|anthropic|claude|midjourney|huggingface)"]
+    },
+    {
+      "category": "ai_GB",
+      "geoblock": true,
+      "match": "any",
+      "keywords": ["groq", "grok", "x.ai", "together.ai", "lightning.ai", "replicate.com", "poe.com", "character.ai", "sora.com", "elevenlabs.io", "mistral.ai", "cohere", "deepseek"],
+      "regex": ["(groq\\.com|together\\.ai|character\\.ai|cohere\\.com|mistral\\.ai)"]
+    },
+    {
+      "category": "streaming",
+      "geoblock": false,
+      "match": "any",
+      "keywords": ["kino", "film", "cinema", "movie", "serial", "tv", "tvor", "hdrezka", "kinopoisk", "ivi", "okko", "torrent", "pirate", "kinos", "lordfilm", "rezka", "hdgo", "kinovod", "kinokrad", "bacon", "kinobase"],
+      "regex": ["(kino|film|cinema|serial|torrent|pirate)", "(lordfilm|hdrezka|kinopoisk|ivi|okko)"]
+    },
+    {
+      "category": "streaming_GB",
+      "geoblock": true,
+      "match": "any",
+      "keywords": ["netflix", "primevideo", "disneyplus", "hbomax", "hulu", "crunchyroll", "twitch", "geforcenow", "max.com", "stadia", "paramount", "peacock", "showtime", "funimation"],
+      "regex": ["(netflix|primevideo|disneyplus|hbomax|hulu|crunchyroll)", "(nflxvideo|nflxext|twitch\\.tv)"]
+    },
+    {
+      "category": "social",
+      "geoblock": false,
+      "match": "any",
+      "keywords": ["vk", "vkontakte", "ok.ru", "odnoklassniki", "instagram", "facebook", "twitter", "mewe", "mastodon"],
+      "regex": ["(vkontakte|odnoklassniki|instagram|facebook)", "(^|\\.)(vk|ok|mewe)\\."]
+    },
+    {
+      "category": "social_GB",
+      "geoblock": true,
+      "match": "any",
+      "keywords": ["truthsocial", "clubhouse", "bebo", "diaspora"],
+      "regex": ["(truthsocial|clubhouse)"]
+    },
+    {
+      "category": "gaming",
+      "geoblock": false,
+      "match": "any",
+      "keywords": ["roblox", "minecraft", "fortnite", "steam", "gta", "riot", "blizzard", "battlenet", "origin", "ubisoft", "wargaming", "tanks"],
+      "regex": ["(roblox|minecraft|fortnite|steam|wargaming)"]
+    },
+    {
+      "category": "gaming_GB",
+      "geoblock": true,
+      "match": "any",
+      "keywords": ["supercell", "clashofclans", "brawlstars", "marvelsnap", "guilded", "playstation", "xbox", "nintendo", "epicgames", "battlenet", "valorant", "leagueoflegends"],
+      "regex": ["(supercell|clashofclans|playstation|xbox|nintendo|epicgames)"]
+    },
+    {
+      "category": "news",
+      "geoblock": false,
+      "match": "any",
+      "keywords": ["news", "novosti", "press", "media", "gazeta", "radio", "svoboda", "ekho", "kavkazmedia", "krymrealii", "severrealii"],
+      "regex": ["(novosti|gazeta|press|(^|\\.)(news|media)\\.)"]
+    },
+    {
+      "category": "news_GB",
+      "geoblock": true,
+      "match": "any",
+      "keywords": ["reuters", "bbc", "dw.com", "rferl", "currenttime", "meduza", "rain", "dojd", "novayagazeta", "theins", "proektmedia"],
+      "regex": ["(reuters|bbc|dw\\.com|rferl|currenttime|meduza|novayagazeta)"]
+    },
+    {
+      "category": "dev",
+      "geoblock": false,
+      "match": "any",
+      "keywords": ["githubusercontent", "gitlab", "npm", "docker", "kubernetes", "elastic"],
+      "regex": ["(githubusercontent|gitlab|npmjs|docker)"]
+    },
+    {
+      "category": "dev_GB",
+      "geoblock": true,
+      "match": "any",
+      "keywords": ["notion", "jetbrains", "figma", "vercel", "netlify", "sentry", "datadog", "grafana", "linear", "airtable", "windsurf", "cursor", "stripe", "postman", "fastly", "gitbook", "digitalocean", "render.com", "fly.io", "railway.app"],
+      "regex": ["(notion|jetbrains|figma|vercel|netlify|sentry|datadog|grafana|linear)", "(windsurf|cursor\\.sh|stripe|postman|gitbook)"]
+    },
+    {
+      "category": "media",
+      "geoblock": false,
+      "match": "any",
+      "keywords": ["anime", "manga", "hentai", "otaku", "cosplay", "doujin"],
+      "regex": ["(anime|manga|otaku|doujin)"]
+    },
+    {
+      "category": "media_GB",
+      "geoblock": true,
+      "match": "any",
+      "keywords": ["spotify", "deezer", "tidal", "patreon", "bandcamp", "soundcloud", "audible", "podcasts", "applemusic", "genius.com"],
+      "regex": ["(spotify|deezer|tidal|patreon|bandcamp|soundcloud|audible)"]
+    },
+    {
+      "category": "adult_GB",
+      "geoblock": true,
+      "match": "any",
+      "keywords": ["onlyfans", "pornhub", "xvideos", "redtube", "xnxx", "chaturbate", "bongacams"],
+      "regex": ["(onlyfans|pornhub|xvideos|redtube|xnxx|chaturbate|bongacams)"]
+    }
+  ],
+
+  "_fallback_category": "rkn_other",
+  "_fallback_geoblock": false,
+  "_fallback_note": "РКН-домен, не попавший ни в одно правило — в категорию rkn_other (казино-зеркала, фишинг, прочее). community/ooni-домены без матча попадают в dev_GB как 'прочие ограничивающие РФ'."
+}

@@ -1,0 +1,19 @@
+{
+  "_comment": "ASN крупных сервисов для прямого pull CIDR (RIPEstat/ip.guide/bgpview). Источник: itdoginfo/allow-domains get-subnets.py + Re-filter COMPANY_DOMAINS. Каждый ключ = id категории из categories_schema.py.",
+  "telegram": [44907, 59930, 62014, 62041, 211157],
+  "meta": [32934],
+  "whatsapp": [32934],
+  "twitter_x": [13414],
+  "youtube": [15169],
+  "google": [15169],
+  "tiktok": [46997],
+  "roblox": [22697],
+  "netflix": [2906],
+  "discord": [62041],
+  "hodca": [24940, 16276, 14061, 16509, 20940],
+  "_hodca_note": "Hetzner(24940) OVH(16276) DigitalOcean(14061) AWS(16509) Akamai(20940)",
+  "_telegram_extra_cidrs": ["5.28.192.0/18", "194.221.0.0/16"],
+  "_cloudflare_cdn": "https://www.cloudflare.com/ips-v4",
+  "_cloudfront_cdn": "https://ip-ranges.amazonaws.com (filter: service=CLOUDFRONT)",
+  "_discord_voice_cdn": "https://iplist.opencck.org/lists/connectivity/discord_voice"
+}
