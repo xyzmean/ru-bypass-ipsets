@@ -1,0 +1,315 @@
+{
+  "version": "2026-07-24",
+  "generated_at": "2026-07-24T15:14:41Z",
+  "base_url": "https://raw.githubusercontent.com/xyzmean/ru-bypass-ipsets/main/lists",
+  "ipsum_min_count": 5000,
+  "sources": {
+    "rkn": "snapshot:domains_snapshot.lst",
+    "community_ooni_count": 6953,
+    "geoblock_count": 466,
+    "geolite": true,
+    "nameservers": [
+      "1.1.1.1",
+      "8.8.8.8",
+      "9.9.9.9",
+      "208.67.222.222",
+      "77.88.8.8",
+      "8.8.4.4"
+    ]
+  },
+  "categories": [
+    {
+      "id": "telegram",
+      "name_ru": "Telegram",
+      "description_ru": "Мессенджер Telegram: домены и подсети по ASN.",
+      "file": "telegram.lst",
+      "default_on": true,
+      "is_geoblock": false,
+      "count": 10
+    },
+    {
+      "id": "whatsapp",
+      "name_ru": "WhatsApp",
+      "description_ru": "Мессенджер WhatsApp (Meta).",
+      "file": "whatsapp.lst",
+      "default_on": true,
+      "is_geoblock": false,
+      "count": 33
+    },
+    {
+      "id": "discord",
+      "name_ru": "Discord",
+      "description_ru": "Голосовой чат Discord: домены и voice-подсети.",
+      "file": "discord.lst",
+      "default_on": true,
+      "is_geoblock": false,
+      "count": 11
+    },
+    {
+      "id": "meta",
+      "name_ru": "Meta (Facebook/Instagram)",
+      "description_ru": "Соцсети Facebook и Instagram (без WhatsApp).",
+      "file": "meta.lst",
+      "default_on": true,
+      "is_geoblock": false,
+      "count": 33
+    },
+    {
+      "id": "twitter_x",
+      "name_ru": "Twitter / X",
+      "description_ru": "Микроблоги Twitter и X.",
+      "file": "twitter_x.lst",
+      "default_on": true,
+      "is_geoblock": false,
+      "count": 19
+    },
+    {
+      "id": "youtube",
+      "name_ru": "YouTube",
+      "description_ru": "Видеохостинг YouTube и CDN (Google Video).",
+      "file": "youtube.lst",
+      "default_on": true,
+      "is_geoblock": false,
+      "count": 62
+    },
+    {
+      "id": "google",
+      "name_ru": "Google (Meet/Play/AI)",
+      "description_ru": "Google Meet, Play и AI-сервисы (Bard/Gemini).",
+      "file": "google.lst",
+      "default_on": true,
+      "is_geoblock": false,
+      "count": 61
+    },
+    {
+      "id": "tiktok",
+      "name_ru": "TikTok",
+      "description_ru": "Короткие видео TikTok (ByteDance).",
+      "file": "tiktok.lst",
+      "default_on": true,
+      "is_geoblock": false,
+      "count": 9
+    },
+    {
+      "id": "roblox",
+      "name_ru": "Roblox",
+      "description_ru": "Игровая платформа Roblox.",
+      "file": "roblox.lst",
+      "default_on": false,
+      "is_geoblock": false,
+      "count": 4
+    },
+    {
+      "id": "netflix",
+      "name_ru": "Netflix",
+      "description_ru": "Видеостриминг Netflix (геоблокирует РФ).",
+      "file": "netflix.lst",
+      "default_on": false,
+      "is_geoblock": true,
+      "count": 20
+    },
+    {
+      "id": "cloudflare",
+      "name_ru": "Cloudflare",
+      "description_ru": "CDN Cloudflare — полный список подсетей. Внимание: очень широко.",
+      "file": "cloudflare.lst",
+      "default_on": false,
+      "is_geoblock": false,
+      "count": 18
+    },
+    {
+      "id": "hodca",
+      "name_ru": "Хостинги и CDN (HODCA)",
+      "description_ru": "Hetzner, OVH, DigitalOcean, CloudFront, Akamai — подсети хостинг-провайдеров.",
+      "file": "hodca.lst",
+      "default_on": false,
+      "is_geoblock": false,
+      "count": 5422
+    },
+    {
+      "id": "streaming",
+      "name_ru": "Стриминг и кино (РКН)",
+      "description_ru": "Заблокированные в РФ видеосервисы, онлайн-кинотеатры, торренты.",
+      "file": "streaming.lst",
+      "default_on": true,
+      "is_geoblock": false,
+      "count": 234
+    },
+    {
+      "id": "streaming_GB",
+      "name_ru": "Стриминг (геоблок)",
+      "description_ru": "Зарубежные видеосервисы, сами блокирующие доступ из РФ (Netflix и т.п.).",
+      "file": "streaming_GB.lst",
+      "default_on": false,
+      "is_geoblock": true,
+      "count": 112
+    },
+    {
+      "id": "social",
+      "name_ru": "Соцсети (РКН)",
+      "description_ru": "Заблокированные в РФ социальные сети (кроме вынесенных отдельно).",
+      "file": "social.lst",
+      "default_on": true,
+      "is_geoblock": false,
+      "count": 32
+    },
+    {
+      "id": "social_GB",
+      "name_ru": "Соцсети (геоблок)",
+      "description_ru": "Соцсети, сами блокирующие доступ из РФ.",
+      "file": "social_GB.lst",
+      "default_on": false,
+      "is_geoblock": true,
+      "count": 16
+    },
+    {
+      "id": "ai",
+      "name_ru": "AI-сервисы (РКН)",
+      "description_ru": "Заблокированные в РФ AI-сервисы.",
+      "file": "ai.lst",
+      "default_on": true,
+      "is_geoblock": false,
+      "count": 14
+    },
+    {
+      "id": "ai_GB",
+      "name_ru": "AI-сервисы (геоблок)",
+      "description_ru": "Зарубежные AI-сервисы, блокирующие РФ: ChatGPT, Claude, Gemini и др.",
+      "file": "ai_GB.lst",
+      "default_on": true,
+      "is_geoblock": true,
+      "count": 17
+    },
+    {
+      "id": "gaming",
+      "name_ru": "Игры (РКН)",
+      "description_ru": "Заблокированные в РФ игровые сервисы.",
+      "file": "gaming.lst",
+      "default_on": false,
+      "is_geoblock": false,
+      "count": 48
+    },
+    {
+      "id": "gaming_GB",
+      "name_ru": "Игры (геоблок)",
+      "description_ru": "Игровые сервисы, сами блокирующие доступ из РФ.",
+      "file": "gaming_GB.lst",
+      "default_on": false,
+      "is_geoblock": true,
+      "count": 26
+    },
+    {
+      "id": "news",
+      "name_ru": "СМИ и новости (РКН)",
+      "description_ru": "Заблокированные в РФ новостные ресурсы.",
+      "file": "news.lst",
+      "default_on": false,
+      "is_geoblock": false,
+      "count": 245
+    },
+    {
+      "id": "news_GB",
+      "name_ru": "СМИ (геоблок)",
+      "description_ru": "Зарубежные СМИ, сами блокирующие доступ из РФ.",
+      "file": "news_GB.lst",
+      "default_on": false,
+      "is_geoblock": true,
+      "count": 173
+    },
+    {
+      "id": "dev",
+      "name_ru": "Dev-инструменты (РКН)",
+      "description_ru": "Заблокированные в РФ инструменты разработчиков.",
+      "file": "dev.lst",
+      "default_on": false,
+      "is_geoblock": false,
+      "count": 22
+    },
+    {
+      "id": "dev_GB",
+      "name_ru": "Dev-инструменты (геоблок)",
+      "description_ru": "Зарубежные dev-сервисы, сами блокирующие РФ: Notion, JetBrains, GitHub-вспомогательное.",
+      "file": "dev_GB.lst",
+      "default_on": true,
+      "is_geoblock": true,
+      "count": 515
+    },
+    {
+      "id": "adult",
+      "name_ru": "Контент 18+ (РКН)",
+      "description_ru": "Заблокированные в РФ ресурсы для взрослых, казино, ставки.",
+      "file": "adult.lst",
+      "default_on": false,
+      "is_geoblock": false,
+      "count": 357
+    },
+    {
+      "id": "adult_GB",
+      "name_ru": "Контент 18+ (геоблок)",
+      "description_ru": "Зарубежные ресурсы 18+, сами блокирующие РФ.",
+      "file": "adult_GB.lst",
+      "default_on": false,
+      "is_geoblock": true,
+      "count": 112
+    },
+    {
+      "id": "media",
+      "name_ru": "Аниме/манга (РКН)",
+      "description_ru": "Заблокированные в РФ аниме/манга-ресурсы.",
+      "file": "media.lst",
+      "default_on": false,
+      "is_geoblock": false,
+      "count": 76
+    },
+    {
+      "id": "media_GB",
+      "name_ru": "Медиа (геоблок)",
+      "description_ru": "Зарубежные медиа-сервисы (музыка, подкасты), сами блокирующие РФ.",
+      "file": "media_GB.lst",
+      "default_on": false,
+      "is_geoblock": true,
+      "count": 6
+    },
+    {
+      "id": "rkn_other",
+      "name_ru": "Прочее РКН",
+      "description_ru": "Прочие заблокированные в РФ ресурсы: казино-зеркала, фишинг и т.п. (без точной категории).",
+      "file": "rkn_other.lst",
+      "default_on": true,
+      "is_geoblock": false,
+      "count": 28558
+    }
+  ],
+  "aggregates": [
+    {
+      "id": "rkn_all",
+      "name_ru": "Всё заблокированное в РФ",
+      "description_ru": "Объединение всех категорий, заблокированных в РФ (без геоблока).",
+      "file": "rkn_all.lst",
+      "default_on": false,
+      "is_geoblock": false,
+      "count": 15217,
+      "aggregate": true
+    },
+    {
+      "id": "geoblock_all",
+      "name_ru": "Весь геоблок",
+      "description_ru": "Объединение всех категорий геоблока (сервисы, сами режущие РФ).",
+      "file": "geoblock_all.lst",
+      "default_on": false,
+      "is_geoblock": true,
+      "count": 746,
+      "aggregate": true
+    },
+    {
+      "id": "ipsum",
+      "name_ru": "Сводный список (по умолчанию)",
+      "description_ru": "Все категории, включённые по умолчанию (для совместимости с одним списком splify).",
+      "file": "ipsum.lst",
+      "default_on": true,
+      "is_geoblock": false,
+      "count": 15217,
+      "aggregate": true
+    }
+  ]
+}
