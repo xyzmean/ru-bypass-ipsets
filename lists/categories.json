@@ -1,12 +1,12 @@
 {
   "version": "2026-07-24",
-  "generated_at": "2026-07-24T15:14:41Z",
+  "generated_at": "2026-07-24T15:52:48Z",
   "base_url": "https://raw.githubusercontent.com/xyzmean/ru-bypass-ipsets/main/lists",
   "ipsum_min_count": 5000,
   "sources": {
     "rkn": "snapshot:domains_snapshot.lst",
     "community_ooni_count": 6953,
-    "geoblock_count": 466,
+    "geoblock_count": 598,
     "geolite": true,
     "nameservers": [
       "1.1.1.1",
@@ -25,7 +25,7 @@
       "file": "telegram.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 10
+      "count": 15
     },
     {
       "id": "whatsapp",
@@ -43,7 +43,7 @@
       "file": "discord.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 11
+      "count": 22
     },
     {
       "id": "meta",
@@ -61,7 +61,7 @@
       "file": "twitter_x.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 19
+      "count": 30
     },
     {
       "id": "youtube",
@@ -70,7 +70,7 @@
       "file": "youtube.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 62
+      "count": 63
     },
     {
       "id": "google",
@@ -79,7 +79,7 @@
       "file": "google.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 61
+      "count": 60
     },
     {
       "id": "tiktok",
@@ -88,7 +88,7 @@
       "file": "tiktok.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 9
+      "count": 20
     },
     {
       "id": "roblox",
@@ -106,7 +106,7 @@
       "file": "netflix.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 20
+      "count": 26
     },
     {
       "id": "cloudflare",
@@ -133,7 +133,7 @@
       "file": "streaming.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 234
+      "count": 609
     },
     {
       "id": "streaming_GB",
@@ -142,7 +142,7 @@
       "file": "streaming_GB.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 112
+      "count": 183
     },
     {
       "id": "social",
@@ -151,7 +151,7 @@
       "file": "social.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 32
+      "count": 149
     },
     {
       "id": "social_GB",
@@ -160,7 +160,7 @@
       "file": "social_GB.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 16
+      "count": 32
     },
     {
       "id": "ai",
@@ -169,7 +169,7 @@
       "file": "ai.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 14
+      "count": 35
     },
     {
       "id": "ai_GB",
@@ -178,7 +178,7 @@
       "file": "ai_GB.lst",
       "default_on": true,
       "is_geoblock": true,
-      "count": 17
+      "count": 49
     },
     {
       "id": "gaming",
@@ -187,7 +187,7 @@
       "file": "gaming.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 48
+      "count": 71
     },
     {
       "id": "gaming_GB",
@@ -196,7 +196,7 @@
       "file": "gaming_GB.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 26
+      "count": 73
     },
     {
       "id": "news",
@@ -205,7 +205,7 @@
       "file": "news.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 245
+      "count": 558
     },
     {
       "id": "news_GB",
@@ -214,7 +214,7 @@
       "file": "news_GB.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 173
+      "count": 289
     },
     {
       "id": "dev",
@@ -223,7 +223,7 @@
       "file": "dev.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 22
+      "count": 29
     },
     {
       "id": "dev_GB",
@@ -232,7 +232,7 @@
       "file": "dev_GB.lst",
       "default_on": true,
       "is_geoblock": true,
-      "count": 515
+      "count": 1996
     },
     {
       "id": "adult",
@@ -241,7 +241,7 @@
       "file": "adult.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 357
+      "count": 770
     },
     {
       "id": "adult_GB",
@@ -250,7 +250,7 @@
       "file": "adult_GB.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 112
+      "count": 191
     },
     {
       "id": "media",
@@ -259,7 +259,7 @@
       "file": "media.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 76
+      "count": 96
     },
     {
       "id": "media_GB",
@@ -268,7 +268,7 @@
       "file": "media_GB.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 6
+      "count": 16
     },
     {
       "id": "rkn_other",
@@ -288,7 +288,7 @@
       "file": "rkn_all.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 15217,
+      "count": 13610,
       "aggregate": true
     },
     {
@@ -298,7 +298,7 @@
       "file": "geoblock_all.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 746,
+      "count": 2196,
       "aggregate": true
     },
     {
@@ -308,7 +308,7 @@
       "file": "ipsum.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 15217,
+      "count": 13610,
       "aggregate": true
     }
   ]

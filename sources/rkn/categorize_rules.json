@@ -34,8 +34,8 @@
       "category": "streaming_GB",
       "geoblock": true,
       "match": "any",
-      "keywords": ["netflix", "primevideo", "disneyplus", "hbomax", "hulu", "crunchyroll", "twitch", "geforcenow", "max.com", "stadia", "paramount", "peacock", "showtime", "funimation"],
-      "regex": ["(netflix|primevideo|disneyplus|hbomax|hulu|crunchyroll)", "(nflxvideo|nflxext|twitch\\.tv)"]
+      "keywords": ["netflix", "primevideo", "disneyplus", "hbomax", "hulu", "crunchyroll", "twitch", "geforcenow", "max.com", "stadia", "paramount", "peacock", "showtime", "funimation", "megogo"],
+      "regex": ["(netflix|primevideo|disneyplus|hbomax|hulu|crunchyroll|megogo)", "(nflxvideo|nflxext|twitch\\.tv)"]
     },
     {
       "category": "social",
@@ -62,8 +62,8 @@
       "category": "gaming_GB",
       "geoblock": true,
       "match": "any",
-      "keywords": ["supercell", "clashofclans", "brawlstars", "marvelsnap", "guilded", "playstation", "xbox", "nintendo", "epicgames", "battlenet", "valorant", "leagueoflegends"],
-      "regex": ["(supercell|clashofclans|playstation|xbox|nintendo|epicgames)"]
+      "keywords": ["supercell", "clashofclans", "brawlstars", "marvelsnap", "guilded", "playstation", "xbox", "nintendo", "epicgames", "battlenet", "valorant", "leagueoflegends", "blizzard", "ea.com", "ubisoft", "rockstargames", "wargaming", "riotgames"],
+      "regex": ["(supercell|clashofclans|playstation|xbox|nintendo|epicgames|blizzard|ubisoft|rockstargames)"]
     },
     {
       "category": "news",
@@ -76,8 +76,8 @@
       "category": "news_GB",
       "geoblock": true,
       "match": "any",
-      "keywords": ["reuters", "bbc", "dw.com", "rferl", "currenttime", "meduza", "rain", "dojd", "novayagazeta", "theins", "proektmedia"],
-      "regex": ["(reuters|bbc|dw\\.com|rferl|currenttime|meduza|novayagazeta)"]
+      "keywords": ["reuters", "bbc", "dw.com", "rferl", "currenttime", "meduza", "rain", "dojd", "novayagazeta", "theins", "proektmedia", "rtvi", "gordonua", "censor", "unian", "pravda.com.ua", "obozrevatel", "korrespondent"],
+      "regex": ["(reuters|bbc|dw\\.com|rferl|currenttime|meduza|novayagazeta|rtvi|gordonua|unian|obozrevatel)"]
     },
     {
       "category": "dev",
@@ -90,8 +90,8 @@
       "category": "dev_GB",
       "geoblock": true,
       "match": "any",
-      "keywords": ["notion", "jetbrains", "figma", "vercel", "netlify", "sentry", "datadog", "grafana", "linear", "airtable", "windsurf", "cursor", "stripe", "postman", "fastly", "gitbook", "digitalocean", "render.com", "fly.io", "railway.app"],
-      "regex": ["(notion|jetbrains|figma|vercel|netlify|sentry|datadog|grafana|linear)", "(windsurf|cursor\\.sh|stripe|postman|gitbook)"]
+      "keywords": ["notion", "jetbrains", "figma", "vercel", "netlify", "sentry", "datadog", "grafana", "linear", "airtable", "windsurf", "cursor", "stripe", "postman", "fastly", "gitbook", "digitalocean", "render.com", "fly.io", "railway.app", "miro", "coda", "clickup", "hubspot", "ecwid", "envato", "wix", "upwork", "fiverr", "toptal", "freepik", "dribbble", "behance", "aws", "azure", "oracle", "sap", "cpanel", "linode", "vultr", "hetzner", "ovh", "binance", "coinbase", "kraken", "okx", "bybit", "huobi", "kucoin", "bitfinex", "paypal", "payoneer", "wise", "revolut", "skrill", "neteller", "paxum", "advcash"],
+      "regex": ["(notion|jetbrains|figma|vercel|netlify|sentry|datadog|grafana|linear)", "(windsurf|cursor\\.sh|stripe|postman|gitbook)", "(miro|coda|clickup|hubspot|ecwid|envato|wix|upwork|fiverr|binance|coinbase|kraken|okx|bybit|paypal|payoneer|wise|revolut)"]
     },
     {
       "category": "media",

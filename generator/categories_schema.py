@@ -85,7 +85,7 @@ CATEGORIES = [
         "default_on": True,
         "is_geoblock": False,
         "source": {"kind": "service",
-                   "files": ["google_meet.lst", "google_play.lst", "google_ai.lst"],
+                   "files": ["google_meet.lst", "google_play.lst"],
                    "asn": True},
     },
     {
