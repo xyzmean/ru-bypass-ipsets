@@ -15,5 +15,5 @@
   "_telegram_extra_cidrs": ["5.28.192.0/18", "194.221.0.0/16"],
   "_cloudflare_cdn": "https://www.cloudflare.com/ips-v4",
   "_cloudfront_cdn": "https://ip-ranges.amazonaws.com (filter: service=CLOUDFRONT)",
-  "_discord_voice_cdn": "https://iplist.opencck.org/lists/connectivity/discord_voice"
+  "_discord_note": "voice-фид opencck удалён (404); Discord покрывается по ASN 62041"
 }

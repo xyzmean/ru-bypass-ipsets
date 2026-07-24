@@ -295,13 +295,16 @@ def main():
 
 
 def _build_aggregates(categories, cat_networks, counts):
+    # non-geoblock сети = весь РКН (включая rkn_other).
     non_gb = [n for c in categories if not c["is_geoblock"]
               for n in cat_networks.get(c["id"], [])]
     gb = [n for c in categories if c["is_geoblock"]
           for n in cat_networks.get(c["id"], [])]
-    default_on = [n for c in categories if c["default_on"]
-                  for n in cat_networks.get(c["id"], [])]
-    for aid, nets in (("rkn_all", non_gb), ("geoblock_all", gb), ("ipsum", default_on)):
+
+    # ipsum = ПОЛНЫЙ сводный список всего заблокированного в РФ (== rkn_all).
+    # Это обеспечивает gate ≥5000 и даёт старому splify-потребителю один
+    # исчерпывающий список. default_on остаётся рекомендацией для переключателей.
+    for aid, nets in (("rkn_all", non_gb), ("geoblock_all", gb), ("ipsum", non_gb)):
         cidrs = lib.finalize(nets)
         counts[aid] = len(cidrs)
         lib.write_list(LISTS / f"{aid}.lst", cidrs)

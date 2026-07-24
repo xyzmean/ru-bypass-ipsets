@@ -28,9 +28,9 @@ ASN_SERVICES_FILE = ROOT / "sources" / "asn" / "asn_services.json"
 HTTP_TIMEOUT = (10, 60)
 
 CLOUDFLARE_URL = "https://www.cloudflare.com/ips-v4"
-AWS_RANGES_URL = "https://ip-ranges.amazonaws.com"
-# Discord voice — вендорный список opencck (если доступен); иначе по ASN.
-DISCORD_VOICE_URL = "https://iplist.opencck.org/lists/connectivity/discord_voice"
+# AWS требует корректный User-Agent (иначе 403) и полный путь к JSON.
+AWS_RANGES_URL = "https://ip-ranges.amazonaws.com/ip-ranges.json"
+UA = "ru-bypass-ipsets/1.0 (https://github.com/xyzmean/ru-bypass-ipsets)"
 
 
 def _valid_ipv4_prefix(p: str) -> ipaddress.IPv4Network | None:
@@ -129,7 +129,7 @@ def _parse_prefix_lines(text: str) -> list[ipaddress.IPv4Network]:
 
 def pull_cloudflare() -> list[ipaddress.IPv4Network]:
     try:
-        r = requests.get(CLOUDFLARE_URL, timeout=HTTP_TIMEOUT)
+        r = requests.get(CLOUDFLARE_URL, timeout=HTTP_TIMEOUT, headers={"User-Agent": UA})
         r.raise_for_status()
         nets = _parse_prefix_lines(r.text)
         log.info("Cloudflare CDN: %d подсетей", len(nets))
@@ -141,7 +141,7 @@ def pull_cloudflare() -> list[ipaddress.IPv4Network]:
 
 def pull_cloudfront() -> list[ipaddress.IPv4Network]:
     try:
-        r = requests.get(AWS_RANGES_URL, timeout=HTTP_TIMEOUT)
+        r = requests.get(AWS_RANGES_URL, timeout=HTTP_TIMEOUT, headers={"User-Agent": UA})
         r.raise_for_status()
         data = r.json()
         nets = []
@@ -156,26 +156,13 @@ def pull_cloudfront() -> list[ipaddress.IPv4Network]:
         return []
 
 
-def pull_discord_voice() -> list[ipaddress.IPv4Network]:
-    """Discord voice-серверы. Опциональный фид; при неудаче fallback на ASN."""
-    try:
-        r = requests.get(DISCORD_VOICE_URL, timeout=HTTP_TIMEOUT)
-        r.raise_for_status()
-        nets = _parse_prefix_lines(r.text)
-        log.info("Discord voice: %d подсетей", len(nets))
-        return nets
-    except Exception as exc:
-        log.info("Discord voice-фид недоступен (%s), fallback на ASN.", exc)
-        return []
-
-
 def pull_cdn(kind: str) -> list[ipaddress.IPv4Network]:
-    """Диспетчер CDN-фидов по идентификатору из categories_schema."""
+    """Диспетчер CDN-фидов по идентификатору из categories_schema.
+    Discord voice-фид убран (источник умер) — Discord покрывается по ASN 62041."""
     if kind == "cloudflare":
         return pull_cloudflare()
-    if kind == "discord":
-        return pull_discord_voice()
     if kind == "hodca":
         return pull_cloudfront()  # CloudFront часть HODCA; остальное по ASN
-    log.warning("неизвестный CDN-вид: %s", kind)
+    # discord: voice-фид убран — Discord покрывается по ASN 62041.
+    log.debug("CDN-вид %s не имеет прямого фида (покрытие по ASN).", kind)
     return []
