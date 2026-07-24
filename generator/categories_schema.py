@@ -266,7 +266,7 @@ CATEGORIES = [
         "description_ru": "Прочие заблокированные в РФ ресурсы: казино-зеркала, фишинг и т.п. (без точной категории).",
         "default_on": False,
         "is_geoblock": False,
-        "source": {"kind": "rule", "geoblock": False},
+        "source": {"kind": "vendor_cidr", "file": "rkn/vendor_ipsum_snapshot.lst"},
     },
 ]
 

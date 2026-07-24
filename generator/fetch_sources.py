@@ -127,39 +127,46 @@ def ensure_geolite() -> Path:
     return GEOLITE_DB
 
 
+def _read_domain_file(path: Path) -> list[str]:
+    domains = []
+    for raw in path.read_text(encoding="utf-8", errors="replace").splitlines():
+        d = raw.split("#", 1)[0].strip().lower()
+        if d:
+            domains.append(d)
+    return domains
+
+
 def fetch_rkn_domains() -> tuple[list[str], str]:
-    """Вернуть (домены, источник). Онлайн antifilter → fallback на снапшот."""
-    domains: list[str] = []
-    source = "snapshot"
+    """Вернуть (домены, источник).
 
-    # Попытка онлайн.
-    try:
-        r = requests.get(RKN_ONLINE_URL, timeout=HTTP_TIMEOUT)
-        r.raise_for_status()
-        for raw in r.text.splitlines():
-            d = raw.split("#", 1)[0].strip().lower()
-            if d:
-                domains.append(d)
-        if domains:
-            source = f"online:{RKN_ONLINE_URL}"
-            log.info("РКН онлайн: %d доменов", len(domains))
-            return domains, source
-        log.warning("Онлайн РКН пуст, беру снапшот.")
-    except requests.RequestException as exc:
-        log.warning("Онлайн РКН недоступен (%s), беру снапшот.", exc)
+    По умолчанию — вендорный снапшот Re-filter domains_all.lst (~86k, уже
+    отфильтрован от фрода/мусора). Онлайн antifilter.download отдаёт ~1.2M
+    доменов (массовые казино-зеркала) — резолв нереален, поэтому онлайн
+    включается только явно через env RKN_ONLINE=1.
+    """
+    # Онлайн (только по явному запросу).
+    if os.environ.get("RKN_ONLINE") == "1":
+        try:
+            r = requests.get(RKN_ONLINE_URL, timeout=HTTP_TIMEOUT)
+            r.raise_for_status()
+            domains = [
+                d for raw in r.text.splitlines() if (d := raw.split("#", 1)[0].strip().lower())
+            ]
+            if domains:
+                log.warning("РКН ОНЛАЙН antifilter: %d доменов (ОЧЕНЬ много — резолв долгий)",
+                            len(domains))
+                return domains, f"online:{RKN_ONLINE_URL}"
+        except requests.RequestException as exc:
+            log.warning("Онлайн РКН недоступен (%s), беру снапшот.", exc)
 
-    # Fallback на вендорный снапшот.
+    # По умолчанию — снапшот.
     if RKN_SNAPSHOT.is_file():
-        for raw in RKN_SNAPSHOT.read_text(encoding="utf-8", errors="replace").splitlines():
-            d = raw.split("#", 1)[0].strip().lower()
-            if d:
-                domains.append(d)
-        source = f"snapshot:{RKN_SNAPSHOT.name}"
-        log.info("РКН из снапшота: %d доменов", len(domains))
-    else:
-        log.error("Снапшот РКН отсутствует %s", RKN_SNAPSHOT)
+        domains = _read_domain_file(RKN_SNAPSHOT)
+        log.info("РКН из снапшота %s: %d доменов", RKN_SNAPSHOT.name, len(domains))
+        return domains, f"snapshot:{RKN_SNAPSHOT.name}"
 
-    return domains, source
+    log.error("Снапшот РКН отсутствует %s", RKN_SNAPSHOT)
+    return [], "none"
 
 
 def load_community_ooni() -> list[str]:
