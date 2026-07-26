@@ -296,6 +296,14 @@ AGGREGATES = [
         "is_geoblock": False,
         "aggregate_of": "default_on",
     },
+    {
+        "id": "all",
+        "name_ru": "Общий список (всё)",
+        "description_ru": "Полный объединяющий список: все категории РКН и геоблока вместе.",
+        "default_on": False,
+        "is_geoblock": False,
+        "aggregate_of": "all",
+    },
 ]
 
 

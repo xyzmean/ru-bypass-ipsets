@@ -301,10 +301,12 @@ def _build_aggregates(categories, cat_networks, counts):
     gb = [n for c in categories if c["is_geoblock"]
           for n in cat_networks.get(c["id"], [])]
 
+    all_nets = non_gb + gb
+
     # ipsum = ПОЛНЫЙ сводный список всего заблокированного в РФ (== rkn_all).
     # Это обеспечивает gate ≥5000 и даёт старому splify-потребителю один
     # исчерпывающий список. default_on остаётся рекомендацией для переключателей.
-    for aid, nets in (("rkn_all", non_gb), ("geoblock_all", gb), ("ipsum", non_gb)):
+    for aid, nets in (("rkn_all", non_gb), ("geoblock_all", gb), ("ipsum", non_gb), ("all", all_nets)):
         cidrs = lib.finalize(nets)
         counts[aid] = len(cidrs)
         lib.write_list(LISTS / f"{aid}.lst", cidrs)

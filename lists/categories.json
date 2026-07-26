@@ -310,6 +310,16 @@
       "is_geoblock": false,
       "count": 15066,
       "aggregate": true
+    },
+    {
+      "id": "all",
+      "name_ru": "Общий список (всё)",
+      "description_ru": "Полный объединяющий список: все категории РКН и геоблока вместе.",
+      "file": "all.lst",
+      "default_on": false,
+      "is_geoblock": false,
+      "count": 14773,
+      "aggregate": true
     }
   ]
 }
