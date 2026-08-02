@@ -1,6 +1,6 @@
 {
-  "version": "2026-08-01",
-  "generated_at": "2026-08-01T06:24:42Z",
+  "version": "2026-08-02",
+  "generated_at": "2026-08-02T02:26:53Z",
   "base_url": "https://raw.githubusercontent.com/xyzmean/ru-bypass-ipsets/main/lists",
   "ipsum_min_count": 5000,
   "sources": {
@@ -25,7 +25,7 @@
       "file": "telegram.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 14
+      "count": 10
     },
     {
       "id": "whatsapp",
@@ -43,7 +43,7 @@
       "file": "discord.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 21
+      "count": 17
     },
     {
       "id": "meta",
@@ -61,7 +61,7 @@
       "file": "twitter_x.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 29
+      "count": 20
     },
     {
       "id": "youtube",
@@ -70,7 +70,7 @@
       "file": "youtube.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 62
+      "count": 60
     },
     {
       "id": "google",
@@ -88,7 +88,7 @@
       "file": "tiktok.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 12
+      "count": 8
     },
     {
       "id": "roblox",
@@ -106,7 +106,7 @@
       "file": "netflix.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 21
+      "count": 17
     },
     {
       "id": "cloudflare",
@@ -115,7 +115,7 @@
       "file": "cloudflare.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 18
+      "count": 17
     },
     {
       "id": "hodca",
@@ -124,7 +124,7 @@
       "file": "hodca.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 5448
+      "count": 5444
     },
     {
       "id": "streaming",
@@ -133,7 +133,7 @@
       "file": "streaming.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 515
+      "count": 251
     },
     {
       "id": "streaming_GB",
@@ -142,7 +142,7 @@
       "file": "streaming_GB.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 145
+      "count": 130
     },
     {
       "id": "social",
@@ -151,7 +151,7 @@
       "file": "social.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 123
+      "count": 42
     },
     {
       "id": "social_GB",
@@ -160,7 +160,7 @@
       "file": "social_GB.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 32
+      "count": 21
     },
     {
       "id": "ai",
@@ -169,7 +169,7 @@
       "file": "ai.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 27
+      "count": 22
     },
     {
       "id": "ai_GB",
@@ -178,7 +178,7 @@
       "file": "ai_GB.lst",
       "default_on": true,
       "is_geoblock": true,
-      "count": 34
+      "count": 37
     },
     {
       "id": "gaming",
@@ -187,7 +187,7 @@
       "file": "gaming.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 79
+      "count": 55
     },
     {
       "id": "gaming_GB",
@@ -196,7 +196,7 @@
       "file": "gaming_GB.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 55
+      "count": 43
     },
     {
       "id": "news",
@@ -205,7 +205,7 @@
       "file": "news.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 462
+      "count": 248
     },
     {
       "id": "news_GB",
@@ -214,7 +214,7 @@
       "file": "news_GB.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 244
+      "count": 181
     },
     {
       "id": "dev",
@@ -223,7 +223,7 @@
       "file": "dev.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 111
+      "count": 77
     },
     {
       "id": "dev_GB",
@@ -232,7 +232,7 @@
       "file": "dev_GB.lst",
       "default_on": true,
       "is_geoblock": true,
-      "count": 1634
+      "count": 572
     },
     {
       "id": "adult",
@@ -241,7 +241,7 @@
       "file": "adult.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 667
+      "count": 319
     },
     {
       "id": "adult_GB",
@@ -250,7 +250,7 @@
       "file": "adult_GB.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 150
+      "count": 112
     },
     {
       "id": "media",
@@ -259,7 +259,7 @@
       "file": "media.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 89
+      "count": 81
     },
     {
       "id": "media_GB",
@@ -268,7 +268,7 @@
       "file": "media_GB.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 14
+      "count": 9
     },
     {
       "id": "rkn_other",
@@ -280,6 +280,262 @@
       "count": 28558
     }
   ],
+  "domain_lists": [
+    {
+      "id": "anime",
+      "kind": "domains",
+      "name_ru": "Аниме",
+      "file": "domains/anime.lst",
+      "count": 42,
+      "source": "itdoginfo/allow-domains/Categories",
+      "default_on": false,
+      "is_geoblock": false
+    },
+    {
+      "id": "block",
+      "kind": "domains",
+      "name_ru": "Заблокированное в РФ",
+      "file": "domains/block.lst",
+      "count": 334,
+      "source": "itdoginfo/allow-domains/Categories",
+      "default_on": false,
+      "is_geoblock": false
+    },
+    {
+      "id": "geoblock",
+      "kind": "domains",
+      "name_ru": "Блокирующие по стране",
+      "file": "domains/geoblock.lst",
+      "count": 465,
+      "source": "itdoginfo/allow-domains/Categories",
+      "default_on": false,
+      "is_geoblock": true
+    },
+    {
+      "id": "hodca",
+      "kind": "domains",
+      "name_ru": "Хостинги и CDN",
+      "file": "domains/hodca.lst",
+      "count": 250,
+      "source": "itdoginfo/allow-domains/Categories",
+      "default_on": false,
+      "is_geoblock": false
+    },
+    {
+      "id": "news",
+      "kind": "domains",
+      "name_ru": "Новости",
+      "file": "domains/news.lst",
+      "count": 184,
+      "source": "itdoginfo/allow-domains/Categories",
+      "default_on": false,
+      "is_geoblock": false,
+      "same_as_ip": [
+        "news"
+      ]
+    },
+    {
+      "id": "porn",
+      "kind": "domains",
+      "name_ru": "Для взрослых",
+      "file": "domains/porn.lst",
+      "count": 51,
+      "source": "itdoginfo/allow-domains/Categories",
+      "default_on": false,
+      "is_geoblock": false
+    },
+    {
+      "id": "svc_cloudflare",
+      "kind": "domains",
+      "name_ru": "Cloudflare",
+      "file": "domains/svc_cloudflare.lst",
+      "count": 4,
+      "source": "itdoginfo/allow-domains/Services",
+      "default_on": false,
+      "is_geoblock": false,
+      "same_as_ip": [
+        "cloudflare"
+      ]
+    },
+    {
+      "id": "svc_cloudfront",
+      "kind": "domains",
+      "name_ru": "CloudFront",
+      "file": "domains/svc_cloudfront.lst",
+      "count": 1,
+      "source": "itdoginfo/allow-domains/Services",
+      "default_on": false,
+      "is_geoblock": false
+    },
+    {
+      "id": "svc_digitalocean",
+      "kind": "domains",
+      "name_ru": "DigitalOcean",
+      "file": "domains/svc_digitalocean.lst",
+      "count": 1,
+      "source": "itdoginfo/allow-domains/Services",
+      "default_on": false,
+      "is_geoblock": false
+    },
+    {
+      "id": "svc_discord",
+      "kind": "domains",
+      "name_ru": "Discord",
+      "file": "domains/svc_discord.lst",
+      "count": 20,
+      "source": "itdoginfo/allow-domains/Services",
+      "default_on": false,
+      "is_geoblock": false,
+      "same_as_ip": [
+        "discord"
+      ]
+    },
+    {
+      "id": "svc_google_ai",
+      "kind": "domains",
+      "name_ru": "Google AI",
+      "file": "domains/svc_google_ai.lst",
+      "count": 28,
+      "source": "itdoginfo/allow-domains/Services",
+      "default_on": false,
+      "is_geoblock": false
+    },
+    {
+      "id": "svc_google_meet",
+      "kind": "domains",
+      "name_ru": "Google Meet",
+      "file": "domains/svc_google_meet.lst",
+      "count": 5,
+      "source": "itdoginfo/allow-domains/Services",
+      "default_on": false,
+      "is_geoblock": false,
+      "same_as_ip": [
+        "google"
+      ]
+    },
+    {
+      "id": "svc_google_play",
+      "kind": "domains",
+      "name_ru": "Google Play",
+      "file": "domains/svc_google_play.lst",
+      "count": 12,
+      "source": "itdoginfo/allow-domains/Services",
+      "default_on": false,
+      "is_geoblock": false,
+      "same_as_ip": [
+        "google"
+      ]
+    },
+    {
+      "id": "svc_hdrezka",
+      "kind": "domains",
+      "name_ru": "HDRezka",
+      "file": "domains/svc_hdrezka.lst",
+      "count": 17,
+      "source": "itdoginfo/allow-domains/Services",
+      "default_on": false,
+      "is_geoblock": false
+    },
+    {
+      "id": "svc_hetzner",
+      "kind": "domains",
+      "name_ru": "Hetzner",
+      "file": "domains/svc_hetzner.lst",
+      "count": 1,
+      "source": "itdoginfo/allow-domains/Services",
+      "default_on": false,
+      "is_geoblock": false
+    },
+    {
+      "id": "svc_meta",
+      "kind": "domains",
+      "name_ru": "Meta",
+      "file": "domains/svc_meta.lst",
+      "count": 18,
+      "source": "itdoginfo/allow-domains/Services",
+      "default_on": false,
+      "is_geoblock": false,
+      "same_as_ip": [
+        "meta",
+        "whatsapp"
+      ]
+    },
+    {
+      "id": "svc_ovh",
+      "kind": "domains",
+      "name_ru": "OVH",
+      "file": "domains/svc_ovh.lst",
+      "count": 1,
+      "source": "itdoginfo/allow-domains/Services",
+      "default_on": false,
+      "is_geoblock": false
+    },
+    {
+      "id": "svc_roblox",
+      "kind": "domains",
+      "name_ru": "Roblox",
+      "file": "domains/svc_roblox.lst",
+      "count": 4,
+      "source": "itdoginfo/allow-domains/Services",
+      "default_on": false,
+      "is_geoblock": false,
+      "same_as_ip": [
+        "roblox"
+      ]
+    },
+    {
+      "id": "svc_telegram",
+      "kind": "domains",
+      "name_ru": "Telegram",
+      "file": "domains/svc_telegram.lst",
+      "count": 20,
+      "source": "itdoginfo/allow-domains/Services",
+      "default_on": false,
+      "is_geoblock": false,
+      "same_as_ip": [
+        "telegram"
+      ]
+    },
+    {
+      "id": "svc_tiktok",
+      "kind": "domains",
+      "name_ru": "TikTok",
+      "file": "domains/svc_tiktok.lst",
+      "count": 16,
+      "source": "itdoginfo/allow-domains/Services",
+      "default_on": false,
+      "is_geoblock": false,
+      "same_as_ip": [
+        "tiktok"
+      ]
+    },
+    {
+      "id": "svc_twitter",
+      "kind": "domains",
+      "name_ru": "Twitter / X",
+      "file": "domains/svc_twitter.lst",
+      "count": 23,
+      "source": "itdoginfo/allow-domains/Services",
+      "default_on": false,
+      "is_geoblock": false,
+      "same_as_ip": [
+        "twitter_x"
+      ]
+    },
+    {
+      "id": "svc_youtube",
+      "kind": "domains",
+      "name_ru": "YouTube",
+      "file": "domains/svc_youtube.lst",
+      "count": 18,
+      "source": "itdoginfo/allow-domains/Services",
+      "default_on": false,
+      "is_geoblock": false,
+      "same_as_ip": [
+        "youtube"
+      ]
+    }
+  ],
   "aggregates": [
     {
       "id": "rkn_all",
@@ -288,7 +544,7 @@
       "file": "rkn_all.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 13879,
+      "count": 15117,
       "aggregate": true
     },
     {
@@ -298,7 +554,7 @@
       "file": "geoblock_all.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 1809,
+      "count": 832,
       "aggregate": true
     },
     {
@@ -308,7 +564,7 @@
       "file": "ipsum.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 13879,
+      "count": 15117,
       "aggregate": true
     },
     {
@@ -318,7 +574,7 @@
       "file": "all.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 13228,
+      "count": 14616,
       "aggregate": true
     }
   ]
