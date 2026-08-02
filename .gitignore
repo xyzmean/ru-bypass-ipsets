@@ -12,3 +12,4 @@ generator/build.log
 # Временные артефакты резолва
 *.tmp
 *.log
+sources/allow-domains/

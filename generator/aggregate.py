@@ -162,7 +162,9 @@ def _cdn_cidrs(category: dict) -> list[ipaddress.IPv4Network]:
 # ─────────────── индекс ───────────────
 
 
-def build_index(counts: dict[str, int], source_meta: dict) -> dict:
+def build_index(
+    counts: dict[str, int], source_meta: dict, domain_entries: list[dict] | None = None
+) -> dict:
     now = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     version = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d")
 
@@ -185,6 +187,11 @@ def build_index(counts: dict[str, int], source_meta: dict) -> dict:
         "ipsum_min_count": IPSUM_MIN_COUNT,
         "sources": source_meta,
         "categories": [entry(c) for c in schema.CATEGORIES],
+        # Доменные списки — отдельным ключом, а не внутри categories: у записей другая
+        # форма (kind, overlaps, same_as_ip) и другое назначение — их потребляет
+        # доменный канал движка напрямую, без разрешения в адреса. Существующие
+        # читатели categories.json от нового ключа не ломаются.
+        "domain_lists": domain_entries or [],
         "aggregates": [entry(a, aggregate=True) for a in schema.AGGREGATES],
     }
 
@@ -276,8 +283,21 @@ def main():
         "geolite": bool(geolite_path),
         "nameservers": resolver.NAMESERVERS,
     }
+    # Домены публикуются как есть. Сбой здесь не должен ронять адресную сборку:
+    # это независимая часть, и лучше выпустить манифест без доменных списков, чем не
+    # выпустить ничего.
+    try:
+        import domain_lists
+
+        domain_entries = domain_lists.publish()
+        log.info("доменных списков опубликовано: %d", len(domain_entries))
+    except Exception as exc:  # noqa: BLE001
+        log.warning("доменные списки не опубликованы: %s", exc)
+        domain_entries = []
+
     (LISTS / "categories.json").write_text(
-        json.dumps(build_index(counts, source_meta), ensure_ascii=False, indent=2) + "\n",
+        json.dumps(build_index(counts, source_meta, domain_entries), ensure_ascii=False, indent=2)
+        + "\n",
         encoding="utf-8",
     )
     log.info("categories.json записан.")

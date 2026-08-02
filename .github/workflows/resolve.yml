@@ -78,7 +78,7 @@ jobs:
         if: success()
         run: |
           tag="$(date -u +%Y-%m-%d_%H-%M)"
-          gh release create "$tag" lists/*.lst lists/categories.json \
+          gh release create "$tag" lists/*.lst lists/domains/*.lst lists/categories.json \
             --title "Lists $tag" \
             --notes "Автоматическая сборка списков. См. lists/categories.json." \
             --latest || echo "release не создан (возможно уже существует)"
