@@ -1,6 +1,6 @@
 {
   "version": "2026-08-02",
-  "generated_at": "2026-08-02T02:26:53Z",
+  "generated_at": "2026-08-02T05:48:45Z",
   "base_url": "https://raw.githubusercontent.com/xyzmean/ru-bypass-ipsets/main/lists",
   "ipsum_min_count": 5000,
   "sources": {
@@ -25,7 +25,7 @@
       "file": "telegram.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 10
+      "count": 9
     },
     {
       "id": "whatsapp",
@@ -43,7 +43,7 @@
       "file": "discord.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 17
+      "count": 13
     },
     {
       "id": "meta",
@@ -61,7 +61,7 @@
       "file": "twitter_x.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 20
+      "count": 19
     },
     {
       "id": "youtube",
@@ -88,7 +88,7 @@
       "file": "tiktok.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 8
+      "count": 9
     },
     {
       "id": "roblox",
@@ -133,7 +133,7 @@
       "file": "streaming.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 251
+      "count": 216
     },
     {
       "id": "streaming_GB",
@@ -142,7 +142,7 @@
       "file": "streaming_GB.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 130
+      "count": 91
     },
     {
       "id": "social",
@@ -151,7 +151,7 @@
       "file": "social.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 42
+      "count": 33
     },
     {
       "id": "social_GB",
@@ -160,7 +160,7 @@
       "file": "social_GB.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 21
+      "count": 18
     },
     {
       "id": "ai",
@@ -169,7 +169,7 @@
       "file": "ai.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 22
+      "count": 19
     },
     {
       "id": "ai_GB",
@@ -178,7 +178,7 @@
       "file": "ai_GB.lst",
       "default_on": true,
       "is_geoblock": true,
-      "count": 37
+      "count": 26
     },
     {
       "id": "gaming",
@@ -187,7 +187,7 @@
       "file": "gaming.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 55
+      "count": 51
     },
     {
       "id": "gaming_GB",
@@ -196,7 +196,7 @@
       "file": "gaming_GB.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 43
+      "count": 32
     },
     {
       "id": "news",
@@ -205,7 +205,7 @@
       "file": "news.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 248
+      "count": 234
     },
     {
       "id": "news_GB",
@@ -214,7 +214,7 @@
       "file": "news_GB.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 181
+      "count": 178
     },
     {
       "id": "dev",
@@ -223,7 +223,7 @@
       "file": "dev.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 77
+      "count": 80
     },
     {
       "id": "dev_GB",
@@ -232,7 +232,7 @@
       "file": "dev_GB.lst",
       "default_on": true,
       "is_geoblock": true,
-      "count": 572
+      "count": 492
     },
     {
       "id": "adult",
@@ -241,7 +241,7 @@
       "file": "adult.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 319
+      "count": 348
     },
     {
       "id": "adult_GB",
@@ -250,7 +250,7 @@
       "file": "adult_GB.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 112
+      "count": 120
     },
     {
       "id": "media",
@@ -259,7 +259,7 @@
       "file": "media.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 81
+      "count": 78
     },
     {
       "id": "media_GB",
@@ -268,7 +268,7 @@
       "file": "media_GB.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 9
+      "count": 5
     },
     {
       "id": "rkn_other",
@@ -544,7 +544,7 @@
       "file": "rkn_all.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 15117,
+      "count": 15027,
       "aggregate": true
     },
     {
@@ -554,7 +554,7 @@
       "file": "geoblock_all.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 832,
+      "count": 713,
       "aggregate": true
     },
     {
@@ -564,7 +564,7 @@
       "file": "ipsum.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 15117,
+      "count": 15027,
       "aggregate": true
     },
     {
@@ -574,7 +574,7 @@
       "file": "all.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 14616,
+      "count": 14765,
       "aggregate": true
     }
   ]
