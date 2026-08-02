@@ -1,0 +1,47 @@
+name: Refresh domain lists
+
+# Отдельно от резолва по одной причине: доменные списки не разрешаются в адреса, их
+# обновление занимает секунды, а полный прогон — около получаса. Держать их в том же
+# джобе значило бы либо ждать полчаса за пару новых доменов, либо обновлять их редко.
+on:
+  schedule:
+    # ежедневно, за час до возможного резолва — чтобы они не конкурировали за коммит
+    - cron: '17 2 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  # Тот же ключ, что у резолва: оба пишут lists/categories.json, и одновременный
+  # коммит закончился бы потерей одной из частей.
+  group: resolve-build
+  cancel-in-progress: false
+
+jobs:
+  domains:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install deps
+        run: pip install -q requests
+
+      - name: Refresh domain lists
+        run: python generator/domain_lists.py --patch-manifest
+
+      - name: Commit
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add lists/domains lists/categories.json
+          git diff --cached --quiet && { echo "изменений нет"; exit 0; }
+          # [skip ci] обязателен: коммит трогает lists/, но если триггеры когда-нибудь
+          # расширят, полчаса резолва запустятся ради текстового файла.
+          git commit -m "chore(domains): обновление $(date -u +%Y-%m-%d) [skip ci]"
+          git push

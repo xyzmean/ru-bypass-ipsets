@@ -44,6 +44,7 @@ FOLDERS = ("Categories", "Services")
 API = "https://api.github.com/repos/{repo}/contents/{path}"
 HTTP_TIMEOUT = 30
 
+
 # Порог, ниже которого пересечение не стоит упоминания: пара общих домена есть у всех.
 OVERLAP_MIN = 25
 
@@ -52,10 +53,14 @@ OVERLAP_MIN = 25
 DOMAIN_RE = re.compile(r"^(?=.{1,253}$)([a-z0-9_](?:[a-z0-9_-]{0,61}[a-z0-9_])?\.)+[a-z]{2,}$")
 
 # name_ru для того, что уже понятно по имени файла; остальное получает имя как есть.
+#
+# Названия описывают, КТО кого не пускает, а не «что это за список». Прежние
+# «Заблокированное в РФ» и «Блокирующие по стране» отличались одним словом и на
+# различение уходили минуты — при том что стороны блокировки у них противоположные.
 RU_NAMES = {
     "anime": "Аниме",
-    "block": "Заблокированное в РФ",
-    "geoblock": "Блокирующие по стране",
+    "block": "Закрыто из РФ (заблокировал РКН)",
+    "geoblock": "Не пускают из РФ (гео-блок сайта)",
     "hodca": "Хостинги и CDN",
     "news": "Новости",
     "porn": "Для взрослых",
@@ -209,7 +214,34 @@ def publish() -> list[dict]:
     return [meta[k] for k in sorted(meta)]
 
 
+def patch_manifest() -> int:
+    """Обновляет только ключ domain_lists в готовом lists/categories.json.
+
+    Доменные списки не требуют разрешения адресов, то есть обновляются за секунды —
+    а полный прогон резолва занимает около получаса. Гонять его ради того, чтобы
+    подтянуть пару новых доменов, бессмысленно, поэтому этот режим правит ровно свою
+    часть манифеста и не касается categories: их считает и перезапишет резолв на своём
+    расписании.
+    """
+    entries = publish()
+    manifest = ROOT / "lists" / "categories.json"
+    if not manifest.exists():
+        log.error("%s ещё не собран — нечего править", manifest)
+        return 1
+    data = json.loads(manifest.read_text(encoding="utf-8"))
+    before = len(data.get("domain_lists") or [])
+    data["domain_lists"] = entries
+    manifest.write_text(
+        json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
+    log.info("domain_lists: было %d, стало %d", before, len(entries))
+    return 0
+
+
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
-    entries = publish()
-    print(json.dumps(entries, ensure_ascii=False, indent=2))
+    import sys as _sys
+
+    if "--patch-manifest" in _sys.argv:
+        raise SystemExit(patch_manifest())
+    print(json.dumps(publish(), ensure_ascii=False, indent=2))

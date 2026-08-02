@@ -294,7 +294,7 @@
     {
       "id": "block",
       "kind": "domains",
-      "name_ru": "Заблокированное в РФ",
+      "name_ru": "Закрыто из РФ (заблокировал РКН)",
       "file": "domains/block.lst",
       "count": 334,
       "source": "itdoginfo/allow-domains/Categories",
@@ -304,7 +304,7 @@
     {
       "id": "geoblock",
       "kind": "domains",
-      "name_ru": "Блокирующие по стране",
+      "name_ru": "Не пускают из РФ (гео-блок сайта)",
       "file": "domains/geoblock.lst",
       "count": 465,
       "source": "itdoginfo/allow-domains/Categories",
