@@ -1,6 +1,6 @@
 {
-  "version": "2026-08-02",
-  "generated_at": "2026-08-02T05:48:45Z",
+  "version": "2026-08-03",
+  "generated_at": "2026-08-03T16:16:12Z",
   "base_url": "https://raw.githubusercontent.com/xyzmean/ru-bypass-ipsets/main/lists",
   "ipsum_min_count": 5000,
   "sources": {
@@ -25,7 +25,7 @@
       "file": "telegram.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 9
+      "count": 10
     },
     {
       "id": "whatsapp",
@@ -43,7 +43,7 @@
       "file": "discord.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 13
+      "count": 689
     },
     {
       "id": "meta",
@@ -61,7 +61,7 @@
       "file": "twitter_x.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 19
+      "count": 30
     },
     {
       "id": "youtube",
@@ -88,7 +88,7 @@
       "file": "tiktok.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 9
+      "count": 7
     },
     {
       "id": "roblox",
@@ -110,21 +110,66 @@
     },
     {
       "id": "cloudflare",
-      "name_ru": "Cloudflare",
-      "description_ru": "CDN Cloudflare — полный список подсетей. Внимание: очень широко.",
+      "name_ru": "Cloudflare CDN",
+      "description_ru": "Все подсети Cloudflare. Очень широко: за ним живёт половина интернета.",
       "file": "cloudflare.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 17
+      "count": 18
     },
     {
-      "id": "hodca",
-      "name_ru": "Хостинги и CDN (HODCA)",
-      "description_ru": "Hetzner, OVH, DigitalOcean, CloudFront, Akamai — подсети хостинг-провайдеров.",
-      "file": "hodca.lst",
+      "id": "cloudfront",
+      "name_ru": "AWS CloudFront",
+      "description_ru": "CDN Amazon CloudFront (официальный фид ip-ranges).",
+      "file": "cloudfront.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 5444
+      "count": 0
+    },
+    {
+      "id": "akamai",
+      "name_ru": "Akamai CDN",
+      "description_ru": "Подсети Akamai по ASN 20940.",
+      "file": "akamai.lst",
+      "default_on": false,
+      "is_geoblock": false,
+      "count": 121
+    },
+    {
+      "id": "hetzner",
+      "name_ru": "Hetzner",
+      "description_ru": "Хостинг Hetzner по ASN 24940.",
+      "file": "hetzner.lst",
+      "default_on": false,
+      "is_geoblock": false,
+      "count": 79
+    },
+    {
+      "id": "ovh",
+      "name_ru": "OVH",
+      "description_ru": "Хостинг OVH по ASN 16276.",
+      "file": "ovh.lst",
+      "default_on": false,
+      "is_geoblock": false,
+      "count": 608
+    },
+    {
+      "id": "digitalocean",
+      "name_ru": "DigitalOcean",
+      "description_ru": "Хостинг DigitalOcean по ASN 14061.",
+      "file": "digitalocean.lst",
+      "default_on": false,
+      "is_geoblock": false,
+      "count": 168
+    },
+    {
+      "id": "aws",
+      "name_ru": "Amazon AWS",
+      "description_ru": "Подсети Amazon AWS по ASN 16509 (без CloudFront — он отдельно).",
+      "file": "aws.lst",
+      "default_on": false,
+      "is_geoblock": false,
+      "count": 5674
     },
     {
       "id": "streaming",
@@ -133,7 +178,7 @@
       "file": "streaming.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 216
+      "count": 507
     },
     {
       "id": "streaming_GB",
@@ -142,7 +187,7 @@
       "file": "streaming_GB.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 91
+      "count": 135
     },
     {
       "id": "social",
@@ -151,7 +196,7 @@
       "file": "social.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 33
+      "count": 106
     },
     {
       "id": "social_GB",
@@ -160,7 +205,7 @@
       "file": "social_GB.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 18
+      "count": 16
     },
     {
       "id": "ai",
@@ -187,7 +232,7 @@
       "file": "gaming.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 51
+      "count": 68
     },
     {
       "id": "gaming_GB",
@@ -196,7 +241,7 @@
       "file": "gaming_GB.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 32
+      "count": 40
     },
     {
       "id": "news",
@@ -205,7 +250,7 @@
       "file": "news.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 234
+      "count": 439
     },
     {
       "id": "news_GB",
@@ -214,7 +259,7 @@
       "file": "news_GB.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 178
+      "count": 216
     },
     {
       "id": "dev",
@@ -223,7 +268,7 @@
       "file": "dev.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 80
+      "count": 85
     },
     {
       "id": "dev_GB",
@@ -232,7 +277,7 @@
       "file": "dev_GB.lst",
       "default_on": true,
       "is_geoblock": true,
-      "count": 492
+      "count": 1480
     },
     {
       "id": "adult",
@@ -241,7 +286,7 @@
       "file": "adult.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 348
+      "count": 638
     },
     {
       "id": "adult_GB",
@@ -250,7 +295,7 @@
       "file": "adult_GB.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 120
+      "count": 129
     },
     {
       "id": "media",
@@ -259,7 +304,7 @@
       "file": "media.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 78
+      "count": 72
     },
     {
       "id": "media_GB",
@@ -268,7 +313,7 @@
       "file": "media_GB.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 5
+      "count": 7
     },
     {
       "id": "rkn_other",
@@ -277,7 +322,7 @@
       "file": "rkn_other.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 28558
+      "count": 17611
     }
   ],
   "domain_lists": [
@@ -544,7 +589,7 @@
       "file": "rkn_all.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 15027,
+      "count": 14663,
       "aggregate": true
     },
     {
@@ -554,7 +599,7 @@
       "file": "geoblock_all.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 713,
+      "count": 1652,
       "aggregate": true
     },
     {
@@ -564,7 +609,7 @@
       "file": "ipsum.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 15027,
+      "count": 14663,
       "aggregate": true
     },
     {
@@ -574,8 +619,252 @@
       "file": "all.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 14765,
+      "count": 14058,
       "aggregate": true
+    },
+    {
+      "id": "hodca",
+      "name_ru": "Хостинги и CDN (все)",
+      "description_ru": "Объединение всех провайдеров: Cloudflare, CloudFront, Akamai, Hetzner, OVH, DigitalOcean, AWS.",
+      "file": "hodca.lst",
+      "default_on": false,
+      "is_geoblock": false,
+      "count": 6643,
+      "aggregate": true
+    }
+  ],
+  "services": [
+    {
+      "id": "telegram",
+      "name_ru": "Telegram",
+      "description_ru": "Мессенджер Telegram: домены и подсети по ASN.",
+      "default_on": true,
+      "is_geoblock": false,
+      "is_infra": false,
+      "prefixes_file": "telegram.lst",
+      "prefixes_count": 10,
+      "domains_files": [
+        "domains/svc_telegram.lst"
+      ],
+      "domains_count": 20
+    },
+    {
+      "id": "whatsapp",
+      "name_ru": "WhatsApp",
+      "description_ru": "Мессенджер WhatsApp (Meta).",
+      "default_on": true,
+      "is_geoblock": false,
+      "is_infra": false,
+      "prefixes_file": "whatsapp.lst",
+      "prefixes_count": 33,
+      "domains_files": [],
+      "domains_count": 0
+    },
+    {
+      "id": "discord",
+      "name_ru": "Discord",
+      "description_ru": "Голосовой чат Discord: домены и voice-подсети.",
+      "default_on": true,
+      "is_geoblock": false,
+      "is_infra": false,
+      "prefixes_file": "discord.lst",
+      "prefixes_count": 689,
+      "domains_files": [
+        "domains/svc_discord.lst"
+      ],
+      "domains_count": 20
+    },
+    {
+      "id": "meta",
+      "name_ru": "Meta (Facebook/Instagram)",
+      "description_ru": "Соцсети Facebook и Instagram (без WhatsApp).",
+      "default_on": true,
+      "is_geoblock": false,
+      "is_infra": false,
+      "prefixes_file": "meta.lst",
+      "prefixes_count": 33,
+      "domains_files": [
+        "domains/svc_meta.lst"
+      ],
+      "domains_count": 18
+    },
+    {
+      "id": "twitter_x",
+      "name_ru": "Twitter / X",
+      "description_ru": "Микроблоги Twitter и X.",
+      "default_on": true,
+      "is_geoblock": false,
+      "is_infra": false,
+      "prefixes_file": "twitter_x.lst",
+      "prefixes_count": 30,
+      "domains_files": [
+        "domains/svc_twitter.lst"
+      ],
+      "domains_count": 23
+    },
+    {
+      "id": "youtube",
+      "name_ru": "YouTube",
+      "description_ru": "Видеохостинг YouTube и CDN (Google Video).",
+      "default_on": true,
+      "is_geoblock": false,
+      "is_infra": false,
+      "prefixes_file": "youtube.lst",
+      "prefixes_count": 60,
+      "domains_files": [
+        "domains/svc_youtube.lst"
+      ],
+      "domains_count": 18
+    },
+    {
+      "id": "google",
+      "name_ru": "Google (Meet/Play/AI)",
+      "description_ru": "Google Meet, Play и AI-сервисы (Bard/Gemini).",
+      "default_on": true,
+      "is_geoblock": false,
+      "is_infra": false,
+      "prefixes_file": "google.lst",
+      "prefixes_count": 60,
+      "domains_files": [
+        "domains/svc_google_ai.lst",
+        "domains/svc_google_meet.lst",
+        "domains/svc_google_play.lst"
+      ],
+      "domains_count": 45
+    },
+    {
+      "id": "tiktok",
+      "name_ru": "TikTok",
+      "description_ru": "Короткие видео TikTok (ByteDance).",
+      "default_on": true,
+      "is_geoblock": false,
+      "is_infra": false,
+      "prefixes_file": "tiktok.lst",
+      "prefixes_count": 7,
+      "domains_files": [
+        "domains/svc_tiktok.lst"
+      ],
+      "domains_count": 16
+    },
+    {
+      "id": "roblox",
+      "name_ru": "Roblox",
+      "description_ru": "Игровая платформа Roblox.",
+      "default_on": false,
+      "is_geoblock": false,
+      "is_infra": false,
+      "prefixes_file": "roblox.lst",
+      "prefixes_count": 4,
+      "domains_files": [
+        "domains/svc_roblox.lst"
+      ],
+      "domains_count": 4
+    },
+    {
+      "id": "netflix",
+      "name_ru": "Netflix",
+      "description_ru": "Видеостриминг Netflix (геоблокирует РФ).",
+      "default_on": false,
+      "is_geoblock": true,
+      "is_infra": false,
+      "prefixes_file": "netflix.lst",
+      "prefixes_count": 17,
+      "domains_files": [],
+      "domains_count": 0
+    },
+    {
+      "id": "cloudflare",
+      "name_ru": "Cloudflare CDN",
+      "description_ru": "Все подсети Cloudflare. Очень широко: за ним живёт половина интернета.",
+      "default_on": false,
+      "is_geoblock": false,
+      "is_infra": true,
+      "prefixes_file": "cloudflare.lst",
+      "prefixes_count": 18,
+      "domains_files": [
+        "domains/svc_cloudflare.lst"
+      ],
+      "domains_count": 4
+    },
+    {
+      "id": "cloudfront",
+      "name_ru": "AWS CloudFront",
+      "description_ru": "CDN Amazon CloudFront (официальный фид ip-ranges).",
+      "default_on": false,
+      "is_geoblock": false,
+      "is_infra": true,
+      "prefixes_file": "cloudfront.lst",
+      "prefixes_count": 0,
+      "domains_files": [
+        "domains/svc_cloudfront.lst"
+      ],
+      "domains_count": 1
+    },
+    {
+      "id": "akamai",
+      "name_ru": "Akamai CDN",
+      "description_ru": "Подсети Akamai по ASN 20940.",
+      "default_on": false,
+      "is_geoblock": false,
+      "is_infra": true,
+      "prefixes_file": "akamai.lst",
+      "prefixes_count": 121,
+      "domains_files": [],
+      "domains_count": 0
+    },
+    {
+      "id": "hetzner",
+      "name_ru": "Hetzner",
+      "description_ru": "Хостинг Hetzner по ASN 24940.",
+      "default_on": false,
+      "is_geoblock": false,
+      "is_infra": true,
+      "prefixes_file": "hetzner.lst",
+      "prefixes_count": 79,
+      "domains_files": [
+        "domains/svc_hetzner.lst"
+      ],
+      "domains_count": 1
+    },
+    {
+      "id": "ovh",
+      "name_ru": "OVH",
+      "description_ru": "Хостинг OVH по ASN 16276.",
+      "default_on": false,
+      "is_geoblock": false,
+      "is_infra": true,
+      "prefixes_file": "ovh.lst",
+      "prefixes_count": 608,
+      "domains_files": [
+        "domains/svc_ovh.lst"
+      ],
+      "domains_count": 1
+    },
+    {
+      "id": "digitalocean",
+      "name_ru": "DigitalOcean",
+      "description_ru": "Хостинг DigitalOcean по ASN 14061.",
+      "default_on": false,
+      "is_geoblock": false,
+      "is_infra": true,
+      "prefixes_file": "digitalocean.lst",
+      "prefixes_count": 168,
+      "domains_files": [
+        "domains/svc_digitalocean.lst"
+      ],
+      "domains_count": 1
+    },
+    {
+      "id": "aws",
+      "name_ru": "Amazon AWS",
+      "description_ru": "Подсети Amazon AWS по ASN 16509 (без CloudFront — он отдельно).",
+      "default_on": false,
+      "is_geoblock": false,
+      "is_infra": true,
+      "prefixes_file": "aws.lst",
+      "prefixes_count": 5674,
+      "domains_files": [],
+      "domains_count": 0
     }
   ]
 }
