@@ -50,8 +50,12 @@ CATEGORIES = [
         "description_ru": "Голосовой чат Discord: домены и voice-подсети.",
         "default_on": True,
         "is_geoblock": False,
+        # Своего ASN у Discord нет (AS62041 — Telegram, и однажды он затащил подсети
+        # телеграма в этот список). Подсети берём из вендорного снапшота: это блоки
+        # голосовых серверов в Google Cloud плюс найденные резолвом узлы — своё Discord,
+        # а не «весь Google». Подробности в самом снапшоте.
         "source": {"kind": "service", "files": ["discord.lst"], "asn": True,
-                   "cdn": "discord"},
+                   "extra_cidr_file": "discord/subnets.lst"},
     },
     {
         "id": "meta",
@@ -113,23 +117,86 @@ CATEGORIES = [
         "source": {"kind": "service", "files": [], "asn": True,
                    "extra_domains": ["netflix.com", "nflxvideo.net", "nflxext.com"]},
     },
+    # ─────────────── CDN и хостинги: по одному на провайдера ───────────────
+    #
+    # Раньше это был один ком «hodca» из пяти провайдеров. Разделены по двум причинам,
+    # и обе практические.
+    #
+    # Первая: их префиксы ВЫЧИТАЮТСЯ из сервисных списков (см. INFRA_IDS ниже и
+    # aggregate.py). Вычитать надо каждого по отдельности — из общего кома нельзя ни
+    # понять, что именно ушло, ни оставить один провайдер, убрав другой.
+    #
+    # Вторая: это сами по себе осмысленный выбор. «Мой сайт на Hetzner» и «половина
+    # интернета за Cloudflare» — разные решения, и человек должен принимать их отдельно,
+    # а не одной галочкой «хостинги и CDN».
+    #
+    # is_infra помечает их для вычитания и для интерфейса: это не сервис, которым
+    # пользуются, а инфраструктура под чужими сервисами.
     {
         "id": "cloudflare",
-        "name_ru": "Cloudflare",
-        "description_ru": "CDN Cloudflare — полный список подсетей. Внимание: очень широко.",
+        "name_ru": "Cloudflare CDN",
+        "description_ru": "Все подсети Cloudflare. Очень широко: за ним живёт половина интернета.",
         "default_on": False,
         "is_geoblock": False,
-        "source": {"kind": "service", "files": ["cloudflare.lst"],
-                   "cdn": "cloudflare"},
+        "is_infra": True,
+        "is_shared_proxy": True,
+        "source": {"kind": "service", "files": ["cloudflare.lst"], "cdn": "cloudflare"},
     },
     {
-        "id": "hodca",
-        "name_ru": "Хостинги и CDN (HODCA)",
-        "description_ru": "Hetzner, OVH, DigitalOcean, CloudFront, Akamai — подсети хостинг-провайдеров.",
+        "id": "cloudfront",
+        "name_ru": "AWS CloudFront",
+        "description_ru": "CDN Amazon CloudFront (официальный фид ip-ranges).",
         "default_on": False,
         "is_geoblock": False,
-        "source": {"kind": "service", "files": [], "asn": True,
-                   "cdn": "hodca"},
+        "is_infra": True,
+        "is_shared_proxy": True,
+        "source": {"kind": "service", "files": [], "cdn": "cloudfront"},
+    },
+    {
+        "id": "akamai",
+        "name_ru": "Akamai CDN",
+        "description_ru": "Подсети Akamai по ASN 20940.",
+        "default_on": False,
+        "is_geoblock": False,
+        "is_infra": True,
+        "is_shared_proxy": True,
+        "source": {"kind": "service", "files": [], "asn": True},
+    },
+    {
+        "id": "hetzner",
+        "name_ru": "Hetzner",
+        "description_ru": "Хостинг Hetzner по ASN 24940.",
+        "default_on": False,
+        "is_geoblock": False,
+        "is_infra": True,
+        "source": {"kind": "service", "files": [], "asn": True},
+    },
+    {
+        "id": "ovh",
+        "name_ru": "OVH",
+        "description_ru": "Хостинг OVH по ASN 16276.",
+        "default_on": False,
+        "is_geoblock": False,
+        "is_infra": True,
+        "source": {"kind": "service", "files": [], "asn": True},
+    },
+    {
+        "id": "digitalocean",
+        "name_ru": "DigitalOcean",
+        "description_ru": "Хостинг DigitalOcean по ASN 14061.",
+        "default_on": False,
+        "is_geoblock": False,
+        "is_infra": True,
+        "source": {"kind": "service", "files": [], "asn": True},
+    },
+    {
+        "id": "aws",
+        "name_ru": "Amazon AWS",
+        "description_ru": "Подсети Amazon AWS по ASN 16509 (без CloudFront — он отдельно).",
+        "default_on": False,
+        "is_geoblock": False,
+        "is_infra": True,
+        "source": {"kind": "service", "files": [], "asn": True},
     },
     # ─────────────── Тематические: РКН-блок + GB-пара ───────────────
     {
@@ -304,7 +371,71 @@ AGGREGATES = [
         "is_geoblock": False,
         "aggregate_of": "all",
     },
+    {
+        "id": "hodca",
+        "name_ru": "Хостинги и CDN (все)",
+        "description_ru": "Объединение всех провайдеров: Cloudflare, CloudFront, Akamai, Hetzner, OVH, DigitalOcean, AWS.",
+        "default_on": False,
+        "is_geoblock": False,
+        # Был отдельной категорией из пяти провайдеров в одном коме. Стал агрегатом над
+        # ними, потому что провайдеры теперь выбираются по одному. Имя файла сохранено:
+        # на hodca.lst ссылаются установленные версии splify2, и молча уронить его —
+        # это «список скачан, а канал его не находит» у тех, кто уже настроил.
+        "aggregate_of": "infra",
+    },
 ]
+
+# Инфраструктура: CDN и хостинги. Ровно эти префиксы ВЫЧИТАЮТСЯ из сервисных списков.
+#
+# Смысл вычитания. YouTube по ASN 15169 — это Google, и это его собственные адреса. Но
+# сервис, живущий за Cloudflare, резолвится в адреса Cloudflare, и включить их значит
+# увести в туннель половину интернета вместо одного сервиса. Поэтому из сервисных списков
+# широкие диапазоны инфраструктуры убираются, а сама инфраструктура остаётся отдельными
+# списками — кому она нужна, тот выбирает её осознанно.
+INFRA_IDS = [c["id"] for c in CATEGORIES if c.get("is_infra")]
+
+# Общие обратные прокси: Cloudflare, CloudFront, Akamai. Их адреса вычитаются ОТКУДА
+# УГОДНО и без порога по размеру префикса — в отличие от хостингов.
+#
+# Разница принципиальная, и она про то, кому принадлежит адрес. У Hetzner или OVH адрес
+# обычно закреплён за одним клиентом: заблокированный сайт живёт по нему, и по нему его и
+# надо ловить. У Cloudflare адрес — anycast-край, за которым тысячи сайтов. Резолв дал его
+# потому, что в ту минуту он ответил за нужный домен; завтра за ним другой сайт, а
+# маршрутизировать его означает увести в туннель всех остальных заодно.
+#
+# Поэтому /32 внутри Cloudflare — это НЕ «узел сервиса», как у хостинга, и порог
+# INFRA_SUBTRACT_MAX_PREFIXLEN к общим прокси не применяется. Покрытие того, что живёт за
+# ними, даёт доменная половина сервиса — ради этого склейка и сделана.
+SHARED_PROXY_IDS = [c["id"] for c in CATEGORIES if c.get("is_shared_proxy")]
+
+# Какие доменные списки издателя относятся к какому сервису.
+#
+# Нужно потому, что нумерация у двух источников своя: адресная категория `twitter_x`
+# против доменного `svc_twitter`, а Google у издателя доменов разложен на три списка —
+# AI, Meet и Play. Без явного соответствия сервис остаётся с одной половиной покрытия,
+# то есть с той самой дыркой, которую склейка и закрывает.
+#
+# Пусто = у сервиса доменного списка нет вовсе, и это честный ответ: WhatsApp живёт на
+# доменах Meta, а у Netflix и AWS доменных списков издатель не публикует.
+SERVICE_DOMAIN_LISTS = {
+    "telegram": ["svc_telegram"],
+    "whatsapp": [],
+    "discord": ["svc_discord"],
+    "meta": ["svc_meta"],
+    "twitter_x": ["svc_twitter"],
+    "youtube": ["svc_youtube"],
+    "google": ["svc_google_ai", "svc_google_meet", "svc_google_play"],
+    "tiktok": ["svc_tiktok"],
+    "roblox": ["svc_roblox"],
+    "netflix": [],
+    "cloudflare": ["svc_cloudflare"],
+    "cloudfront": ["svc_cloudfront"],
+    "akamai": [],
+    "hetzner": ["svc_hetzner"],
+    "ovh": ["svc_ovh"],
+    "digitalocean": ["svc_digitalocean"],
+    "aws": [],
+}
 
 
 def all_category_ids() -> list[str]:

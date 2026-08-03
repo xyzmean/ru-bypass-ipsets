@@ -159,6 +159,93 @@ def _cdn_cidrs(category: dict) -> list[ipaddress.IPv4Network]:
     return asn_pull.pull_cdn(cdn)
 
 
+def _extra_cidrs(category: dict) -> list[ipaddress.IPv4Network]:
+    """Готовые CIDR сервиса из вендорного снапшота.
+
+    Нужно там, где своего ASN у сервиса нет и по ASN его не собрать. Discord — ровно этот
+    случай: голос живёт блоками в Google Cloud, и они перечислены снапшотом, а не выводятся
+    из номера автономной системы, которого не существует.
+    """
+    rel = category["source"].get("extra_cidr_file")
+    if not rel:
+        return []
+    f = ROOT / "sources" / rel
+    if not f.is_file():
+        log.warning("%s: снапшот %s не найден", category["id"], rel)
+        return []
+    nets = list(lib.clean_lines(f.read_text(encoding="utf-8", errors="replace")))
+    log.info("%s: %d CIDR из снапшота %s", category["id"], len(nets), rel)
+    return nets
+
+
+# ─────────────── вычитание инфраструктуры ───────────────
+
+# ГРАНИЦА, ниже которой префикс считается «своим адресом», а не «диапазоном провайдера».
+# /24 и мельче остаются даже внутри CDN: это конкретные узлы сервиса, найденные резолвом
+# его же доменов, и в них вся точность. Убрать их значило бы выкинуть ровно то, ради чего
+# список и нужен, — а «лишнее» приносят широкие диапазоны, не отдельные адреса.
+INFRA_SUBTRACT_MAX_PREFIXLEN = 24
+
+
+def subtract_shared_proxy(
+    nets: list[ipaddress.IPv4Network], proxy: list[ipaddress.IPv4Network]
+) -> tuple[list[ipaddress.IPv4Network], int]:
+    """Убрать адреса общих обратных прокси — ОТКУДА УГОДНО и без порога по размеру.
+
+    Cloudflare, CloudFront и Akamai отдают anycast-края, за которыми тысячи сайтов. Резолв
+    выдал такой адрес потому, что в ту минуту он ответил за нужный домен; завтра за ним
+    другой сайт. Маршрутизировать его — увести в туннель всех остальных заодно, и никакой
+    порог по размеру префикса тут не спасает: /32 у Cloudflare не «узел сервиса», а край.
+    
+    Это отличает прокси от хостинга: у Hetzner адрес обычно закреплён за одним клиентом, и
+    заблокированный сайт по нему ловится законно. Поэтому у хостингов вычитаются только
+    широкие диапазоны (см. subtract_infra), а у прокси — всё.
+
+    Покрытие того, что живёт за прокси, даёт доменная половина сервиса. Ради этого склейка
+    адресов с доменами и сделана: адресами то, что сервису принадлежит, доменами то, что по
+    адресу не ловится.
+    """
+    if not proxy:
+        return nets, 0
+    ranges = list(ipaddress.collapse_addresses(proxy))
+    kept, dropped = [], 0
+    for n in nets:
+        if any(n.subnet_of(r) for r in ranges):
+            dropped += 1
+            continue
+        kept.append(n)
+    return kept, dropped
+
+
+def subtract_infra(
+    nets: list[ipaddress.IPv4Network], infra: list[ipaddress.IPv4Network]
+) -> tuple[list[ipaddress.IPv4Network], int]:
+    """Убрать из сервисного списка широкие диапазоны инфраструктуры.
+
+    Зачем. Сервис за Cloudflare резолвится в адреса Cloudflare. Включить их целиком —
+    увести в туннель половину интернета вместо одного сервиса; ровно это и означало
+    «лишнее уходит». Инфраструктура при этом остаётся своими списками: кому она нужна,
+    тот выбирает её отдельно и осознанно.
+
+    Что НЕ убирается: префиксы /24 и мельче. Они не диапазон провайдера, а конкретные узлы
+    сервиса на нём. Проверено на Discord: 4% его адресов лежат внутри Cloudflare, и это
+    именно его края — выкинув их, список потерял бы смысл.
+    """
+    if not infra:
+        return nets, 0
+    infra_set = list(ipaddress.collapse_addresses(infra))
+    kept, dropped = [], 0
+    for n in nets:
+        if n.prefixlen > INFRA_SUBTRACT_MAX_PREFIXLEN:
+            kept.append(n)
+            continue
+        if any(n.subnet_of(r) for r in infra_set):
+            dropped += 1
+            continue
+        kept.append(n)
+    return kept, dropped
+
+
 # ─────────────── индекс ───────────────
 
 
@@ -193,7 +280,58 @@ def build_index(
         # читатели categories.json от нового ключа не ломаются.
         "domain_lists": domain_entries or [],
         "aggregates": [entry(a, aggregate=True) for a in schema.AGGREGATES],
+        # ─────────── services: сервис как ОДНА сущность ───────────
+        #
+        # Ключ существует ради одного: чтобы человек кликал сервис, а не выбирал форму.
+        # Раньше интерфейсу приходилось решать за него, брать адреса или домены, — а
+        # правильный ответ «и то и другое, каждое там, где работает»: адресами то, что
+        # сервису принадлежит, доменами то, что живёт на общих CDN и по адресу не
+        # ловится. Отсюда и вычитание инфраструктуры: без него адресная половина тащила
+        # за собой половину интернета, и «двойное покрытие» превращалось в «лишнее».
+        #
+        # Отдельным ключом, а не полем внутри categories, по той же причине, по которой
+        # отдельно лежат domain_lists: у записи другая форма и другое назначение, а
+        # существующие читатели categories.json от нового ключа не ломаются.
+        "services": _service_entries(counts, domain_entries or []),
     }
+
+
+def _service_entries(counts: dict[str, int], domain_entries: list[dict]) -> list[dict]:
+    """Пары «адреса + домены» по одному сервису.
+
+    Сопоставление по имени файла доменного списка: `svc_<id>` у издателя доменов против
+    `<id>` категории адресов. Пары нет — сервис всё равно попадает в список, но с одной
+    половиной: молча пропустить его значило бы, что в интерфейсе исчез сервис, у которого
+    просто нет доменного списка.
+    """
+    by_id = {d["id"]: d for d in domain_entries}
+    out = []
+    for c in schema.CATEGORIES:
+        if c["source"]["kind"] != "service":
+            continue
+        cid = c["id"]
+        # Доменные списки берём по явному соответствию, а где его нет — по имени.
+        # Соответствие нужно потому, что у издателя доменов своя нумерация: twitter_x
+        # против svc_twitter, а Google вообще разложен на три списка. Без этого сервис
+        # оставался бы с одной половиной покрытия — то есть ровно с той дыркой, которую
+        # склейка и закрывает.
+        ids = schema.SERVICE_DOMAIN_LISTS.get(cid, [f"svc_{cid}", cid])
+        doms = [by_id[i] for i in ids if i in by_id]
+        out.append({
+            "id": cid,
+            "name_ru": c["name_ru"],
+            "description_ru": c["description_ru"],
+            "default_on": c["default_on"],
+            "is_geoblock": c["is_geoblock"],
+            "is_infra": bool(c.get("is_infra")),
+            "prefixes_file": f"{cid}.lst",
+            "prefixes_count": counts.get(cid, 0),
+            # Список, а не одно поле: у Google их три, и склеивать их в один файл значило
+            # бы завести четвёртый источник правды рядом с тремя существующими.
+            "domains_files": [d["file"] for d in doms],
+            "domains_count": sum(d.get("count", 0) for d in doms),
+        })
+    return out
 
 
 # ─────────────── main ───────────────
@@ -246,7 +384,16 @@ def main():
     cat_networks: dict[str, list[ipaddress.IPv4Network]] = {}
     LISTS.mkdir(parents=True, exist_ok=True)
 
-    for cat in schema.CATEGORIES:
+    # Инфраструктура собирается ПЕРВОЙ: её префиксы нужны, чтобы вычесть их из сервисных
+    # списков. Порядок здесь смысловой, а не случайный — переставив, получим сервисы с
+    # неубранными диапазонами провайдеров и молча вернём «лишнее».
+    infra_nets: list[ipaddress.IPv4Network] = []
+    proxy_nets: list[ipaddress.IPv4Network] = []
+    ordered = ([c for c in schema.CATEGORIES if c.get("is_infra")]
+               + [c for c in schema.CATEGORIES if not c.get("is_infra")])
+    subtracted: dict[str, int] = {}
+
+    for cat in ordered:
         cid = cat["id"]
         src = cat["source"]
         nets: list[ipaddress.IPv4Network] = []
@@ -265,6 +412,28 @@ def main():
             # ASN/CDN для сервисов
             nets += _asn_cidrs(cat, asn_map)
             nets += _cdn_cidrs(cat)
+            nets += _extra_cidrs(cat)
+
+        if cat.get("is_infra"):
+            infra_nets += nets
+            if cat.get("is_shared_proxy"):
+                proxy_nets += nets
+        else:
+            # Общие прокси вычитаются У ВСЕХ, включая тематические категории РКН: адрес
+            # Cloudflare никогда не указывает на один сайт, поэтому он бесполезен как цель
+            # и вреден как маршрут — уводит заодно всё остальное, что за ним живёт.
+            nets, dropped = subtract_shared_proxy(nets, proxy_nets)
+            if dropped:
+                subtracted[f"{cid}/proxy"] = dropped
+                log.info("%s: убрано %d адресов общих прокси", cid, dropped)
+            if src["kind"] == "service":
+                # Хостинги вычитаются только у СЕРВИСОВ, и только широкими диапазонами. У
+                # тематических категорий сайт на Hetzner — законная цель: его блокируют
+                # именно по этому адресу, и вычесть значило бы его потерять.
+                nets, dropped = subtract_infra(nets, infra_nets)
+                if dropped:
+                    subtracted[f"{cid}/hosting"] = dropped
+                    log.info("%s: убрано %d диапазонов хостингов", cid, dropped)
 
         cidrs = lib.finalize(nets)
         cat_networks[cid] = [ipaddress.ip_network(c, strict=False) for c in cidrs]
@@ -326,7 +495,14 @@ def _build_aggregates(categories, cat_networks, counts):
     # ipsum = ПОЛНЫЙ сводный список всего заблокированного в РФ (== rkn_all).
     # Это обеспечивает gate ≥5000 и даёт старому splify-потребителю один
     # исчерпывающий список. default_on остаётся рекомендацией для переключателей.
-    for aid, nets in (("rkn_all", non_gb), ("geoblock_all", gb), ("ipsum", non_gb), ("all", all_nets)):
+    # hodca — объединение провайдеров инфраструктуры. Имя файла сохранено: на hodca.lst
+    # ссылаются установленные версии splify2, и уронить его значило бы «список скачан, а
+    # канал его не находит» у тех, кто уже настроил.
+    infra = [n for c in categories if c.get("is_infra")
+             for n in cat_networks.get(c["id"], [])]
+
+    for aid, nets in (("rkn_all", non_gb), ("geoblock_all", gb), ("ipsum", non_gb),
+                      ("all", all_nets), ("hodca", infra)):
         cidrs = lib.finalize(nets)
         counts[aid] = len(cidrs)
         lib.write_list(LISTS / f"{aid}.lst", cidrs)
