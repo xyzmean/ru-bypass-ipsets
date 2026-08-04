@@ -1,6 +1,6 @@
 {
   "version": "2026-08-04",
-  "generated_at": "2026-08-04T06:20:59Z",
+  "generated_at": "2026-08-04T10:09:48Z",
   "base_url": "https://raw.githubusercontent.com/xyzmean/ru-bypass-ipsets/main/lists",
   "ipsum_min_count": 5000,
   "sources": {
@@ -25,7 +25,7 @@
       "file": "telegram.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 11
+      "count": 9
     },
     {
       "id": "whatsapp",
@@ -43,7 +43,7 @@
       "file": "discord.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 691
+      "count": 680
     },
     {
       "id": "meta",
@@ -61,7 +61,7 @@
       "file": "twitter_x.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 35
+      "count": 18
     },
     {
       "id": "youtube",
@@ -106,16 +106,16 @@
       "file": "netflix.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 14
+      "count": 17
     },
     {
       "id": "cloudflare",
       "name_ru": "Cloudflare CDN",
-      "description_ru": "Все подсети Cloudflare. Очень широко: за ним живёт половина интернета.",
+      "description_ru": "Все подсети Cloudflare: официальный фид ips-v4 плюс анонсы AS13335.",
       "file": "cloudflare.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 18
+      "count": 342
     },
     {
       "id": "cloudfront",
@@ -178,7 +178,7 @@
       "file": "streaming.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 507
+      "count": 212
     },
     {
       "id": "streaming_GB",
@@ -187,7 +187,7 @@
       "file": "streaming_GB.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 141
+      "count": 89
     },
     {
       "id": "social",
@@ -196,7 +196,7 @@
       "file": "social.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 98
+      "count": 34
     },
     {
       "id": "social_GB",
@@ -205,7 +205,7 @@
       "file": "social_GB.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 14
+      "count": 10
     },
     {
       "id": "ai",
@@ -214,7 +214,7 @@
       "file": "ai.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 19
+      "count": 13
     },
     {
       "id": "ai_GB",
@@ -223,7 +223,7 @@
       "file": "ai_GB.lst",
       "default_on": true,
       "is_geoblock": true,
-      "count": 29
+      "count": 21
     },
     {
       "id": "gaming",
@@ -232,7 +232,7 @@
       "file": "gaming.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 82
+      "count": 57
     },
     {
       "id": "gaming_GB",
@@ -241,7 +241,7 @@
       "file": "gaming_GB.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 43
+      "count": 35
     },
     {
       "id": "news",
@@ -250,7 +250,7 @@
       "file": "news.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 450
+      "count": 237
     },
     {
       "id": "news_GB",
@@ -259,7 +259,7 @@
       "file": "news_GB.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 215
+      "count": 168
     },
     {
       "id": "dev",
@@ -268,7 +268,7 @@
       "file": "dev.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 93
+      "count": 66
     },
     {
       "id": "dev_GB",
@@ -277,7 +277,7 @@
       "file": "dev_GB.lst",
       "default_on": true,
       "is_geoblock": true,
-      "count": 1547
+      "count": 478
     },
     {
       "id": "adult",
@@ -286,7 +286,7 @@
       "file": "adult.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 643
+      "count": 304
     },
     {
       "id": "adult_GB",
@@ -295,7 +295,7 @@
       "file": "adult_GB.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 131
+      "count": 100
     },
     {
       "id": "media",
@@ -304,7 +304,7 @@
       "file": "media.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 75
+      "count": 62
     },
     {
       "id": "media_GB",
@@ -313,7 +313,7 @@
       "file": "media_GB.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 10
+      "count": 6
     },
     {
       "id": "rkn_other",
@@ -322,7 +322,7 @@
       "file": "rkn_other.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 17611
+      "count": 17494
     }
   ],
   "domain_lists": [
@@ -589,7 +589,7 @@
       "file": "rkn_all.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 14673,
+      "count": 16054,
       "aggregate": true
     },
     {
@@ -599,7 +599,7 @@
       "file": "geoblock_all.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 1725,
+      "count": 699,
       "aggregate": true
     },
     {
@@ -609,7 +609,7 @@
       "file": "ipsum.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 14673,
+      "count": 16054,
       "aggregate": true
     },
     {
@@ -619,7 +619,7 @@
       "file": "all.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 14046,
+      "count": 15713,
       "aggregate": true
     },
     {
@@ -629,7 +629,7 @@
       "file": "hodca.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 6648,
+      "count": 6970,
       "aggregate": true
     }
   ],
@@ -642,7 +642,7 @@
       "is_geoblock": false,
       "is_infra": false,
       "prefixes_file": "telegram.lst",
-      "prefixes_count": 11,
+      "prefixes_count": 9,
       "domains_files": [
         "domains/svc_telegram.lst"
       ],
@@ -668,7 +668,7 @@
       "is_geoblock": false,
       "is_infra": false,
       "prefixes_file": "discord.lst",
-      "prefixes_count": 691,
+      "prefixes_count": 680,
       "domains_files": [
         "domains/svc_discord.lst"
       ],
@@ -696,7 +696,7 @@
       "is_geoblock": false,
       "is_infra": false,
       "prefixes_file": "twitter_x.lst",
-      "prefixes_count": 35,
+      "prefixes_count": 18,
       "domains_files": [
         "domains/svc_twitter.lst"
       ],
@@ -768,19 +768,19 @@
       "is_geoblock": true,
       "is_infra": false,
       "prefixes_file": "netflix.lst",
-      "prefixes_count": 14,
+      "prefixes_count": 17,
       "domains_files": [],
       "domains_count": 0
     },
     {
       "id": "cloudflare",
       "name_ru": "Cloudflare CDN",
-      "description_ru": "Все подсети Cloudflare. Очень широко: за ним живёт половина интернета.",
+      "description_ru": "Все подсети Cloudflare: официальный фид ips-v4 плюс анонсы AS13335.",
       "default_on": false,
       "is_geoblock": false,
       "is_infra": true,
       "prefixes_file": "cloudflare.lst",
-      "prefixes_count": 18,
+      "prefixes_count": 342,
       "domains_files": [
         "domains/svc_cloudflare.lst"
       ],
