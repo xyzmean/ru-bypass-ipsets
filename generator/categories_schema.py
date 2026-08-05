@@ -177,6 +177,83 @@ CATEGORIES = [
         "is_shared_proxy": True,
         "source": {"kind": "service", "files": [], "asn": True},
     },
+    # Обратные прокси с anycast-краями. Каждый — своя категория, потому что вычитание
+    # оставляет его адреса ТОЛЬКО в его же списке: если человек сознательно хочет увести в
+    # туннель весь Fastly, ему есть что включить, а список сервиса от этого не портится.
+    #
+    # Измерено до добавления: 753 адреса этих провайдеров лежали в списках, из них 374 в
+    # rkn_other (ddos-guard 186, fastly 113, sucuri 40). Каждый такой адрес — это «увести
+    # заодно всё, что за ним живёт», а за обратным прокси живёт что угодно.
+    {
+        "id": "fastly",
+        "name_ru": "Fastly CDN",
+        "description_ru": "Подсети Fastly по ASN 54113. Обратный прокси: за адресом тысячи сайтов.",
+        "default_on": False,
+        "is_geoblock": False,
+        "is_infra": True,
+        "is_shared_proxy": True,
+        "source": {"kind": "service", "files": [], "asn": True},
+    },
+    {
+        "id": "ddos_guard",
+        "name_ru": "DDoS-Guard",
+        "description_ru": "Подсети DDoS-Guard по ASN 57724. Обратный прокси, много российских сайтов.",
+        "default_on": False,
+        "is_geoblock": False,
+        "is_infra": True,
+        "is_shared_proxy": True,
+        "source": {"kind": "service", "files": [], "asn": True},
+    },
+    {
+        "id": "qrator",
+        "name_ru": "Qrator",
+        "description_ru": "Подсети Qrator по ASN 197068. Обратный прокси.",
+        "default_on": False,
+        "is_geoblock": False,
+        "is_infra": True,
+        "is_shared_proxy": True,
+        "source": {"kind": "service", "files": [], "asn": True},
+    },
+    {
+        "id": "gcore",
+        "name_ru": "Gcore CDN",
+        "description_ru": "Подсети Gcore по ASN 199524.",
+        "default_on": False,
+        "is_geoblock": False,
+        "is_infra": True,
+        "is_shared_proxy": True,
+        "source": {"kind": "service", "files": [], "asn": True},
+    },
+    {
+        "id": "bunny",
+        "name_ru": "Bunny CDN",
+        "description_ru": "Подсети Bunny по ASN 200325.",
+        "default_on": False,
+        "is_geoblock": False,
+        "is_infra": True,
+        "is_shared_proxy": True,
+        "source": {"kind": "service", "files": [], "asn": True},
+    },
+    {
+        "id": "sucuri",
+        "name_ru": "Sucuri",
+        "description_ru": "Подсети Sucuri по ASN 30148. Обратный прокси с защитой сайтов.",
+        "default_on": False,
+        "is_geoblock": False,
+        "is_infra": True,
+        "is_shared_proxy": True,
+        "source": {"kind": "service", "files": [], "asn": True},
+    },
+    {
+        "id": "imperva",
+        "name_ru": "Imperva",
+        "description_ru": "Подсети Imperva (Incapsula) по ASN 19551. Обратный прокси.",
+        "default_on": False,
+        "is_geoblock": False,
+        "is_infra": True,
+        "is_shared_proxy": True,
+        "source": {"kind": "service", "files": [], "asn": True},
+    },
     {
         "id": "hetzner",
         "name_ru": "Hetzner",
