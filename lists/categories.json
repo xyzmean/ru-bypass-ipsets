@@ -1,6 +1,6 @@
 {
-  "version": "2026-08-05",
-  "generated_at": "2026-08-05T05:28:33Z",
+  "version": "2026-08-07",
+  "generated_at": "2026-08-07T05:24:19Z",
   "base_url": "https://raw.githubusercontent.com/xyzmean/ru-bypass-ipsets/main/lists",
   "ipsum_min_count": 5000,
   "sources": {
@@ -43,7 +43,7 @@
       "file": "discord.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 684
+      "count": 685
     },
     {
       "id": "meta",
@@ -61,7 +61,7 @@
       "file": "twitter_x.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 17
+      "count": 15
     },
     {
       "id": "youtube",
@@ -106,7 +106,7 @@
       "file": "netflix.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 14
+      "count": 20
     },
     {
       "id": "cloudflare",
@@ -115,7 +115,7 @@
       "file": "cloudflare.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 343
+      "count": 346
     },
     {
       "id": "cloudfront",
@@ -133,7 +133,7 @@
       "file": "akamai.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 121
+      "count": 119
     },
     {
       "id": "fastly",
@@ -142,7 +142,7 @@
       "file": "fastly.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 113
+      "count": 112
     },
     {
       "id": "ddos_guard",
@@ -196,7 +196,7 @@
       "file": "imperva.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 202
+      "count": 203
     },
     {
       "id": "hetzner",
@@ -214,7 +214,7 @@
       "file": "ovh.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 609
+      "count": 608
     },
     {
       "id": "digitalocean",
@@ -232,7 +232,7 @@
       "file": "aws.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 5685
+      "count": 5686
     },
     {
       "id": "streaming",
@@ -241,7 +241,7 @@
       "file": "streaming.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 205
+      "count": 226
     },
     {
       "id": "streaming_GB",
@@ -250,7 +250,7 @@
       "file": "streaming_GB.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 87
+      "count": 93
     },
     {
       "id": "social",
@@ -259,7 +259,7 @@
       "file": "social.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 34
+      "count": 24
     },
     {
       "id": "social_GB",
@@ -268,7 +268,7 @@
       "file": "social_GB.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 8
+      "count": 7
     },
     {
       "id": "ai",
@@ -277,7 +277,7 @@
       "file": "ai.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 10
+      "count": 13
     },
     {
       "id": "ai_GB",
@@ -295,7 +295,7 @@
       "file": "gaming.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 59
+      "count": 48
     },
     {
       "id": "gaming_GB",
@@ -304,7 +304,7 @@
       "file": "gaming_GB.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 28
+      "count": 25
     },
     {
       "id": "news",
@@ -313,7 +313,7 @@
       "file": "news.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 200
+      "count": 204
     },
     {
       "id": "news_GB",
@@ -322,7 +322,7 @@
       "file": "news_GB.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 149
+      "count": 156
     },
     {
       "id": "dev",
@@ -331,7 +331,7 @@
       "file": "dev.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 71
+      "count": 59
     },
     {
       "id": "dev_GB",
@@ -340,7 +340,7 @@
       "file": "dev_GB.lst",
       "default_on": true,
       "is_geoblock": true,
-      "count": 497
+      "count": 467
     },
     {
       "id": "adult",
@@ -349,7 +349,7 @@
       "file": "adult.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 323
+      "count": 316
     },
     {
       "id": "adult_GB",
@@ -358,7 +358,7 @@
       "file": "adult_GB.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 106
+      "count": 99
     },
     {
       "id": "media",
@@ -367,7 +367,7 @@
       "file": "media.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 57
+      "count": 62
     },
     {
       "id": "media_GB",
@@ -376,7 +376,7 @@
       "file": "media_GB.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 5
+      "count": 6
     },
     {
       "id": "rkn_other",
@@ -385,7 +385,7 @@
       "file": "rkn_other.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 17120
+      "count": 17116
     }
   ],
   "domain_lists": [
@@ -652,7 +652,7 @@
       "file": "rkn_all.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 16773,
+      "count": 16838,
       "aggregate": true
     },
     {
@@ -662,7 +662,7 @@
       "file": "geoblock_all.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 702,
+      "count": 697,
       "aggregate": true
     },
     {
@@ -672,7 +672,7 @@
       "file": "ipsum.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 16773,
+      "count": 16838,
       "aggregate": true
     },
     {
@@ -682,7 +682,7 @@
       "file": "all.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 16392,
+      "count": 16454,
       "aggregate": true
     },
     {
@@ -692,7 +692,7 @@
       "file": "hodca.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 7660,
+      "count": 7661,
       "aggregate": true
     }
   ],
@@ -731,7 +731,7 @@
       "is_geoblock": false,
       "is_infra": false,
       "prefixes_file": "discord.lst",
-      "prefixes_count": 684,
+      "prefixes_count": 685,
       "domains_files": [
         "domains/svc_discord.lst"
       ],
@@ -759,7 +759,7 @@
       "is_geoblock": false,
       "is_infra": false,
       "prefixes_file": "twitter_x.lst",
-      "prefixes_count": 17,
+      "prefixes_count": 15,
       "domains_files": [
         "domains/svc_twitter.lst"
       ],
@@ -831,7 +831,7 @@
       "is_geoblock": true,
       "is_infra": false,
       "prefixes_file": "netflix.lst",
-      "prefixes_count": 14,
+      "prefixes_count": 20,
       "domains_files": [],
       "domains_count": 0
     },
@@ -843,7 +843,7 @@
       "is_geoblock": false,
       "is_infra": true,
       "prefixes_file": "cloudflare.lst",
-      "prefixes_count": 343,
+      "prefixes_count": 346,
       "domains_files": [
         "domains/svc_cloudflare.lst"
       ],
@@ -871,7 +871,7 @@
       "is_geoblock": false,
       "is_infra": true,
       "prefixes_file": "akamai.lst",
-      "prefixes_count": 121,
+      "prefixes_count": 119,
       "domains_files": [],
       "domains_count": 0
     },
@@ -883,7 +883,7 @@
       "is_geoblock": false,
       "is_infra": true,
       "prefixes_file": "fastly.lst",
-      "prefixes_count": 113,
+      "prefixes_count": 112,
       "domains_files": [],
       "domains_count": 0
     },
@@ -955,7 +955,7 @@
       "is_geoblock": false,
       "is_infra": true,
       "prefixes_file": "imperva.lst",
-      "prefixes_count": 202,
+      "prefixes_count": 203,
       "domains_files": [],
       "domains_count": 0
     },
@@ -981,7 +981,7 @@
       "is_geoblock": false,
       "is_infra": true,
       "prefixes_file": "ovh.lst",
-      "prefixes_count": 609,
+      "prefixes_count": 608,
       "domains_files": [
         "domains/svc_ovh.lst"
       ],
@@ -1009,7 +1009,7 @@
       "is_geoblock": false,
       "is_infra": true,
       "prefixes_file": "aws.lst",
-      "prefixes_count": 5685,
+      "prefixes_count": 5686,
       "domains_files": [],
       "domains_count": 0
     }
