@@ -1,6 +1,6 @@
 {
-  "version": "2026-08-07",
-  "generated_at": "2026-08-07T05:24:19Z",
+  "version": "2026-08-10",
+  "generated_at": "2026-08-10T05:16:29Z",
   "base_url": "https://raw.githubusercontent.com/xyzmean/ru-bypass-ipsets/main/lists",
   "ipsum_min_count": 5000,
   "sources": {
@@ -106,7 +106,7 @@
       "file": "netflix.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 20
+      "count": 14
     },
     {
       "id": "cloudflare",
@@ -115,7 +115,7 @@
       "file": "cloudflare.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 346
+      "count": 343
     },
     {
       "id": "cloudfront",
@@ -169,7 +169,7 @@
       "file": "gcore.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 324
+      "count": 325
     },
     {
       "id": "bunny",
@@ -214,7 +214,7 @@
       "file": "ovh.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 608
+      "count": 610
     },
     {
       "id": "digitalocean",
@@ -232,7 +232,7 @@
       "file": "aws.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 5686
+      "count": 5677
     },
     {
       "id": "streaming",
@@ -241,7 +241,7 @@
       "file": "streaming.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 226
+      "count": 219
     },
     {
       "id": "streaming_GB",
@@ -250,7 +250,7 @@
       "file": "streaming_GB.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 93
+      "count": 85
     },
     {
       "id": "social",
@@ -259,7 +259,7 @@
       "file": "social.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 24
+      "count": 30
     },
     {
       "id": "social_GB",
@@ -268,7 +268,7 @@
       "file": "social_GB.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 7
+      "count": 9
     },
     {
       "id": "ai",
@@ -277,7 +277,7 @@
       "file": "ai.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 13
+      "count": 10
     },
     {
       "id": "ai_GB",
@@ -286,7 +286,7 @@
       "file": "ai_GB.lst",
       "default_on": true,
       "is_geoblock": true,
-      "count": 17
+      "count": 15
     },
     {
       "id": "gaming",
@@ -295,7 +295,7 @@
       "file": "gaming.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 48
+      "count": 50
     },
     {
       "id": "gaming_GB",
@@ -304,7 +304,7 @@
       "file": "gaming_GB.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 25
+      "count": 28
     },
     {
       "id": "news",
@@ -313,7 +313,7 @@
       "file": "news.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 204
+      "count": 211
     },
     {
       "id": "news_GB",
@@ -322,7 +322,7 @@
       "file": "news_GB.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 156
+      "count": 148
     },
     {
       "id": "dev",
@@ -331,7 +331,7 @@
       "file": "dev.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 59
+      "count": 64
     },
     {
       "id": "dev_GB",
@@ -340,7 +340,7 @@
       "file": "dev_GB.lst",
       "default_on": true,
       "is_geoblock": true,
-      "count": 467
+      "count": 479
     },
     {
       "id": "adult",
@@ -349,7 +349,7 @@
       "file": "adult.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 316
+      "count": 307
     },
     {
       "id": "adult_GB",
@@ -358,7 +358,7 @@
       "file": "adult_GB.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 99
+      "count": 90
     },
     {
       "id": "media",
@@ -367,7 +367,7 @@
       "file": "media.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 62
+      "count": 64
     },
     {
       "id": "media_GB",
@@ -376,7 +376,7 @@
       "file": "media_GB.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 6
+      "count": 5
     },
     {
       "id": "rkn_other",
@@ -385,7 +385,7 @@
       "file": "rkn_other.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 17116
+      "count": 17120
     }
   ],
   "domain_lists": [
@@ -652,7 +652,7 @@
       "file": "rkn_all.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 16838,
+      "count": 16591,
       "aggregate": true
     },
     {
@@ -662,7 +662,7 @@
       "file": "geoblock_all.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 697,
+      "count": 690,
       "aggregate": true
     },
     {
@@ -672,7 +672,7 @@
       "file": "ipsum.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 16838,
+      "count": 16591,
       "aggregate": true
     },
     {
@@ -682,7 +682,7 @@
       "file": "all.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 16454,
+      "count": 16249,
       "aggregate": true
     },
     {
@@ -692,7 +692,7 @@
       "file": "hodca.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 7661,
+      "count": 7652,
       "aggregate": true
     }
   ],
@@ -831,7 +831,7 @@
       "is_geoblock": true,
       "is_infra": false,
       "prefixes_file": "netflix.lst",
-      "prefixes_count": 20,
+      "prefixes_count": 14,
       "domains_files": [],
       "domains_count": 0
     },
@@ -843,7 +843,7 @@
       "is_geoblock": false,
       "is_infra": true,
       "prefixes_file": "cloudflare.lst",
-      "prefixes_count": 346,
+      "prefixes_count": 343,
       "domains_files": [
         "domains/svc_cloudflare.lst"
       ],
@@ -919,7 +919,7 @@
       "is_geoblock": false,
       "is_infra": true,
       "prefixes_file": "gcore.lst",
-      "prefixes_count": 324,
+      "prefixes_count": 325,
       "domains_files": [],
       "domains_count": 0
     },
@@ -981,7 +981,7 @@
       "is_geoblock": false,
       "is_infra": true,
       "prefixes_file": "ovh.lst",
-      "prefixes_count": 608,
+      "prefixes_count": 610,
       "domains_files": [
         "domains/svc_ovh.lst"
       ],
@@ -1009,7 +1009,7 @@
       "is_geoblock": false,
       "is_infra": true,
       "prefixes_file": "aws.lst",
-      "prefixes_count": 5686,
+      "prefixes_count": 5677,
       "domains_files": [],
       "domains_count": 0
     }
