@@ -128,13 +128,28 @@ def build_resolve_pool(
     return sorted(small), sorted(big)
 
 
+# ГРАНИЦА, шире которой ASN-сеть GeoLite2 в список не идёт целиком. /20 — 4096
+# адресов: достаточно, чтобы накрыть соседние адреса сервиса при ротации, и на
+# порядки меньше, чем целые облака.
+#
+# Зачем граница. GeoLite2 отдаёт сеть ПРОВАЙДЕРА адреса, и один заблокированный
+# сайт на AWS приносил в свою категорию диапазон AWS в миллионы адресов. Отсюда
+# два следствия сразу: категории раздувались (adult — 17,5 млн адресов, dev_GB —
+# 59 млн) и НАКЛАДЫВАЛИСЬ друг на друга долями в 30–90% — adult ∩ hodca 74%,
+# news ∩ news_GB 76%, dev ∩ aws 76%, потому что все делили одни и те же блоки
+# хостингов. Человек включал две категории и уводил в туннель пол-интернета
+# дважды. Вместо широкой сети берётся /24 вокруг самого адреса: это соседи по
+# стойке, а не весь провайдер.
+ASN_NETWORK_MAX_SIZE_PREFIXLEN = 20
+
+
 def result_to_networks(res: resolver.ResolveResult) -> list[ipaddress.IPv4Network]:
     nets: list[ipaddress.IPv4Network] = []
     for ip in res.ips:
-        if n := lib.parse_cidr(f"{ip}/32"):
+        if n := lib.parse_cidr(f"{ip}/24"):
             nets.append(n)
     for net_str in res.networks:  # GeoLite2 ASN-network (более крупно)
-        if n := lib.parse_cidr(net_str):
+        if (n := lib.parse_cidr(net_str)) and n.prefixlen >= ASN_NETWORK_MAX_SIZE_PREFIXLEN:
             nets.append(n)
     return nets
 
