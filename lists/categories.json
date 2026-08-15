@@ -1,13 +1,13 @@
 {
-  "version": "2026-08-13",
-  "generated_at": "2026-08-13T05:28:49Z",
+  "version": "2026-08-15",
+  "generated_at": "2026-08-15T11:47:48Z",
   "base_url": "https://raw.githubusercontent.com/xyzmean/ru-bypass-ipsets/main/lists",
   "ipsum_min_count": 5000,
   "sources": {
     "rkn": "snapshot:domains_snapshot.lst",
     "community_ooni_count": 6953,
     "geoblock_count": 598,
-    "geolite": true,
+    "geolite": false,
     "nameservers": [
       "1.1.1.1",
       "8.8.8.8",
@@ -17,6 +17,80 @@
       "8.8.4.4"
     ]
   },
+  "aliases": [
+    {
+      "from": "adult.lst",
+      "to": "rkn.lst"
+    },
+    {
+      "from": "adult_GB.lst",
+      "to": "geoblock.lst"
+    },
+    {
+      "from": "ai.lst",
+      "to": "rkn.lst"
+    },
+    {
+      "from": "ai_GB.lst",
+      "to": "geoblock.lst"
+    },
+    {
+      "from": "dev.lst",
+      "to": "rkn.lst"
+    },
+    {
+      "from": "dev_GB.lst",
+      "to": "geoblock.lst"
+    },
+    {
+      "from": "gaming.lst",
+      "to": "rkn.lst"
+    },
+    {
+      "from": "gaming_GB.lst",
+      "to": "geoblock.lst"
+    },
+    {
+      "from": "geoblock_all.lst",
+      "to": "geoblock.lst"
+    },
+    {
+      "from": "media.lst",
+      "to": "rkn.lst"
+    },
+    {
+      "from": "media_GB.lst",
+      "to": "geoblock.lst"
+    },
+    {
+      "from": "news.lst",
+      "to": "rkn.lst"
+    },
+    {
+      "from": "news_GB.lst",
+      "to": "geoblock.lst"
+    },
+    {
+      "from": "rkn_other.lst",
+      "to": "rkn.lst"
+    },
+    {
+      "from": "social.lst",
+      "to": "rkn.lst"
+    },
+    {
+      "from": "social_GB.lst",
+      "to": "geoblock.lst"
+    },
+    {
+      "from": "streaming.lst",
+      "to": "rkn.lst"
+    },
+    {
+      "from": "streaming_GB.lst",
+      "to": "geoblock.lst"
+    }
+  ],
   "categories": [
     {
       "id": "telegram",
@@ -39,11 +113,11 @@
     {
       "id": "discord",
       "name_ru": "Discord",
-      "description_ru": "Голосовой чат Discord: домены и voice-подсети.",
+      "description_ru": "Голосовой чат Discord: готовый ipset внешнего списка, без вычитаний.",
       "file": "discord.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 685
+      "count": 460
     },
     {
       "id": "meta",
@@ -61,7 +135,7 @@
       "file": "twitter_x.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 12
+      "count": 13
     },
     {
       "id": "youtube",
@@ -70,7 +144,7 @@
       "file": "youtube.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 60
+      "count": 58
     },
     {
       "id": "google",
@@ -79,7 +153,7 @@
       "file": "google.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 60
+      "count": 58
     },
     {
       "id": "tiktok",
@@ -88,7 +162,7 @@
       "file": "tiktok.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 7
+      "count": 8
     },
     {
       "id": "roblox",
@@ -106,7 +180,7 @@
       "file": "netflix.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 14
+      "count": 30
     },
     {
       "id": "cloudflare",
@@ -115,7 +189,7 @@
       "file": "cloudflare.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 343
+      "count": 340
     },
     {
       "id": "cloudfront",
@@ -124,7 +198,7 @@
       "file": "cloudfront.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 0
+      "count": 180
     },
     {
       "id": "akamai",
@@ -142,7 +216,7 @@
       "file": "fastly.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 112
+      "count": 111
     },
     {
       "id": "ddos_guard",
@@ -169,7 +243,7 @@
       "file": "gcore.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 325
+      "count": 326
     },
     {
       "id": "bunny",
@@ -196,7 +270,7 @@
       "file": "imperva.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 201
+      "count": 202
     },
     {
       "id": "hetzner",
@@ -214,7 +288,7 @@
       "file": "ovh.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 616
+      "count": 619
     },
     {
       "id": "digitalocean",
@@ -232,160 +306,47 @@
       "file": "aws.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 5687
+      "count": 5691
     },
     {
-      "id": "streaming",
-      "name_ru": "Стриминг и кино (РКН)",
-      "description_ru": "Заблокированные в РФ видеосервисы, онлайн-кинотеатры, торренты.",
-      "file": "streaming.lst",
+      "id": "rkn",
+      "name_ru": "Заблокированное в РФ",
+      "description_ru": "Единый реестр заблокированного в РФ: тематика РКН и прочие ресурсы из снапшота.",
+      "file": "rkn.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 227
+      "count": 11923,
+      "renamed_from": [
+        "streaming.lst",
+        "social.lst",
+        "ai.lst",
+        "gaming.lst",
+        "news.lst",
+        "dev.lst",
+        "adult.lst",
+        "media.lst",
+        "rkn_other.lst"
+      ]
     },
     {
-      "id": "streaming_GB",
-      "name_ru": "Стриминг (геоблок)",
-      "description_ru": "Зарубежные видеосервисы, сами блокирующие доступ из РФ (Netflix и т.п.).",
-      "file": "streaming_GB.lst",
+      "id": "geoblock",
+      "name_ru": "Геоблок (сервисы, режущие РФ)",
+      "description_ru": "Зарубежные сервисы, сами закрывающие доступ из РФ: AI, СМИ, стриминг, dev-инструменты.",
+      "file": "geoblock.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 100
-    },
-    {
-      "id": "social",
-      "name_ru": "Соцсети (РКН)",
-      "description_ru": "Заблокированные в РФ социальные сети (кроме вынесенных отдельно).",
-      "file": "social.lst",
-      "default_on": true,
-      "is_geoblock": false,
-      "count": 44
-    },
-    {
-      "id": "social_GB",
-      "name_ru": "Соцсети (геоблок)",
-      "description_ru": "Соцсети, сами блокирующие доступ из РФ.",
-      "file": "social_GB.lst",
-      "default_on": false,
-      "is_geoblock": true,
-      "count": 22
-    },
-    {
-      "id": "ai",
-      "name_ru": "AI-сервисы (РКН)",
-      "description_ru": "Заблокированные в РФ AI-сервисы.",
-      "file": "ai.lst",
-      "default_on": true,
-      "is_geoblock": false,
-      "count": 12
-    },
-    {
-      "id": "ai_GB",
-      "name_ru": "AI-сервисы (геоблок)",
-      "description_ru": "Зарубежные AI-сервисы, блокирующие РФ: ChatGPT, Claude, Gemini и др.",
-      "file": "ai_GB.lst",
-      "default_on": true,
-      "is_geoblock": true,
-      "count": 28
-    },
-    {
-      "id": "gaming",
-      "name_ru": "Игры (РКН)",
-      "description_ru": "Заблокированные в РФ игровые сервисы.",
-      "file": "gaming.lst",
-      "default_on": false,
-      "is_geoblock": false,
-      "count": 48
-    },
-    {
-      "id": "gaming_GB",
-      "name_ru": "Игры (геоблок)",
-      "description_ru": "Игровые сервисы, сами блокирующие доступ из РФ.",
-      "file": "gaming_GB.lst",
-      "default_on": false,
-      "is_geoblock": true,
-      "count": 31
-    },
-    {
-      "id": "news",
-      "name_ru": "СМИ и новости (РКН)",
-      "description_ru": "Заблокированные в РФ новостные ресурсы.",
-      "file": "news.lst",
-      "default_on": false,
-      "is_geoblock": false,
-      "count": 246
-    },
-    {
-      "id": "news_GB",
-      "name_ru": "СМИ (геоблок)",
-      "description_ru": "Зарубежные СМИ, сами блокирующие доступ из РФ.",
-      "file": "news_GB.lst",
-      "default_on": false,
-      "is_geoblock": true,
-      "count": 171
-    },
-    {
-      "id": "dev",
-      "name_ru": "Dev-инструменты (РКН)",
-      "description_ru": "Заблокированные в РФ инструменты разработчиков.",
-      "file": "dev.lst",
-      "default_on": false,
-      "is_geoblock": false,
-      "count": 82
-    },
-    {
-      "id": "dev_GB",
-      "name_ru": "Dev-инструменты (геоблок)",
-      "description_ru": "Зарубежные dev-сервисы, сами блокирующие РФ: Notion, JetBrains, GitHub-вспомогательное.",
-      "file": "dev_GB.lst",
-      "default_on": true,
-      "is_geoblock": true,
-      "count": 613
-    },
-    {
-      "id": "adult",
-      "name_ru": "Контент 18+ (РКН)",
-      "description_ru": "Заблокированные в РФ ресурсы для взрослых, казино, ставки.",
-      "file": "adult.lst",
-      "default_on": false,
-      "is_geoblock": false,
-      "count": 404
-    },
-    {
-      "id": "adult_GB",
-      "name_ru": "Контент 18+ (геоблок)",
-      "description_ru": "Зарубежные ресурсы 18+, сами блокирующие РФ.",
-      "file": "adult_GB.lst",
-      "default_on": false,
-      "is_geoblock": true,
-      "count": 126
-    },
-    {
-      "id": "media",
-      "name_ru": "Аниме/манга (РКН)",
-      "description_ru": "Заблокированные в РФ аниме/манга-ресурсы.",
-      "file": "media.lst",
-      "default_on": false,
-      "is_geoblock": false,
-      "count": 58
-    },
-    {
-      "id": "media_GB",
-      "name_ru": "Медиа (геоблок)",
-      "description_ru": "Зарубежные медиа-сервисы (музыка, подкасты), сами блокирующие РФ.",
-      "file": "media_GB.lst",
-      "default_on": false,
-      "is_geoblock": true,
-      "count": 2
-    },
-    {
-      "id": "rkn_other",
-      "name_ru": "Прочее РКН",
-      "description_ru": "Прочие заблокированные в РФ ресурсы: казино-зеркала, фишинг и т.п. (без точной категории).",
-      "file": "rkn_other.lst",
-      "default_on": true,
-      "is_geoblock": false,
-      "count": 17120
+      "count": 494,
+      "renamed_from": [
+        "streaming_GB.lst",
+        "social_GB.lst",
+        "ai_GB.lst",
+        "gaming_GB.lst",
+        "news_GB.lst",
+        "dev_GB.lst",
+        "adult_GB.lst",
+        "media_GB.lst",
+        "geoblock_all.lst"
+      ]
     }
   ],
   "domain_lists": [
@@ -437,10 +398,7 @@
       "count": 184,
       "source": "itdoginfo/allow-domains/Categories",
       "default_on": false,
-      "is_geoblock": false,
-      "same_as_ip": [
-        "news"
-      ]
+      "is_geoblock": false
     },
     {
       "id": "porn",
@@ -648,21 +606,11 @@
     {
       "id": "rkn_all",
       "name_ru": "Всё заблокированное в РФ",
-      "description_ru": "Объединение всех категорий, заблокированных в РФ (без геоблока).",
+      "description_ru": "Объединение всех категорий, заблокированных в РФ, без геоблока и без инфраструктуры.",
       "file": "rkn_all.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 17301,
-      "aggregate": true
-    },
-    {
-      "id": "geoblock_all",
-      "name_ru": "Весь геоблок",
-      "description_ru": "Объединение всех категорий геоблока (сервисы, сами режущие РФ).",
-      "file": "geoblock_all.lst",
-      "default_on": false,
-      "is_geoblock": true,
-      "count": 969,
+      "count": 11883,
       "aggregate": true
     },
     {
@@ -672,17 +620,17 @@
       "file": "ipsum.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 17301,
+      "count": 11883,
       "aggregate": true
     },
     {
       "id": "all",
       "name_ru": "Общий список (всё)",
-      "description_ru": "Полный объединяющий список: все категории РКН и геоблока вместе.",
+      "description_ru": "Полный объединяющий список: все категории РКН и геоблока вместе (без инфраструктуры — она в hodca).",
       "file": "all.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 17100,
+      "count": 12172,
       "aggregate": true
     },
     {
@@ -692,7 +640,7 @@
       "file": "hodca.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 7665,
+      "count": 6501,
       "aggregate": true
     }
   ],
@@ -726,12 +674,12 @@
     {
       "id": "discord",
       "name_ru": "Discord",
-      "description_ru": "Голосовой чат Discord: домены и voice-подсети.",
+      "description_ru": "Голосовой чат Discord: готовый ipset внешнего списка, без вычитаний.",
       "default_on": true,
       "is_geoblock": false,
       "is_infra": false,
       "prefixes_file": "discord.lst",
-      "prefixes_count": 685,
+      "prefixes_count": 460,
       "domains_files": [
         "domains/svc_discord.lst"
       ],
@@ -759,7 +707,7 @@
       "is_geoblock": false,
       "is_infra": false,
       "prefixes_file": "twitter_x.lst",
-      "prefixes_count": 12,
+      "prefixes_count": 13,
       "domains_files": [
         "domains/svc_twitter.lst"
       ],
@@ -773,7 +721,7 @@
       "is_geoblock": false,
       "is_infra": false,
       "prefixes_file": "youtube.lst",
-      "prefixes_count": 60,
+      "prefixes_count": 58,
       "domains_files": [
         "domains/svc_youtube.lst"
       ],
@@ -787,7 +735,7 @@
       "is_geoblock": false,
       "is_infra": false,
       "prefixes_file": "google.lst",
-      "prefixes_count": 60,
+      "prefixes_count": 58,
       "domains_files": [
         "domains/svc_google_ai.lst",
         "domains/svc_google_meet.lst",
@@ -803,7 +751,7 @@
       "is_geoblock": false,
       "is_infra": false,
       "prefixes_file": "tiktok.lst",
-      "prefixes_count": 7,
+      "prefixes_count": 8,
       "domains_files": [
         "domains/svc_tiktok.lst"
       ],
@@ -831,7 +779,7 @@
       "is_geoblock": true,
       "is_infra": false,
       "prefixes_file": "netflix.lst",
-      "prefixes_count": 14,
+      "prefixes_count": 30,
       "domains_files": [],
       "domains_count": 0
     },
@@ -843,7 +791,7 @@
       "is_geoblock": false,
       "is_infra": true,
       "prefixes_file": "cloudflare.lst",
-      "prefixes_count": 343,
+      "prefixes_count": 340,
       "domains_files": [
         "domains/svc_cloudflare.lst"
       ],
@@ -857,7 +805,7 @@
       "is_geoblock": false,
       "is_infra": true,
       "prefixes_file": "cloudfront.lst",
-      "prefixes_count": 0,
+      "prefixes_count": 180,
       "domains_files": [
         "domains/svc_cloudfront.lst"
       ],
@@ -883,7 +831,7 @@
       "is_geoblock": false,
       "is_infra": true,
       "prefixes_file": "fastly.lst",
-      "prefixes_count": 112,
+      "prefixes_count": 111,
       "domains_files": [],
       "domains_count": 0
     },
@@ -919,7 +867,7 @@
       "is_geoblock": false,
       "is_infra": true,
       "prefixes_file": "gcore.lst",
-      "prefixes_count": 325,
+      "prefixes_count": 326,
       "domains_files": [],
       "domains_count": 0
     },
@@ -955,7 +903,7 @@
       "is_geoblock": false,
       "is_infra": true,
       "prefixes_file": "imperva.lst",
-      "prefixes_count": 201,
+      "prefixes_count": 202,
       "domains_files": [],
       "domains_count": 0
     },
@@ -981,7 +929,7 @@
       "is_geoblock": false,
       "is_infra": true,
       "prefixes_file": "ovh.lst",
-      "prefixes_count": 616,
+      "prefixes_count": 619,
       "domains_files": [
         "domains/svc_ovh.lst"
       ],
@@ -1009,7 +957,7 @@
       "is_geoblock": false,
       "is_infra": true,
       "prefixes_file": "aws.lst",
-      "prefixes_count": 5687,
+      "prefixes_count": 5691,
       "domains_files": [],
       "domains_count": 0
     }

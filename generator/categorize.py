@@ -49,82 +49,57 @@ def categorize(
     community_ooni: list[str],
     geoblock_domains: list[str],
 ) -> dict[str, set[str]]:
-    """Распределить домены по категориям.
+    """Распределить домены по двум спискам: `rkn` и `geoblock`.
 
-    - РКН-домены → тематические категории РКН (без _GB).
-    - geoblock-домены → тематические категории с _GB (по тем же правилам,
-      но флаг geoblock форсируется).
-    - community/ooni → если правило отдаёт geoblock-категорию, honour it;
-      иначе fallback в dev_GB (прочие ограничивающие РФ).
+    - РКН-домены → `rkn`. Не подошедшие ни под одно правило НЕ резолвятся: реестр
+      покрыт вендорным снапшотом по адресам, и гонять по ним DNS значило бы платить
+      резолвом за то, что уже есть (так было и раньше — они уходили в `rkn_other`,
+      который из пула резолва изымался).
+    - geoblock-домены (вендорный список сервисов, режущих РФ) → `geoblock`.
+    - community/ooni → `rkn`, если правило не говорит прямо, что это геоблок.
+
+    Почему ooni больше не форсируется в геоблок. Раньше каждый его домен получал суффикс
+    `_GB` независимо от правила, и это было первопричиной всей GB-избыточности: 6 941 из
+    6 953 доменов ooni лежат и в снапшоте РКН, то есть один домен проходил дважды и
+    резолвился в один и тот же /24. Ooni измеряет ФАКТ блокировки в РФ — это `rkn`, а не
+    «сервис сам режет РФ».
     """
     rules_cfg = json.loads(RULES_FILE.read_text(encoding="utf-8"))
     compiled = _compile_rules(rules_cfg)
 
-    fallback_cat = rules_cfg.get("_fallback_category", "rkn_other")
-    fallback_gb = bool(rules_cfg.get("_fallback_geoblock", False))
+    categories: dict[str, set[str]] = {"rkn": set(), "geoblock": set()}
 
-    categories: dict[str, set[str]] = {}
-
-    def add(cid: str, domain: str):
-        categories.setdefault(cid, set()).add(domain)
-
-    # РКН-домены
+    # РКН-домены: подошедшие под правило идут на резолв, остальные покрыты снапшотом.
     rkn_assigned = 0
-    rkn_fallback = 0
+    rkn_skipped = 0
     for domain in rkn_domains:
-        match = classify_domain(domain, compiled)
-        if match:
-            # РКН-источник → всегда в РКН-категорию (отменяем geoblock правила).
-            cid, _ = match
-            if cid.endswith("_GB"):
-                cid = cid[:-3]
-            add(cid, domain)
+        if classify_domain(domain, compiled):
+            categories["rkn"].add(domain)
             rkn_assigned += 1
         else:
-            add(fallback_cat, domain)
-            rkn_fallback += 1
+            rkn_skipped += 1
     log.info(
-        "РКН: %d доменов расклассифицированы, %d в fallback (%s)",
-        rkn_assigned, rkn_fallback, fallback_cat,
+        "РКН: %d доменов на резолв, %d без правила (покрыты снапшотом, не резолвятся)",
+        rkn_assigned, rkn_skipped,
     )
 
-    # community/ooni — сервисы, ограничивающие РФ (геоблок-семантика)
-    co_assigned = 0
-    co_fallback = 0
+    # community/ooni — измеренная блокировка в РФ. В геоблок попадают только те, чьё
+    # правило прямо помечено geoblock.
+    co_rkn = 0
+    co_gb = 0
     for domain in community_ooni:
         match = classify_domain(domain, compiled)
-        if match:
-            cid, _ = match
-            # форсируем геоблок-вариант категории
-            if not cid.endswith("_GB"):
-                cid = f"{cid}_GB"
-            add(cid, domain)
-            co_assigned += 1
+        if match and match[1]:
+            categories["geoblock"].add(domain)
+            co_gb += 1
         else:
-            add("dev_GB", domain)
-            co_fallback += 1
-    log.info(
-        "community/ooni: %d расклассифицированы, %d в fallback (dev_GB)",
-        co_assigned, co_fallback,
-    )
+            categories["rkn"].add(domain)
+            co_rkn += 1
+    log.info("community/ooni: %d в rkn, %d в geoblock", co_rkn, co_gb)
 
-    # geoblock-домены (вендор) — принудительно в _GB варианты по правилам
-    gb_assigned = 0
-    gb_fallback = 0
+    # geoblock-домены (вендорный список сервисов, режущих РФ) — целиком в geoblock.
     for domain in geoblock_domains:
-        match = classify_domain(domain, compiled)
-        if match:
-            cid, _ = match
-            if not cid.endswith("_GB"):
-                cid = f"{cid}_GB"
-            add(cid, domain)
-            gb_assigned += 1
-        else:
-            add("dev_GB", domain)
-            gb_fallback += 1
-    log.info(
-        "geoblock: %d расклассифицированы, %d в fallback (dev_GB)",
-        gb_assigned, gb_fallback,
-    )
+        categories["geoblock"].add(domain)
+    log.info("geoblock: %d доменов", len(geoblock_domains))
 
     return categories

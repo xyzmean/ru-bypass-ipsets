@@ -161,8 +161,14 @@ def pull_cdn(kind: str) -> list[ipaddress.IPv4Network]:
     Discord voice-фид убран (источник умер) — Discord покрывается по ASN 62041."""
     if kind == "cloudflare":
         return pull_cloudflare()
-    if kind == "hodca":
-        return pull_cloudfront()  # CloudFront часть HODCA; остальное по ASN
+    if kind in ("cloudfront", "hodca"):
+        # "hodca" — имя из времён, когда все провайдеры лежали одной категорией. Когда их
+        # разделили, категория стала звать фид как "cloudfront", а диспетчер по-прежнему
+        # знал только старое имя — и молча уходил в ветку «прямого фида нет».
+        # Следствие: cloudfront.lst выпускался ПУСТЫМ, а раз он помечен is_shared_proxy,
+        # вычитание CloudFront из сервисных списков не выполнялось вовсе. Ни одной ошибки
+        # при этом не печаталось.
+        return pull_cloudfront()
     # discord: voice-фид убран — Discord покрывается по ASN 62041.
     log.debug("CDN-вид %s не имеет прямого фида (покрытие по ASN).", kind)
     return []

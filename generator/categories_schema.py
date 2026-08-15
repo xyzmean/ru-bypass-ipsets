@@ -9,12 +9,17 @@ default_on (рекомендация splify), is_geoblock (группа GB).
 `source` описывает, откуда категория наполняется:
   - {"kind": "service", "files": [...], "asn": [...], "cdn": "..."}
       домены из sources/services + CIDR по ASN + прямой CDN-фид (если есть)
-  - {"kind": "thematic", "file": "...", "geoblock": bool}
-      домены из фиксированного thematic-сида
   - {"kind": "rule", "geoblock": bool}
       наполняется категоризатором из РКН/community_ooni по ключевым словам
+  - {"kind": "rkn", "file": "..."}
+      домены категоризатора ПЛЮС готовые CIDR вендорного снапшота
+  - {"kind": "cidr_url", "url": "...", "fallback_file": "..."}
+      готовый ipset по ссылке, со снапшотом в репозитории на случай недоступности
   - {"kind": "aggregate", "of": [...]}
       объединение других категорий
+
+Категория с `no_subtract: True` берётся как есть: по ней не гоняются ни вычитание
+инфраструктуры, ни вычитание общих обратных прокси.
 """
 
 from __future__ import annotations
@@ -47,15 +52,32 @@ CATEGORIES = [
     {
         "id": "discord",
         "name_ru": "Discord",
-        "description_ru": "Голосовой чат Discord: домены и voice-подсети.",
+        "description_ru": "Голосовой чат Discord: готовый ipset внешнего списка, без вычитаний.",
         "default_on": True,
         "is_geoblock": False,
-        # Своего ASN у Discord нет (AS62041 — Telegram, и однажды он затащил подсети
-        # телеграма в этот список). Подсети берём из вендорного снапшота: это блоки
-        # голосовых серверов в Google Cloud плюс найденные резолвом узлы — своё Discord,
-        # а не «весь Google». Подробности в самом снапшоте.
-        "source": {"kind": "service", "files": ["discord.lst"], "asn": True,
-                   "extra_cidr_file": "discord/subnets.lst"},
+        # Discord собирается ГОТОВЫМ ipset'ом из внешнего списка, а не резолвом и не по
+        # ASN. Решение владельца, и у него есть основание в данных: своего ASN у Discord
+        # нет (AS62041 — Telegram, и однажды он затащил подсети телеграма в этот список),
+        # а голосовые серверы живут блоками в чужих облаках, которые резолв доменов не
+        # находит вовсе. Внешний список ведётся именно под это.
+        #
+        # no_subtract: по этому списку НЕ гоняются вычитания инфраструктуры и общих прокси.
+        # Он берётся как есть — это тоже решение владельца. Следствие видно в данных и
+        # названо вслух: в списке лежит 104.16.0.0/12, то есть 1 048 576 адресов
+        # Cloudflare; вычитание убрало бы ровно его.
+        "no_subtract": True,
+        "source": {"kind": "cidr_url",
+                   # files здесь не резолвится (kind не service) и нужен ровно для одного:
+                   # связать адресный Discord с доменным svc_discord, который издаётся из
+                   # того же discord.lst. Без этой строчки сервис в манифесте остался бы
+                   # с одной половиной покрытия.
+                   "files": ["discord.lst"],
+                   "url": "https://raw.githubusercontent.com/1andrevich/Re-filter-lists"
+                          "/refs/heads/main/discord_ips.lst",
+                   # Снапшот того же списка в репозитории — на случай, когда источник
+                   # недоступен. Обновляется при каждой удачной сборке. Без него сборка
+                   # молча выпускала бы Discord с нулём префиксов.
+                   "fallback_file": "discord/refilter_discord_ips.lst"},
     },
     {
         "id": "meta",
@@ -290,142 +312,42 @@ CATEGORIES = [
         "is_infra": True,
         "source": {"kind": "service", "files": [], "asn": True},
     },
-    # ─────────────── Тематические: РКН-блок + GB-пара ───────────────
+    # ─────────────── РКН и геоблок: по одному списку на признак ───────────────
+    #
+    # Раньше здесь стояли восемь тематик РКН, восемь их GB-двойников и rkn_other —
+    # семнадцать переключателей. Свёрнуты в два, и вот почему.
+    #
+    # Тематики РКН («стриминг», «соцсети», «игры») делили один реестр и один резолв, а
+    # значит и одни адреса: восемь файлов давали 18 241 префикс, их объединение — 14 995,
+    # то есть 17,8% строк существовали только потому, что лежали в разных файлах.
+    #
+    # GB-двойники не были отдельными данными вовсе. Домены community_ooni принудительно
+    # получали суффикс _GB (categorize.py), хотя 6 941 из 6 953 таких доменов лежат и в
+    # снапшоте РКН, — то есть один домен проходил дважды и резолвился в тот же /24.
+    # Замерено: adult_GB не имел НИ ОДНОГО уникального префикса из 126, social_GB — ни
+    # одного из 22, media_GB — ни одного из 2.
+    #
+    # Что осталось разделённым — то, что разделено по существу: заблокированное в РФ
+    # (`rkn`) против сервисов, которые сами режут РФ (`geoblock`). Это разные решения
+    # человека: первое обходит блокировку, второе прячет страну.
     {
-        "id": "streaming",
-        "name_ru": "Стриминг и кино (РКН)",
-        "description_ru": "Заблокированные в РФ видеосервисы, онлайн-кинотеатры, торренты.",
+        "id": "rkn",
+        "name_ru": "Заблокированное в РФ",
+        "description_ru": "Единый реестр заблокированного в РФ: тематика РКН и прочие ресурсы из снапшота.",
         "default_on": True,
         "is_geoblock": False,
-        "source": {"kind": "rule", "geoblock": False},
+        # Два источника у одной категории: домены из категоризатора (резолвятся) и готовые
+        # CIDR из вендорного снапшота (не резолвятся). Раньше это были разные категории с
+        # разными kind, отчего снапшот и тематика не могли схлопнуться между собой.
+        "source": {"kind": "rkn", "file": "rkn/vendor_ipsum_snapshot.lst"},
     },
     {
-        "id": "streaming_GB",
-        "name_ru": "Стриминг (геоблок)",
-        "description_ru": "Зарубежные видеосервисы, сами блокирующие доступ из РФ (Netflix и т.п.).",
+        "id": "geoblock",
+        "name_ru": "Геоблок (сервисы, режущие РФ)",
+        "description_ru": "Зарубежные сервисы, сами закрывающие доступ из РФ: AI, СМИ, стриминг, dev-инструменты.",
         "default_on": False,
         "is_geoblock": True,
         "source": {"kind": "rule", "geoblock": True},
-    },
-    {
-        "id": "social",
-        "name_ru": "Соцсети (РКН)",
-        "description_ru": "Заблокированные в РФ социальные сети (кроме вынесенных отдельно).",
-        "default_on": True,
-        "is_geoblock": False,
-        "source": {"kind": "rule", "geoblock": False},
-    },
-    {
-        "id": "social_GB",
-        "name_ru": "Соцсети (геоблок)",
-        "description_ru": "Соцсети, сами блокирующие доступ из РФ.",
-        "default_on": False,
-        "is_geoblock": True,
-        "source": {"kind": "rule", "geoblock": True},
-    },
-    {
-        "id": "ai",
-        "name_ru": "AI-сервисы (РКН)",
-        "description_ru": "Заблокированные в РФ AI-сервисы.",
-        "default_on": True,
-        "is_geoblock": False,
-        "source": {"kind": "rule", "geoblock": False},
-    },
-    {
-        "id": "ai_GB",
-        "name_ru": "AI-сервисы (геоблок)",
-        "description_ru": "Зарубежные AI-сервисы, блокирующие РФ: ChatGPT, Claude, Gemini и др.",
-        "default_on": True,
-        "is_geoblock": True,
-        "source": {"kind": "rule", "geoblock": True},
-    },
-    {
-        "id": "gaming",
-        "name_ru": "Игры (РКН)",
-        "description_ru": "Заблокированные в РФ игровые сервисы.",
-        "default_on": False,
-        "is_geoblock": False,
-        "source": {"kind": "rule", "geoblock": False},
-    },
-    {
-        "id": "gaming_GB",
-        "name_ru": "Игры (геоблок)",
-        "description_ru": "Игровые сервисы, сами блокирующие доступ из РФ.",
-        "default_on": False,
-        "is_geoblock": True,
-        "source": {"kind": "rule", "geoblock": True},
-    },
-    {
-        "id": "news",
-        "name_ru": "СМИ и новости (РКН)",
-        "description_ru": "Заблокированные в РФ новостные ресурсы.",
-        "default_on": False,
-        "is_geoblock": False,
-        "source": {"kind": "thematic", "file": "news.lst", "geoblock": False},
-    },
-    {
-        "id": "news_GB",
-        "name_ru": "СМИ (геоблок)",
-        "description_ru": "Зарубежные СМИ, сами блокирующие доступ из РФ.",
-        "default_on": False,
-        "is_geoblock": True,
-        "source": {"kind": "rule", "geoblock": True},
-    },
-    {
-        "id": "dev",
-        "name_ru": "Dev-инструменты (РКН)",
-        "description_ru": "Заблокированные в РФ инструменты разработчиков.",
-        "default_on": False,
-        "is_geoblock": False,
-        "source": {"kind": "rule", "geoblock": False},
-    },
-    {
-        "id": "dev_GB",
-        "name_ru": "Dev-инструменты (геоблок)",
-        "description_ru": "Зарубежные dev-сервисы, сами блокирующие РФ: Notion, JetBrains, GitHub-вспомогательное.",
-        "default_on": True,
-        "is_geoblock": True,
-        "source": {"kind": "rule", "geoblock": True},
-    },
-    {
-        "id": "adult",
-        "name_ru": "Контент 18+ (РКН)",
-        "description_ru": "Заблокированные в РФ ресурсы для взрослых, казино, ставки.",
-        "default_on": False,
-        "is_geoblock": False,
-        "source": {"kind": "thematic", "file": "adult.lst", "geoblock": False},
-    },
-    {
-        "id": "adult_GB",
-        "name_ru": "Контент 18+ (геоблок)",
-        "description_ru": "Зарубежные ресурсы 18+, сами блокирующие РФ.",
-        "default_on": False,
-        "is_geoblock": True,
-        "source": {"kind": "rule", "geoblock": True},
-    },
-    {
-        "id": "media",
-        "name_ru": "Аниме/манга (РКН)",
-        "description_ru": "Заблокированные в РФ аниме/манга-ресурсы.",
-        "default_on": False,
-        "is_geoblock": False,
-        "source": {"kind": "thematic", "file": "media.lst", "geoblock": False},
-    },
-    {
-        "id": "media_GB",
-        "name_ru": "Медиа (геоблок)",
-        "description_ru": "Зарубежные медиа-сервисы (музыка, подкасты), сами блокирующие РФ.",
-        "default_on": False,
-        "is_geoblock": True,
-        "source": {"kind": "rule", "geoblock": True},
-    },
-    {
-        "id": "rkn_other",
-        "name_ru": "Прочее РКН",
-        "description_ru": "Прочие заблокированные в РФ ресурсы: казино-зеркала, фишинг и т.п. (без точной категории).",
-        "default_on": True,
-        "is_geoblock": False,
-        "source": {"kind": "vendor_cidr", "file": "rkn/vendor_ipsum_snapshot.lst"},
     },
 ]
 
@@ -434,19 +356,13 @@ AGGREGATES = [
     {
         "id": "rkn_all",
         "name_ru": "Всё заблокированное в РФ",
-        "description_ru": "Объединение всех категорий, заблокированных в РФ (без геоблока).",
+        "description_ru": "Объединение всех категорий, заблокированных в РФ, без геоблока и без инфраструктуры.",
         "default_on": False,
         "is_geoblock": False,
         "aggregate_of": "non_geoblock",
     },
-    {
-        "id": "geoblock_all",
-        "name_ru": "Весь геоблок",
-        "description_ru": "Объединение всех категорий геоблока (сервисы, сами режущие РФ).",
-        "default_on": False,
-        "is_geoblock": True,
-        "aggregate_of": "geoblock",
-    },
+    # geoblock_all убран: после склейки девяти GB-категорий в одну `geoblock` он был бы
+    # её байтовой копией. Старое имя ведёт на `geoblock` через RENAMED_FROM.
     {
         "id": "ipsum",
         "name_ru": "Сводный список (по умолчанию)",
@@ -458,7 +374,7 @@ AGGREGATES = [
     {
         "id": "all",
         "name_ru": "Общий список (всё)",
-        "description_ru": "Полный объединяющий список: все категории РКН и геоблока вместе.",
+        "description_ru": "Полный объединяющий список: все категории РКН и геоблока вместе (без инфраструктуры — она в hodca).",
         "default_on": False,
         "is_geoblock": False,
         "aggregate_of": "all",
@@ -528,6 +444,32 @@ SERVICE_DOMAIN_LISTS = {
     "digitalocean": ["svc_digitalocean"],
     "aws": [],
 }
+
+
+# Старое имя списка → новое. Публикуется в categories.json ключом `aliases`.
+#
+# Зачем это вообще нужно. Потребитель (splify2) хранит в /etc/steer/spec.json ПУТЬ к файлу
+# списка, а не его идентификатор. Переименование категории поэтому ломается молча: скрипт
+# обновления пишет «нет в манифесте, пропущен», список остаётся лежать старой копией и
+# перестаёт обновляться, а признак ошибки не выставляется. Человек видит рабочий канал со
+# списком, которому полгода.
+#
+# Здесь двадцать имён, то есть двадцать таких молчаний, если карту не опубликовать.
+RENAMED_FROM = {
+    "rkn": [
+        "streaming", "social", "ai", "gaming", "news", "dev", "adult", "media",
+        "rkn_other",
+    ],
+    "geoblock": [
+        "streaming_GB", "social_GB", "ai_GB", "gaming_GB", "news_GB", "dev_GB",
+        "adult_GB", "media_GB", "geoblock_all",
+    ],
+}
+
+
+def alias_map() -> dict[str, str]:
+    """Плоская карта «старое имя файла → новое», как её читает потребитель."""
+    return {old: new for new, olds in RENAMED_FROM.items() for old in olds}
 
 
 def all_category_ids() -> list[str]:
