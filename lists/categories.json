@@ -1,13 +1,13 @@
 {
   "version": "2026-08-15",
-  "generated_at": "2026-08-15T11:47:48Z",
+  "generated_at": "2026-08-15T12:10:24Z",
   "base_url": "https://raw.githubusercontent.com/xyzmean/ru-bypass-ipsets/main/lists",
   "ipsum_min_count": 5000,
   "sources": {
     "rkn": "snapshot:domains_snapshot.lst",
     "community_ooni_count": 6953,
     "geoblock_count": 598,
-    "geolite": false,
+    "geolite": true,
     "nameservers": [
       "1.1.1.1",
       "8.8.8.8",
@@ -135,7 +135,7 @@
       "file": "twitter_x.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 13
+      "count": 14
     },
     {
       "id": "youtube",
@@ -162,7 +162,7 @@
       "file": "tiktok.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 8
+      "count": 7
     },
     {
       "id": "roblox",
@@ -315,7 +315,7 @@
       "file": "rkn.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 11923,
+      "count": 11516,
       "renamed_from": [
         "streaming.lst",
         "social.lst",
@@ -335,7 +335,7 @@
       "file": "geoblock.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 494,
+      "count": 120,
       "renamed_from": [
         "streaming_GB.lst",
         "social_GB.lst",
@@ -610,7 +610,7 @@
       "file": "rkn_all.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 11883,
+      "count": 11478,
       "aggregate": true
     },
     {
@@ -620,7 +620,7 @@
       "file": "ipsum.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 11883,
+      "count": 11476,
       "aggregate": true
     },
     {
@@ -630,7 +630,7 @@
       "file": "all.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 12172,
+      "count": 11526,
       "aggregate": true
     },
     {
@@ -707,7 +707,7 @@
       "is_geoblock": false,
       "is_infra": false,
       "prefixes_file": "twitter_x.lst",
-      "prefixes_count": 13,
+      "prefixes_count": 14,
       "domains_files": [
         "domains/svc_twitter.lst"
       ],
@@ -751,7 +751,7 @@
       "is_geoblock": false,
       "is_infra": false,
       "prefixes_file": "tiktok.lst",
-      "prefixes_count": 8,
+      "prefixes_count": 7,
       "domains_files": [
         "domains/svc_tiktok.lst"
       ],
