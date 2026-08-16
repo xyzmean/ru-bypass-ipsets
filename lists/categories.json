@@ -1,6 +1,6 @@
 {
-  "version": "2026-08-15",
-  "generated_at": "2026-08-15T12:10:24Z",
+  "version": "2026-08-16",
+  "generated_at": "2026-08-16T04:21:24Z",
   "base_url": "https://raw.githubusercontent.com/xyzmean/ru-bypass-ipsets/main/lists",
   "ipsum_min_count": 5000,
   "sources": {
@@ -162,7 +162,7 @@
       "file": "tiktok.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 7
+      "count": 8
     },
     {
       "id": "roblox",
@@ -243,7 +243,7 @@
       "file": "gcore.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 326
+      "count": 325
     },
     {
       "id": "bunny",
@@ -288,7 +288,7 @@
       "file": "ovh.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 619
+      "count": 618
     },
     {
       "id": "digitalocean",
@@ -306,7 +306,7 @@
       "file": "aws.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 5691
+      "count": 5690
     },
     {
       "id": "rkn",
@@ -315,7 +315,7 @@
       "file": "rkn.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 11516,
+      "count": 11641,
       "renamed_from": [
         "streaming.lst",
         "social.lst",
@@ -335,7 +335,7 @@
       "file": "geoblock.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 120,
+      "count": 87,
       "renamed_from": [
         "streaming_GB.lst",
         "social_GB.lst",
@@ -610,7 +610,7 @@
       "file": "rkn_all.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 11478,
+      "count": 11596,
       "aggregate": true
     },
     {
@@ -620,7 +620,7 @@
       "file": "ipsum.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 11476,
+      "count": 11595,
       "aggregate": true
     },
     {
@@ -630,7 +630,7 @@
       "file": "all.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 11526,
+      "count": 11639,
       "aggregate": true
     },
     {
@@ -640,7 +640,7 @@
       "file": "hodca.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 6501,
+      "count": 6499,
       "aggregate": true
     }
   ],
@@ -751,7 +751,7 @@
       "is_geoblock": false,
       "is_infra": false,
       "prefixes_file": "tiktok.lst",
-      "prefixes_count": 7,
+      "prefixes_count": 8,
       "domains_files": [
         "domains/svc_tiktok.lst"
       ],
@@ -867,7 +867,7 @@
       "is_geoblock": false,
       "is_infra": true,
       "prefixes_file": "gcore.lst",
-      "prefixes_count": 326,
+      "prefixes_count": 325,
       "domains_files": [],
       "domains_count": 0
     },
@@ -929,7 +929,7 @@
       "is_geoblock": false,
       "is_infra": true,
       "prefixes_file": "ovh.lst",
-      "prefixes_count": 619,
+      "prefixes_count": 618,
       "domains_files": [
         "domains/svc_ovh.lst"
       ],
@@ -957,7 +957,7 @@
       "is_geoblock": false,
       "is_infra": true,
       "prefixes_file": "aws.lst",
-      "prefixes_count": 5691,
+      "prefixes_count": 5690,
       "domains_files": [],
       "domains_count": 0
     }
