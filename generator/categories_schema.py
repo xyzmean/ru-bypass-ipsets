@@ -20,6 +20,25 @@ default_on (рекомендация splify), is_geoblock (группа GB).
 
 Категория с `no_subtract: True` берётся как есть: по ней не гоняются ни вычитание
 инфраструктуры, ни вычитание общих обратных прокси.
+
+ПОЛЯ МАНИФЕСТА, КОТОРЫХ НЕТ В ЭТОМ СПИСКЕ КАТЕГОРИЙ, но которые он объясняет:
+
+  `same_prefixes_as` / `same_prefixes_reason_ru` — у категорий и у записей `services`.
+      Две категории могут давать ОДИН И ТОТ ЖЕ набор префиксов: `meta` и `whatsapp`
+      берут AS32934, `google` и `youtube` — AS15169, и файлы у них совпадают побайтово.
+      Раньше манифест этого не говорил, и человек выбирал между двумя одинаковыми
+      списками, думая, что один узкий (I-031). Файлы при этом НЕ склеиваются: на их
+      имена ссылаются уже настроенные каналы на установленных роутерах.
+      Значение поля не берётся из схемы на веру: `aggregate.same_prefixes_groups()`
+      считает его по СОБРАННЫМ спискам, а группы ниже дают человеческую причину.
+
+  `upstream` — у записей `domain_lists` (см. `domain_lists.upstream_meta`). Доменные
+      списки зеркалятся из itdoginfo/allow-domains, локальная правка такого файла
+      живёт до следующей синхронизации, и сказать об этом должен манифест, а не
+      догадка пользователя (I-077).
+
+`validate()` ниже проверяет всё, что здесь описано. Она вызывается из `aggregate.main()`
+ДО сборки и из `generator/selfcheck.py` (быстрая проверка без сети, её же гоняет CI).
 """
 
 from __future__ import annotations
@@ -43,7 +62,8 @@ CATEGORIES = [
     {
         "id": "whatsapp",
         "name_ru": "WhatsApp",
-        "description_ru": "Мессенджер WhatsApp (Meta).",
+        "description_ru": "Мессенджер WhatsApp (Meta). Адресный список — тот же, что у Meta: "
+                          "общая автономная система AS32934. Различаются только доменные списки.",
         "default_on": True,
         "is_geoblock": False,
         "source": {"kind": "service", "files": ["meta.lst"], "asn": True,
@@ -82,7 +102,12 @@ CATEGORIES = [
     {
         "id": "meta",
         "name_ru": "Meta (Facebook/Instagram)",
-        "description_ru": "Соцсети Facebook и Instagram (без WhatsApp).",
+        # Было «Соцсети Facebook и Instagram (без WhatsApp)» — и это неправда на уровне
+        # адресов: whatsapp.lst и meta.lst совпадают побайтово, потому что оба берут
+        # префиксы AS32934, а domain_filter отделяет домены, а не адреса (I-031).
+        "description_ru": "Соцсети Facebook и Instagram. Адресный список — тот же, что у "
+                          "WhatsApp: общая автономная система AS32934. По адресам эти "
+                          "категории не различаются, различаются только доменные списки.",
         "default_on": True,
         "is_geoblock": False,
         "source": {"kind": "service", "files": ["meta.lst"], "asn": True,
@@ -99,7 +124,9 @@ CATEGORIES = [
     {
         "id": "youtube",
         "name_ru": "YouTube",
-        "description_ru": "Видеохостинг YouTube и CDN (Google Video).",
+        "description_ru": "Видеохостинг YouTube и CDN (Google Video). Адресный список — тот "
+                          "же, что у категории Google: общая автономная система AS15169, "
+                          "поэтому включение YouTube уводит в туннель все адреса Google.",
         "default_on": True,
         "is_geoblock": False,
         "source": {"kind": "service", "files": ["youtube.lst"], "asn": True},
@@ -107,7 +134,8 @@ CATEGORIES = [
     {
         "id": "google",
         "name_ru": "Google (Meet/Play/AI)",
-        "description_ru": "Google Meet, Play и AI-сервисы (Bard/Gemini).",
+        "description_ru": "Google Meet, Play и AI-сервисы (Bard/Gemini). Адресный список — "
+                          "тот же, что у YouTube: общая автономная система AS15169.",
         "default_on": True,
         "is_geoblock": False,
         "source": {"kind": "service",
@@ -393,6 +421,35 @@ AGGREGATES = [
     },
 ]
 
+# Категории, у которых адресный список получается ОДНИМ И ТЕМ ЖЕ, и почему.
+#
+# Причина всегда одна и та же: общий номер автономной системы. Префиксы AS в
+# lib.finalize() поглощают все /24, полученные резолвом доменов, поэтому `domain_filter`
+# («whatsapp» / «not_whatsapp») различает домены, но НЕ различает адреса. Замерено на
+# выпущенных списках: meta.lst и whatsapp.lst совпадают побайтово, google.lst и
+# youtube.lst тоже; больше ни одна пара категорий не пересекается даже на 2%.
+#
+# Что здесь НЕ делается: файлы не склеиваются и не переименовываются. На meta.lst,
+# whatsapp.lst, google.lst и youtube.lst ссылаются каналы на уже настроенных роутерах —
+# тот же случай, что с hodca.lst, чьё имя сохранено ровно поэтому. Вместо склейки
+# манифест говорит правду: «тот же список адресов, что у Meta, потому что общая AS».
+#
+# `asn` в записи — не декоратив: validate() сверяет его с sources/asn/asn_services.json,
+# иначе причина в описании и причина в данных могли бы разойтись молча.
+SAME_PREFIXES_GROUPS = [
+    {
+        "ids": ["meta", "whatsapp"],
+        "asn": 32934,
+        "reason_ru": "общая автономная система AS32934 (Meta)",
+    },
+    {
+        "ids": ["google", "youtube"],
+        "asn": 15169,
+        "reason_ru": "общая автономная система AS15169 (Google)",
+    },
+]
+
+
 # Инфраструктура: CDN и хостинги. Ровно эти префиксы ВЫЧИТАЮТСЯ из сервисных списков.
 #
 # Смысл вычитания. YouTube по ASN 15169 — это Google, и это его собственные адреса. Но
@@ -481,3 +538,122 @@ def category_by_id(cid: str) -> dict:
         if c["id"] == cid:
             return c
     raise KeyError(cid)
+
+
+def declared_same_prefixes() -> dict[str, dict]:
+    """id категории → {"with": [другие id группы], "reason_ru": причина}.
+
+    Заявленное, а не измеренное. Измеряет `aggregate.same_prefixes_groups()` по
+    собранным спискам; отсюда берётся только человеческая формулировка причины, а
+    расхождение между заявленным и измеренным — повод сказать об этом в логе сборки,
+    а не опубликовать поле на веру.
+    """
+    out: dict[str, dict] = {}
+    for grp in SAME_PREFIXES_GROUPS:
+        for cid in grp["ids"]:
+            out[cid] = {
+                "with": sorted(i for i in grp["ids"] if i != cid),
+                "reason_ru": grp["reason_ru"],
+            }
+    return out
+
+
+def _asn_map_from_sources() -> dict | None:
+    """ASN по категориям из sources/asn/asn_services.json (файл в репозитории, без сети)."""
+    import json
+    from pathlib import Path as _Path
+
+    f = _Path(__file__).resolve().parent.parent / "sources" / "asn" / "asn_services.json"
+    if not f.is_file():
+        return None
+    try:
+        raw = json.loads(f.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    return {k: v for k, v in raw.items() if not k.startswith("_") and isinstance(v, list)}
+
+
+def validate() -> list[str]:
+    """Проверки схемы. Возвращает список ошибок; пустой список = всё в порядке.
+
+    Зачем это отдельной функцией, а не тестом: `categories.json` перезаписывается
+    сборкой ЦЕЛИКОМ, и каждое поле манифеста существует ровно потому, что его пишет
+    генератор. Поле, которое никто не проверяет, тихо расходится с данными — именно так
+    описание meta полгода обещало «без WhatsApp» при побайтово одинаковых списках.
+    """
+    import re
+
+    errs: list[str] = []
+    ids = [c["id"] for c in CATEGORIES]
+    agg_ids = [a["id"] for a in AGGREGATES]
+
+    for cid in set(ids) | set(agg_ids):
+        n = ids.count(cid) + agg_ids.count(cid)
+        if n > 1:
+            errs.append(f"id {cid!r} встречается {n} раз(а) среди категорий и агрегатов")
+
+    for c in CATEGORIES:
+        for key in ("id", "name_ru", "description_ru", "default_on", "is_geoblock", "source"):
+            if key not in c:
+                errs.append(f"категория {c.get('id')!r}: нет обязательного поля {key!r}")
+        if not str(c.get("description_ru", "")).strip():
+            errs.append(f"категория {c.get('id')!r}: пустое описание")
+
+    # ── same_prefixes: группы ──
+    asn_map = _asn_map_from_sources()
+    seen: dict[str, int] = {}
+    for n, grp in enumerate(SAME_PREFIXES_GROUPS):
+        gids = grp.get("ids") or []
+        if len(gids) < 2:
+            errs.append(f"SAME_PREFIXES_GROUPS[{n}]: в группе меньше двух категорий")
+        if not str(grp.get("reason_ru", "")).strip():
+            errs.append(f"SAME_PREFIXES_GROUPS[{n}]: нет reason_ru — интерфейсу нечего показать")
+        for cid in gids:
+            if cid not in ids:
+                errs.append(f"SAME_PREFIXES_GROUPS[{n}]: неизвестная категория {cid!r}")
+            if cid in seen:
+                errs.append(f"категория {cid!r} состоит в двух группах same_prefixes "
+                            f"({seen[cid]} и {n}) — набор префиксов не может совпадать "
+                            f"с двумя разными наборами")
+            seen[cid] = n
+        # Причина заявлена как общая AS — сверяем с данными, а не с формулировкой.
+        asn = grp.get("asn")
+        if asn is not None and asn_map is not None:
+            for cid in gids:
+                have = asn_map.get(cid)
+                if have is None:
+                    errs.append(f"SAME_PREFIXES_GROUPS[{n}]: у {cid!r} нет записи в "
+                                f"asn_services.json, а причина группы — общая AS{asn}")
+                elif asn not in have:
+                    errs.append(f"SAME_PREFIXES_GROUPS[{n}]: у {cid!r} в asn_services.json "
+                                f"нет AS{asn} (есть {have}) — причина группы не подтверждается")
+        # Описание не должно исключать участника той же группы: список у них ОДИН.
+        for cid in gids:
+            try:
+                cat = category_by_id(cid)
+            except KeyError:
+                continue
+            desc = cat["description_ru"]
+            for other in gids:
+                if other == cid:
+                    continue
+                o = category_by_id(other)
+                for token in {other, o["name_ru"], o["name_ru"].split(" (")[0]}:
+                    if re.search(r"без\s+[«\"]?" + re.escape(token), desc, re.I):
+                        errs.append(
+                            f"категория {cid!r}: описание обещает «без {token}», но её "
+                            f"адресный список совпадает с {other!r} побайтово")
+                        break
+
+    # ── прочие карты ──
+    for cid in SERVICE_DOMAIN_LISTS:
+        if cid not in ids:
+            errs.append(f"SERVICE_DOMAIN_LISTS: неизвестная категория {cid!r}")
+    for new_id, olds in RENAMED_FROM.items():
+        if new_id not in ids and new_id not in agg_ids:
+            errs.append(f"RENAMED_FROM: цель {new_id!r} не существует")
+        for old in olds:
+            if old in ids or old in agg_ids:
+                errs.append(f"RENAMED_FROM: старое имя {old!r} совпадает с живой "
+                            f"категорией — alias указывал бы сам на себя")
+    return errs

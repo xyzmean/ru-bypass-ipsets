@@ -104,11 +104,15 @@
     {
       "id": "whatsapp",
       "name_ru": "WhatsApp",
-      "description_ru": "Мессенджер WhatsApp (Meta).",
+      "description_ru": "Мессенджер WhatsApp (Meta). Адресный список — тот же, что у Meta: общая автономная система AS32934. Различаются только доменные списки.",
       "file": "whatsapp.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 33
+      "count": 33,
+      "same_prefixes_as": [
+        "meta"
+      ],
+      "same_prefixes_reason_ru": "общая автономная система AS32934 (Meta)"
     },
     {
       "id": "discord",
@@ -122,11 +126,15 @@
     {
       "id": "meta",
       "name_ru": "Meta (Facebook/Instagram)",
-      "description_ru": "Соцсети Facebook и Instagram (без WhatsApp).",
+      "description_ru": "Соцсети Facebook и Instagram. Адресный список — тот же, что у WhatsApp: общая автономная система AS32934. По адресам эти категории не различаются, различаются только доменные списки.",
       "file": "meta.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 33
+      "count": 33,
+      "same_prefixes_as": [
+        "whatsapp"
+      ],
+      "same_prefixes_reason_ru": "общая автономная система AS32934 (Meta)"
     },
     {
       "id": "twitter_x",
@@ -140,20 +148,28 @@
     {
       "id": "youtube",
       "name_ru": "YouTube",
-      "description_ru": "Видеохостинг YouTube и CDN (Google Video).",
+      "description_ru": "Видеохостинг YouTube и CDN (Google Video). Адресный список — тот же, что у категории Google: общая автономная система AS15169, поэтому включение YouTube уводит в туннель все адреса Google.",
       "file": "youtube.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 58
+      "count": 58,
+      "same_prefixes_as": [
+        "google"
+      ],
+      "same_prefixes_reason_ru": "общая автономная система AS15169 (Google)"
     },
     {
       "id": "google",
       "name_ru": "Google (Meet/Play/AI)",
-      "description_ru": "Google Meet, Play и AI-сервисы (Bard/Gemini).",
+      "description_ru": "Google Meet, Play и AI-сервисы (Bard/Gemini). Адресный список — тот же, что у YouTube: общая автономная система AS15169.",
       "file": "google.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 58
+      "count": 58,
+      "same_prefixes_as": [
+        "youtube"
+      ],
+      "same_prefixes_reason_ru": "общая автономная система AS15169 (Google)"
     },
     {
       "id": "tiktok",
@@ -357,6 +373,14 @@
       "file": "domains/anime.lst",
       "count": 42,
       "source": "itdoginfo/allow-domains/Categories",
+      "upstream": {
+        "repo": "itdoginfo/allow-domains",
+        "folder": "Categories",
+        "file": "Categories/anime.lst",
+        "url": "https://github.com/itdoginfo/allow-domains/blob/HEAD/Categories/anime.lst",
+        "suggest_url": "https://github.com/itdoginfo/allow-domains/issues",
+        "editable_locally": false
+      },
       "default_on": false,
       "is_geoblock": false
     },
@@ -367,6 +391,14 @@
       "file": "domains/block.lst",
       "count": 334,
       "source": "itdoginfo/allow-domains/Categories",
+      "upstream": {
+        "repo": "itdoginfo/allow-domains",
+        "folder": "Categories",
+        "file": "Categories/block.lst",
+        "url": "https://github.com/itdoginfo/allow-domains/blob/HEAD/Categories/block.lst",
+        "suggest_url": "https://github.com/itdoginfo/allow-domains/issues",
+        "editable_locally": false
+      },
       "default_on": false,
       "is_geoblock": false
     },
@@ -377,6 +409,14 @@
       "file": "domains/geoblock.lst",
       "count": 465,
       "source": "itdoginfo/allow-domains/Categories",
+      "upstream": {
+        "repo": "itdoginfo/allow-domains",
+        "folder": "Categories",
+        "file": "Categories/geoblock.lst",
+        "url": "https://github.com/itdoginfo/allow-domains/blob/HEAD/Categories/geoblock.lst",
+        "suggest_url": "https://github.com/itdoginfo/allow-domains/issues",
+        "editable_locally": false
+      },
       "default_on": false,
       "is_geoblock": true
     },
@@ -387,6 +427,14 @@
       "file": "domains/hodca.lst",
       "count": 250,
       "source": "itdoginfo/allow-domains/Categories",
+      "upstream": {
+        "repo": "itdoginfo/allow-domains",
+        "folder": "Categories",
+        "file": "Categories/hodca.lst",
+        "url": "https://github.com/itdoginfo/allow-domains/blob/HEAD/Categories/hodca.lst",
+        "suggest_url": "https://github.com/itdoginfo/allow-domains/issues",
+        "editable_locally": false
+      },
       "default_on": false,
       "is_geoblock": false
     },
@@ -397,6 +445,14 @@
       "file": "domains/news.lst",
       "count": 184,
       "source": "itdoginfo/allow-domains/Categories",
+      "upstream": {
+        "repo": "itdoginfo/allow-domains",
+        "folder": "Categories",
+        "file": "Categories/news.lst",
+        "url": "https://github.com/itdoginfo/allow-domains/blob/HEAD/Categories/news.lst",
+        "suggest_url": "https://github.com/itdoginfo/allow-domains/issues",
+        "editable_locally": false
+      },
       "default_on": false,
       "is_geoblock": false
     },
@@ -407,6 +463,14 @@
       "file": "domains/porn.lst",
       "count": 51,
       "source": "itdoginfo/allow-domains/Categories",
+      "upstream": {
+        "repo": "itdoginfo/allow-domains",
+        "folder": "Categories",
+        "file": "Categories/porn.lst",
+        "url": "https://github.com/itdoginfo/allow-domains/blob/HEAD/Categories/porn.lst",
+        "suggest_url": "https://github.com/itdoginfo/allow-domains/issues",
+        "editable_locally": false
+      },
       "default_on": false,
       "is_geoblock": false
     },
@@ -417,6 +481,14 @@
       "file": "domains/svc_cloudflare.lst",
       "count": 4,
       "source": "itdoginfo/allow-domains/Services",
+      "upstream": {
+        "repo": "itdoginfo/allow-domains",
+        "folder": "Services",
+        "file": "Services/cloudflare.lst",
+        "url": "https://github.com/itdoginfo/allow-domains/blob/HEAD/Services/cloudflare.lst",
+        "suggest_url": "https://github.com/itdoginfo/allow-domains/issues",
+        "editable_locally": false
+      },
       "default_on": false,
       "is_geoblock": false,
       "same_as_ip": [
@@ -430,6 +502,14 @@
       "file": "domains/svc_cloudfront.lst",
       "count": 1,
       "source": "itdoginfo/allow-domains/Services",
+      "upstream": {
+        "repo": "itdoginfo/allow-domains",
+        "folder": "Services",
+        "file": "Services/cloudfront.lst",
+        "url": "https://github.com/itdoginfo/allow-domains/blob/HEAD/Services/cloudfront.lst",
+        "suggest_url": "https://github.com/itdoginfo/allow-domains/issues",
+        "editable_locally": false
+      },
       "default_on": false,
       "is_geoblock": false
     },
@@ -440,6 +520,14 @@
       "file": "domains/svc_digitalocean.lst",
       "count": 1,
       "source": "itdoginfo/allow-domains/Services",
+      "upstream": {
+        "repo": "itdoginfo/allow-domains",
+        "folder": "Services",
+        "file": "Services/digitalocean.lst",
+        "url": "https://github.com/itdoginfo/allow-domains/blob/HEAD/Services/digitalocean.lst",
+        "suggest_url": "https://github.com/itdoginfo/allow-domains/issues",
+        "editable_locally": false
+      },
       "default_on": false,
       "is_geoblock": false
     },
@@ -450,6 +538,14 @@
       "file": "domains/svc_discord.lst",
       "count": 20,
       "source": "itdoginfo/allow-domains/Services",
+      "upstream": {
+        "repo": "itdoginfo/allow-domains",
+        "folder": "Services",
+        "file": "Services/discord.lst",
+        "url": "https://github.com/itdoginfo/allow-domains/blob/HEAD/Services/discord.lst",
+        "suggest_url": "https://github.com/itdoginfo/allow-domains/issues",
+        "editable_locally": false
+      },
       "default_on": false,
       "is_geoblock": false,
       "same_as_ip": [
@@ -463,6 +559,14 @@
       "file": "domains/svc_google_ai.lst",
       "count": 28,
       "source": "itdoginfo/allow-domains/Services",
+      "upstream": {
+        "repo": "itdoginfo/allow-domains",
+        "folder": "Services",
+        "file": "Services/google_ai.lst",
+        "url": "https://github.com/itdoginfo/allow-domains/blob/HEAD/Services/google_ai.lst",
+        "suggest_url": "https://github.com/itdoginfo/allow-domains/issues",
+        "editable_locally": false
+      },
       "default_on": false,
       "is_geoblock": false
     },
@@ -473,6 +577,14 @@
       "file": "domains/svc_google_meet.lst",
       "count": 5,
       "source": "itdoginfo/allow-domains/Services",
+      "upstream": {
+        "repo": "itdoginfo/allow-domains",
+        "folder": "Services",
+        "file": "Services/google_meet.lst",
+        "url": "https://github.com/itdoginfo/allow-domains/blob/HEAD/Services/google_meet.lst",
+        "suggest_url": "https://github.com/itdoginfo/allow-domains/issues",
+        "editable_locally": false
+      },
       "default_on": false,
       "is_geoblock": false,
       "same_as_ip": [
@@ -486,6 +598,14 @@
       "file": "domains/svc_google_play.lst",
       "count": 12,
       "source": "itdoginfo/allow-domains/Services",
+      "upstream": {
+        "repo": "itdoginfo/allow-domains",
+        "folder": "Services",
+        "file": "Services/google_play.lst",
+        "url": "https://github.com/itdoginfo/allow-domains/blob/HEAD/Services/google_play.lst",
+        "suggest_url": "https://github.com/itdoginfo/allow-domains/issues",
+        "editable_locally": false
+      },
       "default_on": false,
       "is_geoblock": false,
       "same_as_ip": [
@@ -499,6 +619,14 @@
       "file": "domains/svc_hdrezka.lst",
       "count": 17,
       "source": "itdoginfo/allow-domains/Services",
+      "upstream": {
+        "repo": "itdoginfo/allow-domains",
+        "folder": "Services",
+        "file": "Services/hdrezka.lst",
+        "url": "https://github.com/itdoginfo/allow-domains/blob/HEAD/Services/hdrezka.lst",
+        "suggest_url": "https://github.com/itdoginfo/allow-domains/issues",
+        "editable_locally": false
+      },
       "default_on": false,
       "is_geoblock": false
     },
@@ -509,6 +637,14 @@
       "file": "domains/svc_hetzner.lst",
       "count": 1,
       "source": "itdoginfo/allow-domains/Services",
+      "upstream": {
+        "repo": "itdoginfo/allow-domains",
+        "folder": "Services",
+        "file": "Services/hetzner.lst",
+        "url": "https://github.com/itdoginfo/allow-domains/blob/HEAD/Services/hetzner.lst",
+        "suggest_url": "https://github.com/itdoginfo/allow-domains/issues",
+        "editable_locally": false
+      },
       "default_on": false,
       "is_geoblock": false
     },
@@ -519,6 +655,14 @@
       "file": "domains/svc_meta.lst",
       "count": 18,
       "source": "itdoginfo/allow-domains/Services",
+      "upstream": {
+        "repo": "itdoginfo/allow-domains",
+        "folder": "Services",
+        "file": "Services/meta.lst",
+        "url": "https://github.com/itdoginfo/allow-domains/blob/HEAD/Services/meta.lst",
+        "suggest_url": "https://github.com/itdoginfo/allow-domains/issues",
+        "editable_locally": false
+      },
       "default_on": false,
       "is_geoblock": false,
       "same_as_ip": [
@@ -533,6 +677,14 @@
       "file": "domains/svc_ovh.lst",
       "count": 1,
       "source": "itdoginfo/allow-domains/Services",
+      "upstream": {
+        "repo": "itdoginfo/allow-domains",
+        "folder": "Services",
+        "file": "Services/ovh.lst",
+        "url": "https://github.com/itdoginfo/allow-domains/blob/HEAD/Services/ovh.lst",
+        "suggest_url": "https://github.com/itdoginfo/allow-domains/issues",
+        "editable_locally": false
+      },
       "default_on": false,
       "is_geoblock": false
     },
@@ -543,6 +695,14 @@
       "file": "domains/svc_roblox.lst",
       "count": 4,
       "source": "itdoginfo/allow-domains/Services",
+      "upstream": {
+        "repo": "itdoginfo/allow-domains",
+        "folder": "Services",
+        "file": "Services/roblox.lst",
+        "url": "https://github.com/itdoginfo/allow-domains/blob/HEAD/Services/roblox.lst",
+        "suggest_url": "https://github.com/itdoginfo/allow-domains/issues",
+        "editable_locally": false
+      },
       "default_on": false,
       "is_geoblock": false,
       "same_as_ip": [
@@ -556,6 +716,14 @@
       "file": "domains/svc_telegram.lst",
       "count": 20,
       "source": "itdoginfo/allow-domains/Services",
+      "upstream": {
+        "repo": "itdoginfo/allow-domains",
+        "folder": "Services",
+        "file": "Services/telegram.lst",
+        "url": "https://github.com/itdoginfo/allow-domains/blob/HEAD/Services/telegram.lst",
+        "suggest_url": "https://github.com/itdoginfo/allow-domains/issues",
+        "editable_locally": false
+      },
       "default_on": false,
       "is_geoblock": false,
       "same_as_ip": [
@@ -569,6 +737,14 @@
       "file": "domains/svc_tiktok.lst",
       "count": 16,
       "source": "itdoginfo/allow-domains/Services",
+      "upstream": {
+        "repo": "itdoginfo/allow-domains",
+        "folder": "Services",
+        "file": "Services/tiktok.lst",
+        "url": "https://github.com/itdoginfo/allow-domains/blob/HEAD/Services/tiktok.lst",
+        "suggest_url": "https://github.com/itdoginfo/allow-domains/issues",
+        "editable_locally": false
+      },
       "default_on": false,
       "is_geoblock": false,
       "same_as_ip": [
@@ -582,6 +758,14 @@
       "file": "domains/svc_twitter.lst",
       "count": 23,
       "source": "itdoginfo/allow-domains/Services",
+      "upstream": {
+        "repo": "itdoginfo/allow-domains",
+        "folder": "Services",
+        "file": "Services/twitter.lst",
+        "url": "https://github.com/itdoginfo/allow-domains/blob/HEAD/Services/twitter.lst",
+        "suggest_url": "https://github.com/itdoginfo/allow-domains/issues",
+        "editable_locally": false
+      },
       "default_on": false,
       "is_geoblock": false,
       "same_as_ip": [
@@ -595,6 +779,14 @@
       "file": "domains/svc_youtube.lst",
       "count": 18,
       "source": "itdoginfo/allow-domains/Services",
+      "upstream": {
+        "repo": "itdoginfo/allow-domains",
+        "folder": "Services",
+        "file": "Services/youtube.lst",
+        "url": "https://github.com/itdoginfo/allow-domains/blob/HEAD/Services/youtube.lst",
+        "suggest_url": "https://github.com/itdoginfo/allow-domains/issues",
+        "editable_locally": false
+      },
       "default_on": false,
       "is_geoblock": false,
       "same_as_ip": [
@@ -662,14 +854,18 @@
     {
       "id": "whatsapp",
       "name_ru": "WhatsApp",
-      "description_ru": "Мессенджер WhatsApp (Meta).",
+      "description_ru": "Мессенджер WhatsApp (Meta). Адресный список — тот же, что у Meta: общая автономная система AS32934. Различаются только доменные списки.",
       "default_on": true,
       "is_geoblock": false,
       "is_infra": false,
       "prefixes_file": "whatsapp.lst",
       "prefixes_count": 33,
       "domains_files": [],
-      "domains_count": 0
+      "domains_count": 0,
+      "same_prefixes_as": [
+        "meta"
+      ],
+      "same_prefixes_reason_ru": "общая автономная система AS32934 (Meta)"
     },
     {
       "id": "discord",
@@ -688,7 +884,7 @@
     {
       "id": "meta",
       "name_ru": "Meta (Facebook/Instagram)",
-      "description_ru": "Соцсети Facebook и Instagram (без WhatsApp).",
+      "description_ru": "Соцсети Facebook и Instagram. Адресный список — тот же, что у WhatsApp: общая автономная система AS32934. По адресам эти категории не различаются, различаются только доменные списки.",
       "default_on": true,
       "is_geoblock": false,
       "is_infra": false,
@@ -697,7 +893,11 @@
       "domains_files": [
         "domains/svc_meta.lst"
       ],
-      "domains_count": 18
+      "domains_count": 18,
+      "same_prefixes_as": [
+        "whatsapp"
+      ],
+      "same_prefixes_reason_ru": "общая автономная система AS32934 (Meta)"
     },
     {
       "id": "twitter_x",
@@ -716,7 +916,7 @@
     {
       "id": "youtube",
       "name_ru": "YouTube",
-      "description_ru": "Видеохостинг YouTube и CDN (Google Video).",
+      "description_ru": "Видеохостинг YouTube и CDN (Google Video). Адресный список — тот же, что у категории Google: общая автономная система AS15169, поэтому включение YouTube уводит в туннель все адреса Google.",
       "default_on": true,
       "is_geoblock": false,
       "is_infra": false,
@@ -725,12 +925,16 @@
       "domains_files": [
         "domains/svc_youtube.lst"
       ],
-      "domains_count": 18
+      "domains_count": 18,
+      "same_prefixes_as": [
+        "google"
+      ],
+      "same_prefixes_reason_ru": "общая автономная система AS15169 (Google)"
     },
     {
       "id": "google",
       "name_ru": "Google (Meet/Play/AI)",
-      "description_ru": "Google Meet, Play и AI-сервисы (Bard/Gemini).",
+      "description_ru": "Google Meet, Play и AI-сервисы (Bard/Gemini). Адресный список — тот же, что у YouTube: общая автономная система AS15169.",
       "default_on": true,
       "is_geoblock": false,
       "is_infra": false,
@@ -741,7 +945,11 @@
         "domains/svc_google_meet.lst",
         "domains/svc_google_play.lst"
       ],
-      "domains_count": 45
+      "domains_count": 45,
+      "same_prefixes_as": [
+        "youtube"
+      ],
+      "same_prefixes_reason_ru": "общая автономная система AS15169 (Google)"
     },
     {
       "id": "tiktok",

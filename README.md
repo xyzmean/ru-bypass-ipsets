@@ -17,12 +17,12 @@
 | Категория | Русское название | Описание | Префиксов | По умолч. |
 |---|---|---|---:|:--:|
 | `telegram` | Telegram | Мессенджер Telegram: домены и подсети по ASN. | 8 | ✅ |
-| `whatsapp` | WhatsApp | Мессенджер WhatsApp (Meta). | 33 | ✅ |
+| `whatsapp` | WhatsApp | Мессенджер WhatsApp (Meta). Адресный список — тот же, что у Meta: общая AS32934. | 33 | ✅ |
 | `discord` | Discord | Голосовой чат Discord: готовый ipset внешнего списка, без вычитаний. | 460 | ✅ |
-| `meta` | Meta (Facebook/Instagram) | Соцсети Facebook и Instagram (без WhatsApp). | 33 | ✅ |
+| `meta` | Meta (Facebook/Instagram) | Соцсети Facebook и Instagram. Адресный список — тот же, что у WhatsApp: общая AS32934. | 33 | ✅ |
 | `twitter_x` | Twitter / X | Микроблоги Twitter и X. | 13 | ✅ |
-| `youtube` | YouTube | Видеохостинг YouTube и CDN (Google Video). | 58 | ✅ |
-| `google` | Google (Meet/Play/AI) | Google Meet, Play и AI-сервисы (Bard/Gemini). | 58 | ✅ |
+| `youtube` | YouTube | Видеохостинг YouTube и CDN (Google Video). Адресный список — тот же, что у `google`: общая AS15169. | 58 | ✅ |
+| `google` | Google (Meet/Play/AI) | Google Meet, Play и AI-сервисы (Bard/Gemini). Адресный список — тот же, что у `youtube`: общая AS15169. | 58 | ✅ |
 | `tiktok` | TikTok | Короткие видео TikTok (ByteDance). | 8 | ✅ |
 | `roblox` | Roblox | Игровая платформа Roblox. | 4 | ⬜ |
 | `netflix` 🌐 | Netflix | Видеостриминг Netflix (геоблокирует РФ). | 30 | ⬜ |
@@ -51,6 +51,68 @@
 
 `discord` — исключение из всего конвейера: это готовый ipset [Re-filter-lists](https://github.com/1andrevich/Re-filter-lists), взятый как есть. По нему НЕ гоняются ни вычитание инфраструктуры, ни вычитание общих обратных прокси, поэтому в нём остаётся то, что в остальных списках вырезается, — в частности `104.16.0.0/12` (1 048 576 адресов Cloudflare).
 
+### Категории с одинаковым списком адресов
+
+Две пары категорий дают **побайтово один и тот же файл**: `meta` = `whatsapp` (общая
+AS32934) и `google` = `youtube` (общая AS15169). Причина в устройстве сборки: префиксы
+автономной системы поглощают все /24, полученные резолвом доменов, поэтому `domain_filter`
+различает домены, а адреса — нет. Проверено на выпущенных списках; больше ни одна пара
+категорий не пересекается даже на 2%.
+
+Раньше манифест об этом молчал, а описание `meta` обещало «без WhatsApp» — то есть прямо
+утверждало обратное. Практическое следствие второй пары: включив «YouTube», человек уводит
+в туннель **все** адреса Google (2,6 млн адресов), думая, что взял узкий список.
+
+Файлы при этом **не склеиваются и не переименовываются**: на `meta.lst`, `whatsapp.lst`,
+`google.lst` и `youtube.lst` ссылаются каналы на уже настроенных роутерах — тот же случай,
+что с `hodca.lst`. Вместо склейки манифест говорит правду:
+
+```json
+{ "id": "youtube", "count": 58,
+  "same_prefixes_as": ["google"],
+  "same_prefixes_reason_ru": "общая автономная система AS15169 (Google)" }
+```
+
+Поле есть и у записей `services` (их читает интерфейс). Оно **измеряется при сборке** по
+собранным спискам, а не берётся из схемы на веру: `SAME_PREFIXES_GROUPS` в
+`generator/categories_schema.py` даёт только человеческую причину, а
+`aggregate.same_prefixes_groups()` сверяет её с файлами и пишет в лог оба расхождения —
+найденную и не описанную пару, описанную и уже разошедшуюся.
+
+Рекомендуемая формулировка для интерфейса: «тот же список адресов, что у Meta: общая
+автономная система». Скрывать один из переключателей не нужно — оба имени уже разошлись по
+настройкам.
+
+### Доменные списки — зеркало чужого репозитория
+
+`lists/domains/*.lst` не наши: они синхронизируются из
+[itdoginfo/allow-domains](https://github.com/itdoginfo/allow-domains) (папки `Categories` и
+`Services`) и перезаписываются целиком при каждой сборке. Дописанный в такой файл домен
+исчезает при следующей синхронизации, молча. Поэтому каждая запись `domain_lists` в
+манифесте несёт признак источника:
+
+```json
+"upstream": {
+  "repo": "itdoginfo/allow-domains",
+  "folder": "Categories",
+  "file": "Categories/porn.lst",
+  "url": "https://github.com/itdoginfo/allow-domains/blob/HEAD/Categories/porn.lst",
+  "suggest_url": "https://github.com/itdoginfo/allow-domains/issues",
+  "editable_locally": false
+}
+```
+
+Рекомендуемая формулировка для интерфейса: «список внешний: чтобы добавить домен, предложите
+его апстриму или используйте свой список». Пришло это из живого обращения: человек включил
+категорию «18+», нужного ему сайта в ней не оказалось, и узнать, что дописать домен в наш
+репозиторий нельзя, ему было негде.
+
+Обратная сторона того же: **ручной сид в `sources/thematic/` в доменный список не попадает
+вовсе**. Он идёт в резолв и становится ПРЕФИКСАМИ, а для сайта за общим CDN это не покрытие
+— адрес либо вычтется как инфраструктура, либо уведёт в туннель весь CDN. Сборка говорит это
+вслух: `sources.thematic_seeds` в манифесте (`total` / `in_domain_lists` / `prefix_only` /
+`behind_shared_proxy`) и предупреждение в логе со списком доменов без покрытия.
+
 ### Переименование списков
 
 Семнадцать категорий свёрнуты в две (`rkn`, `geoblock`), файлы старых имён из публикации убраны. Чтобы уже настроенные роутеры не остались с замершими списками, манифест несёт карту `aliases` вида `{"from": "rkn_other.lst", "to": "rkn.lst"}` — 18 записей. Потребитель (splify2) по ней качает новый список по прежнему пути и говорит об этом в журнале. Без карты переименование выглядело бы как «нет в манифесте, пропущен»: файл остаётся последней скачанной копией и перестаёт обновляться навсегда, без признака ошибки.
@@ -69,6 +131,19 @@
 ### Индекс категорий
 `lists/categories.json` — канонический манифест: `id`, `name_ru`, `description_ru`, `file`, `default_on`, `is_geoblock`, `count`. splify тянет его по raw-URL и строит переключатели в UI; включённые категории мержатся в один nft-сет.
 
+Необязательные поля, которые может встретить потребитель (все — добавления, ни одно не меняет смысла существующих):
+
+| Поле | Где | Что означает |
+|---|---|---|
+| `renamed_from` | `categories`, `aggregates` | имена файлов, схлопнувшихся в этот; рядом лежит плоская карта `aliases` |
+| `same_prefixes_as` | `categories`, `services` | категории с **тем же** набором префиксов (см. «Категории с одинаковым списком адресов») |
+| `same_prefixes_reason_ru` | `categories`, `services` | причина совпадения человеческим языком — то, что показывает интерфейс |
+| `upstream` | `domain_lists` | список зеркалится из чужого репозитория; `editable_locally: false` |
+| `sources.thematic_seeds` | корень | сколько ручных сидов есть в доменных списках, а сколько существует только префиксами |
+
+Каждое из них пишет генератор и проверяет `generator/selfcheck.py` — манифест собирается
+заново ЦЕЛИКОМ при каждой сборке, поэтому непроверяемое поле рано или поздно теряется молча.
+
 ```bash
 curl -fsSL https://raw.githubusercontent.com/xyzmean/ru-bypass-ipsets/main/lists/categories.json
 ```
@@ -84,13 +159,15 @@ https://raw.githubusercontent.com/xyzmean/ru-bypass-ipsets/main/lists/<category>
 pip install -r generator/requirements.txt
 python generator/aggregate.py            # полный прогон
 SAMPLE=200 python generator/aggregate.py # проверка на 200 РКН-доменах (без gate)
+python generator/selfcheck.py            # схема, списки против схемы, манифест (без сети, секунды)
 ```
 
 ## Структура
 
 ```
 sources/     вендорные снапшоты (источник правды): services/, thematic/, rkn/, asn/
-generator/   Python-пайплайн: lib, fetch_sources, resolve, asn_pull, categorize, aggregate
+generator/   Python-пайплайн: lib, fetch_sources, resolve, asn_pull, categorize, aggregate,
+             domain_lists (доменные списки) + selfcheck (проверки без сети, их же гоняет CI)
 lists/       сгенерированные .lst + categories.json  (коммитится в main)
 .github/     workflows: resolve.yml, validate.yml
 ```

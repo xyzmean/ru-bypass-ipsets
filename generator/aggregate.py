@@ -302,14 +302,99 @@ def subtract_infra(
 # ─────────────── индекс ───────────────
 
 
+def same_prefixes_groups(
+    cat_networks: dict[str, list[ipaddress.IPv4Network]]
+) -> dict[str, dict]:
+    """Категории, у которых набор префиксов ОДИН И ТОТ ЖЕ: id → {"with", "reason_ru"}.
+
+    Считается по СОБРАННЫМ спискам, а не по схеме. Разница принципиальная: поле
+    `same_prefixes_as` в манифесте — утверждение о выпущенных файлах, и оно должно быть
+    верным на день сборки, а не на день, когда кто-то дописал группу в схему. Схема
+    (`SAME_PREFIXES_GROUPS`) даёт только человеческую причину совпадения.
+
+    Отсюда два сообщения в лог, и оба нужны:
+      * совпадение НАЙДЕНО, но в схеме не описано — новая пара категорий с общей AS
+        появилась сама, и человеку об этом никто не сказал (ровно так жили meta и
+        whatsapp);
+      * совпадение ЗАЯВЛЕНО, но списки разошлись — причина устарела, и публиковать
+        «тот же список, что у Meta» уже неправда.
+    Пустые списки в группы не собираются: два пустых файла совпадают, но это не «та же
+    цель», а провал сборки, и он виден по count.
+    """
+    buckets: dict[frozenset, list[str]] = {}
+    for cat in schema.CATEGORIES:
+        nets = cat_networks.get(cat["id"])
+        if not nets:
+            continue
+        buckets.setdefault(frozenset(nets), []).append(cat["id"])
+
+    declared = schema.declared_same_prefixes()
+    out: dict[str, dict] = {}
+    for ids in buckets.values():
+        if len(ids) < 2:
+            continue
+        for cid in ids:
+            others = sorted(i for i in ids if i != cid)
+            known = declared.get(cid)
+            if known and known["with"] == others:
+                reason = known["reason_ru"]
+            else:
+                reason = ("совпадение обнаружено при сборке: наборы префиксов совпали "
+                          "полностью, причина в схеме не описана")
+                log.warning("same_prefixes: %s совпадает с %s, но в SAME_PREFIXES_GROUPS "
+                            "этой группы нет — причина не названа", cid, ", ".join(others))
+            out[cid] = {"with": others, "reason_ru": reason}
+
+    for cid, known in declared.items():
+        if cid not in out:
+            log.error("same_prefixes: схема заявляет совпадение %s с %s, но собранные "
+                      "списки различаются — поле не публикуется",
+                      cid, ", ".join(known["with"]))
+    return out
+
+
+def seeds_behind_shared_proxy(
+    domains: list[str], resolve_cache: dict, proxy_nets: list[ipaddress.IPv4Network]
+) -> list[str]:
+    """Из доменов — те, чьи адреса ЦЕЛИКОМ лежат за общими обратными прокси.
+
+    Худший случай из I-077 и есть этот список: домена нет в доменных списках (значит он
+    попадёт только префиксами), а префиксы у него — края Cloudflare или CloudFront.
+    Такой адрес либо вычтется как инфраструктура, либо уведёт в туннель всё, что за
+    прокси живёт. То есть покрытия у домена нет ни одного, и сказать об этом надо в
+    сборке, а не в переписке с пользователем.
+    """
+    ranges = list(ipaddress.collapse_addresses(proxy_nets)) if proxy_nets else []
+    if not ranges:
+        return []
+    out: list[str] = []
+    for dom in domains:
+        res = resolve_cache.get(dom)
+        nets = result_to_networks(res) if res else []
+        if nets and all(any(n.overlaps(r) for r in ranges) for n in nets):
+            out.append(dom)
+    return out
+
+
 def build_index(
-    counts: dict[str, int], source_meta: dict, domain_entries: list[dict] | None = None
+    counts: dict[str, int],
+    source_meta: dict,
+    domain_entries: list[dict] | None = None,
+    same_prefixes: dict[str, dict] | None = None,
 ) -> dict:
+    """Собрать манифест. `same_prefixes` — результат same_prefixes_groups() по
+    собранным спискам; None означает «списков под рукой нет», и тогда берётся
+    заявленное в схеме, а сверка остаётся за generator/selfcheck.py."""
     now = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     version = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d")
+    if same_prefixes is None:
+        same_prefixes = schema.declared_same_prefixes()
 
     def entry(c, aggregate=False):
         old = schema.RENAMED_FROM.get(c["id"], [])
+        # Агрегаты в группы не входят: они объединения, и «тот же список» про них
+        # говорилось бы про совсем другое отношение.
+        same = None if aggregate else same_prefixes.get(c["id"])
         return {
             "id": c["id"],
             "name_ru": c["name_ru"],
@@ -321,6 +406,13 @@ def build_index(
             # Какие списки схлопнулись в этот. Потребитель по этому полю переносит
             # настройку молча вместо того, чтобы молча перестать обновлять файл.
             **({"renamed_from": [f"{o}.lst" for o in old]} if old else {}),
+            # Категории, чей адресный список совпадает с этим ПОЛНОСТЬЮ, и почему.
+            # Файлы при этом остаются отдельными: на их имена ссылаются уже настроенные
+            # каналы. Поле нужно интерфейсу, чтобы напечатать «тот же список адресов,
+            # что у Meta: общая автономная система», а не показывать два переключателя,
+            # из которых один выглядит узким и таковым не является.
+            **({"same_prefixes_as": same["with"],
+                "same_prefixes_reason_ru": same["reason_ru"]} if same else {}),
             **({"aggregate": True} if aggregate else {}),
         }
 
@@ -359,11 +451,13 @@ def build_index(
         # Отдельным ключом, а не полем внутри categories, по той же причине, по которой
         # отдельно лежат domain_lists: у записи другая форма и другое назначение, а
         # существующие читатели categories.json от нового ключа не ломаются.
-        "services": _service_entries(counts, domain_entries or []),
+        "services": _service_entries(counts, domain_entries or [], same_prefixes),
     }
 
 
-def _service_entries(counts: dict[str, int], domain_entries: list[dict]) -> list[dict]:
+def _service_entries(
+    counts: dict[str, int], domain_entries: list[dict], same_prefixes: dict[str, dict]
+) -> list[dict]:
     """Пары «адреса + домены» по одному сервису.
 
     Сопоставление по имени файла доменного списка: `svc_<id>` у издателя доменов против
@@ -400,6 +494,12 @@ def _service_entries(counts: dict[str, int], domain_entries: list[dict]) -> list
             # бы завести четвёртый источник правды рядом с тремя существующими.
             "domains_files": [d["file"] for d in doms],
             "domains_count": sum(d.get("count", 0) for d in doms),
+            # То же поле, что у категорий: интерфейс строит каталог по `services`, и без
+            # него «YouTube» и «Google» остались бы двумя строками с одинаковым числом
+            # префиксов и без объяснения, почему они одинаковые.
+            **({"same_prefixes_as": same["with"],
+                "same_prefixes_reason_ru": same["reason_ru"]}
+               if (same := same_prefixes.get(cid)) else {}),
         })
     return out
 
@@ -409,6 +509,15 @@ def _service_entries(counts: dict[str, int], domain_entries: list[dict]) -> list
 
 def main():
     log.info("=== ru-bypass-ipsets build (v2: кеш + параллельный DNS) ===")
+
+    # Схема проверяется ДО первого запроса в сеть. Полчаса резолва ради манифеста, у
+    # которого поле противоречит данным, — худший из вариантов: он ещё и публикуется.
+    schema_errors = schema.validate()
+    for e in schema_errors:
+        log.error("схема категорий: %s", e)
+    if schema_errors:
+        log.error("сборка прервана: %d ошибк(и) в схеме", len(schema_errors))
+        sys.exit(2)
 
     geolite_path = None
     if os.environ.get("SKIP_GEO") != "1":
@@ -535,6 +644,13 @@ def main():
     # агрегаты
     _build_aggregates(schema.CATEGORIES, cat_networks, counts)
 
+    # Кто с кем совпал ПОЛНОСТЬЮ — по собранным спискам, а не по схеме. Идёт в манифест
+    # полем same_prefixes_as: две категории с общей автономной системой дают один и тот
+    # же файл, и человек имеет право знать это до включения, а не после.
+    same_prefixes = same_prefixes_groups(cat_networks)
+    for cid, info in sorted(same_prefixes.items()):
+        log.info("same_prefixes: %s = %s (%s)", cid, ", ".join(info["with"]), info["reason_ru"])
+
     # Файлы исчезнувших категорий убираются здесь же. Иначе они остаются лежать в
     # публикации навсегда: сборка их больше не пересобирает, но издатель их по-прежнему
     # отдаёт — то есть кто-то качает список, который замер в день переименования, и узнать
@@ -567,8 +683,36 @@ def main():
         log.warning("доменные списки не опубликованы: %s", exc)
         domain_entries = []
 
+    # Отдельным try, а не внутри публикации: провал ПРОВЕРКИ не должен выкидывать из
+    # манифеста уже опубликованные доменные списки. Проверка — про честность отчёта,
+    # публикация — про содержимое манифеста, и цена ошибки у них разная.
+    try:
+        import domain_lists
+
+        # Ручной сид из sources/thematic НЕ становится доменом в доменном списке: он
+        # идёт в резолв и превращается в префиксы. Сборка говорит это вслух, потому что
+        # снаружи выглядит наоборот — «домен добавлен в тематику» читается как «домен
+        # добавлен в список» (splify2#7, I-077).
+        seeds = domain_lists.check_thematic_seed_coverage()
+        blind = seeds_behind_shared_proxy(seeds["prefix_only"], resolve_cache, proxy_nets)
+        log.info("тематические сиды: %d, есть в доменных списках %d, только префиксами %d",
+                 seeds["total"], seeds["in_domain_lists"], len(seeds["prefix_only"]))
+        if blind:
+            log.warning("сидов без покрытия вовсе (нет в доменных списках, а адреса "
+                        "целиком за общими прокси): %d — %s",
+                        len(blind), ", ".join(blind[:10]))
+        source_meta["thematic_seeds"] = {
+            "total": seeds["total"],
+            "in_domain_lists": seeds["in_domain_lists"],
+            "prefix_only": len(seeds["prefix_only"]),
+            "behind_shared_proxy": len(blind),
+        }
+    except Exception as exc:  # noqa: BLE001
+        log.warning("проверка тематических сидов не выполнена: %s", exc)
+
     (LISTS / "categories.json").write_text(
-        json.dumps(build_index(counts, source_meta, domain_entries), ensure_ascii=False, indent=2)
+        json.dumps(build_index(counts, source_meta, domain_entries, same_prefixes),
+                   ensure_ascii=False, indent=2)
         + "\n",
         encoding="utf-8",
     )

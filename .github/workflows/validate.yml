@@ -5,6 +5,14 @@ on:
     paths:
       - 'lists/**'
       - 'generator/**'
+  # Прямой push в main — основной путь изменений в этом репозитории (PR здесь не
+  # заводятся), и без этого триггера проверка не запускалась вовсе там, где нужнее всего.
+  push:
+    branches: [main]
+    paths:
+      - 'lists/**'
+      - 'generator/**'
+      - '.github/workflows/validate.yml'
 
 jobs:
   validate:
@@ -55,6 +63,18 @@ jobs:
           done
           exit $fail
 
+      # setup-python здесь появился вместе с self-check: шаг ниже уже вызывал `python`,
+      # но джоб никогда не проверялся на практике — validate.yml запускался только на
+      # pull request, а в этом репозитории коммитят прямо в main.
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Self-check (схема, списки против схемы, манифест)
+        run: |
+          pip install -q requests
+          python generator/selfcheck.py
+
       - name: Validate categories.json
         run: |
           python -c "
@@ -62,8 +82,20 @@ jobs:
           d = json.load(open('lists/categories.json'))
           assert 'categories' in d and 'aggregates' in d
           assert d['categories'], 'пустые категории'
+          ids = {c['id'] for c in d['categories']}
           for c in d['categories']:
               for k in ('id','name_ru','description_ru','file','default_on','is_geoblock','count'):
                   assert k in c, f'категория {c} без {k}'
-          print('categories.json OK:', len(d['categories']), 'категорий')
+              # same_prefixes_as: «тот же набор префиксов, что у …». Симметрично, ведёт на
+              # существующие категории и всегда с причиной для интерфейса.
+              for other in c.get('same_prefixes_as', []):
+                  assert other in ids, f'{c["id"]}: same_prefixes_as → неизвестный {other}'
+                  assert c.get('same_prefixes_reason_ru'), f'{c["id"]}: нет same_prefixes_reason_ru'
+          for dl in d.get('domain_lists', []):
+              up = dl.get('upstream')
+              assert isinstance(up, dict), f'доменный список {dl["id"]} без upstream'
+              assert up.get('editable_locally') is False, f'{dl["id"]}: upstream.editable_locally != false'
+              assert up.get('url') and up.get('suggest_url'), f'{dl["id"]}: upstream без ссылок'
+          print('categories.json OK:', len(d['categories']), 'категорий,',
+                len(d.get('domain_lists', [])), 'доменных списков')
           "

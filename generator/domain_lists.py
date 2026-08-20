@@ -17,6 +17,18 @@
 пул адресов, элемент набора и запись в карте на каждый домен. Пусть выбор будет
 осознанным, поэтому связь попадает в манифест.
 
+Каждая запись манифеста несёт признак `upstream`: файл в lists/domains/ — ЗЕРКАЛО, а не
+наш список. Практическое следствие пришло снаружи (splify2#7): человек включил категорию
+«18+», сайта rule34.pw в ней нет, и узнать, что дописать домен в наш репозиторий нельзя
+(следующая синхронизация затрёт правку), ему было негде. Теперь это в данных, и интерфейс
+может сказать «список внешний: предложите домен апстриму или используйте свой список».
+
+Обратная сторона того же — `check_thematic_seed_coverage()`: ручной сид в sources/thematic
+в доменный список НЕ попадает вовсе, он идёт в резолв и превращается в ПРЕФИКСЫ. Для сайта
+за общим CDN это не покрытие: адрес либо вычтен как инфраструктура, либо тянет за собой
+весь CDN. Проверка называет такие домены при сборке, чтобы «я добавил домен в тематику» и
+«домен появился в доменном списке» перестали выглядеть одним и тем же.
+
 Отдельно считаются ПЕРЕСЕЧЕНИЯ между доменными списками. Они реальны (geoblock перекрывается с
 тематическими, Services с Categories), а последствие практическое: два канала,
 указывающие на пересекающиеся списки, держат одни и те же домены дважды и спорят за
@@ -44,6 +56,16 @@ FOLDERS = ("Categories", "Services")
 API = "https://api.github.com/repos/{repo}/contents/{path}"
 HTTP_TIMEOUT = 30
 
+
+# Ручной тематический сид — вход в РЕЗОЛВ, а не в доменный список. Нужен здесь, чтобы
+# проверка покрытия читала ровно тот же каталог, что и aggregate.collect_domains_by_category.
+THEMATIC = ROOT / "sources" / "thematic"
+
+# Куда идти человеку, которому нужен домен, которого в зеркале нет. Ветка не называется
+# специально: `HEAD` на github.com разрешается в ветку по умолчанию, и угадывать её имя
+# (main или master) значило бы опубликовать ссылку, которая однажды отдаст 404.
+UPSTREAM_URL = f"https://github.com/{REPO}"
+UPSTREAM_SUGGEST_URL = f"https://github.com/{REPO}/issues"
 
 # Порог, ниже которого пересечение не стоит упоминания: пара общих домена есть у всех.
 OVERLAP_MIN = 25
@@ -158,6 +180,72 @@ def _ip_equivalents(domain_ids: dict[str, str]) -> dict[str, list[str]]:
     return out
 
 
+def upstream_meta(folder: str, filename: str) -> dict:
+    """Признак «этот список — зеркало чужого репозитория», как его читает интерфейс.
+
+    `editable_locally: false` — не оговорка, а главное содержание записи: файл в
+    lists/domains/ перезаписывается синхронизацией целиком, поэтому дописанный в него
+    домен исчезает при следующей сборке, молча. Единственные честные пути —
+    предложить домен апстриму (`suggest_url`) или держать свой список на роутере.
+    """
+    return {
+        "repo": REPO,
+        "folder": folder,
+        "file": f"{folder}/{filename}",
+        "url": f"{UPSTREAM_URL}/blob/HEAD/{folder}/{filename}",
+        "suggest_url": UPSTREAM_SUGGEST_URL,
+        "editable_locally": False,
+    }
+
+
+def _covered_by(domain: str, published: set[str]) -> str | None:
+    """Домен или его родитель, уже лежащий в доменных списках; None — нет ни одного.
+
+    Проверяются и родители: движок сопоставляет доменный список по суффиксу, поэтому
+    `example.com` в списке покрывает и `cdn.example.com`. Считать иначе значило бы
+    объявлять непокрытым то, что покрыто.
+    """
+    parts = domain.split(".")
+    for i in range(len(parts) - 1):
+        parent = ".".join(parts[i:])
+        if parent in published:
+            return parent
+    return None
+
+
+def check_thematic_seed_coverage() -> dict:
+    """Сколько ручных сидов из sources/thematic есть в доменных списках, а сколько нет.
+
+    Ответ почти всегда «нет», и это не поломка, а устройство: сиды идут в резолв и
+    становятся префиксами. Проверка существует, чтобы это было сказано вслух при каждой
+    сборке — иначе «добавил домен в sources/thematic» читается как «добавил домен в
+    список 18+», а это разные вещи, и для сайта за общим CDN вторая не работает вовсе.
+
+    Читает только файлы репозитория: ни сети, ни резолва, поэтому её же гоняет
+    generator/selfcheck.py в CI.
+    """
+    published: set[str] = set()
+    for f in sorted(OUT.glob("*.lst")):
+        published |= {l.strip() for l in f.read_text(encoding="utf-8").splitlines() if l.strip()}
+
+    by_file: dict[str, dict] = {}
+    prefix_only: list[str] = []
+    total = 0
+    for f in sorted(THEMATIC.glob("*.lst")):
+        seeds = _clean(f.read_text(encoding="utf-8", errors="replace"))
+        missing = [d for d in seeds if _covered_by(d, published) is None]
+        total += len(seeds)
+        prefix_only += missing
+        by_file[f.name] = {"seeds": len(seeds), "prefix_only": len(missing)}
+    return {
+        "total": total,
+        "in_domain_lists": total - len(prefix_only),
+        "prefix_only": sorted(set(prefix_only)),
+        "by_file": by_file,
+        "published_domains": len(published),
+    }
+
+
 def publish() -> list[dict]:
     """Скачивает, нормализует, пишет lists/domains/*.lst и возвращает записи манифеста."""
     OUT.mkdir(parents=True, exist_ok=True)
@@ -197,6 +285,10 @@ def publish() -> list[dict]:
                 "file": f"domains/{cid}.lst",
                 "count": len(domains),
                 "source": f"{REPO}/{folder}",
+                # Строковый `source` оставлен как был: его уже читают установленные
+                # версии. `upstream` — то же самое, но разобранное на части, плюс главное,
+                # чего строка не говорит: дописать домен локально нельзя.
+                "upstream": upstream_meta(folder, f["name"]),
                 # Ни один доменный список не включается сам: канал должен указать на
                 # него осознанно, иначе первая же установка начнёт куда-то гнать почту.
                 "default_on": False,
