@@ -17,11 +17,37 @@
 пул адресов, элемент набора и запись в карте на каждый домен. Пусть выбор будет
 осознанным, поэтому связь попадает в манифест.
 
-Каждая запись манифеста несёт признак `upstream`: файл в lists/domains/ — ЗЕРКАЛО, а не
-наш список. Практическое следствие пришло снаружи (splify2#7): человек включил категорию
-«18+», сайта rule34.pw в ней нет, и узнать, что дописать домен в наш репозиторий нельзя
-(следующая синхронизация затрёт правку), ему было негде. Теперь это в данных, и интерфейс
-может сказать «список внешний: предложите домен апстриму или используйте свой список».
+Каждая зеркальная запись манифеста несёт признак `upstream`: этот файл в lists/domains/ —
+ЗЕРКАЛО, а не наш список. Практическое следствие пришло снаружи (splify2#7): человек
+включил категорию «18+», сайта rule34.pw в ней нет, и узнать, что дописать домен в
+зеркальный файл нельзя (следующая синхронизация затрёт правку), ему было негде. Теперь
+это в данных, и интерфейс может сказать «список внешний: предложите домен апстриму или
+возьмите наш список рядом».
+
+Рядом с зеркалом публикуется НАШ доменный список: каталог `sources/domains/`, который
+синхронизация не трогает (она пишет только в lists/domains/), собирается в
+`lists/domains/own_<id>.lst` и несёт в манифесте признак `maintained_here` — по форме
+зеркальный `upstream`, но с `editable_locally: true` и ссылкой на ЭТОТ репозиторий. Это
+ответ на то же обращение действием, а не советом: домену, которого в зеркале нет, теперь
+есть куда лечь на нашей стороне.
+
+Почему ОТДЕЛЬНОЙ записью, а не вторым файлом у записи зеркала. У записи манифеста ровно одно
+поле `file`, и установленные роутеры читают его как одно значение (`splify2-update-lists`
+строит карту «путь у издателя -> URL», rpcd достаёт
+`@.domain_lists[@.id='porn'].file`). Сделать из него массив значило бы сломать разбор у всех,
+кто уже стоит. Дописывать наши домены в сам файл зеркала нельзя тем более: он перезаписывается
+синхронизацией целиком, и «наше» стало бы неотличимо от чужого ровно там, где потребитель
+обязан видеть разницу. Поэтому запись своя, а связь с зеркалом названа явно — `complements` у
+нас и `complemented_by` у зеркала, симметрично, как `same_prefixes_as` у адресных категорий.
+Имена уже опубликованных файлов при этом не меняются ни одного: `own_porn.lst` появляется
+рядом с `porn.lst`, а не вместо него.
+
+Домен, оказавшийся и у нас, и в зеркале, из нашего файла НЕ выкидывается: дубль маршрутизации
+не мешает (это два разных набора, решение по домену одно и то же), а выкидывание поставило бы
+содержимое нашего списка в зависимость от того, доехало ли сегодня зеркало. Но и молчать о нём
+нельзя, иначе список копит строки, которые давно приехали из апстрима. Поэтому дубли
+называются в логе сборки и в поле `already_in_upstream` — это сигнал человеку убрать сид, а не
+действие за него.
 
 Обратная сторона того же — `check_thematic_seed_coverage()`: ручной сид в sources/thematic
 в доменный список НЕ попадает вовсе, он идёт в резолв и превращается в ПРЕФИКСЫ. Для сайта
@@ -43,7 +69,13 @@ import logging
 import re
 from pathlib import Path
 
-import requests
+try:
+    import requests
+except ImportError:  # pragma: no cover — окружение без сетевых зависимостей
+    # Не обязателен: наш список из sources/domains собирается без сети, и проверки
+    # selfcheck читают только файлы репозитория. Нужен ровно для зеркала — там и
+    # проверяется, а не «на всякий случай» при импорте.
+    requests = None  # type: ignore[assignment]
 
 log = logging.getLogger(__name__)
 
@@ -66,6 +98,23 @@ THEMATIC = ROOT / "sources" / "thematic"
 # (main или master) значило бы опубликовать ссылку, которая однажды отдаст 404.
 UPSTREAM_URL = f"https://github.com/{REPO}"
 UPSTREAM_SUGGEST_URL = f"https://github.com/{REPO}/issues"
+
+# ─────────── наш собственный доменный список (см. заголовок модуля) ───────────
+# Каталог с сидами. Синхронизация зеркала пишет только в lists/domains/ и сюда не заходит —
+# это и есть всё «не затирается»: чужой код о существовании каталога не знает.
+LOCAL_SRC = ROOT / "sources" / "domains"
+# Имя файла-сида — это id списка зеркала, который он дополняет (sources/domains/porn.lst
+# дополняет зеркальный `porn`), поэтому публикуется он в своём пространстве имён: own_porn.
+# Без префикса свой файл затёр бы зеркальный при первой же сборке.
+LOCAL_PREFIX = "own_"
+SELF_REPO = "xyzmean/ru-bypass-ipsets"
+SELF_URL = f"https://github.com/{SELF_REPO}"
+# Куда предлагать домен: сюда, а не апстриму. Это и есть вся разница между нашим списком
+# и зеркалом с точки зрения человека, которому нужного домена не хватило.
+SELF_SUGGEST_URL = f"{SELF_URL}/issues/new"
+# Сколько дублей называть поимённо в манифесте. Счётчик точен всегда, имена — чтобы было
+# что удалять, не открывая журнал сборки.
+DUP_NAMES_MAX = 25
 
 # Порог, ниже которого пересечение не стоит упоминания: пара общих домена есть у всех.
 OVERLAP_MIN = 25
@@ -111,15 +160,22 @@ def _list_folder(folder: str) -> list[dict]:
     return [x for x in r.json() if x["type"] == "file" and x["name"].endswith(".lst")]
 
 
-def _clean(text: str) -> list[str]:
+def _clean(text: str, inline_comments: bool = False) -> list[str]:
     """Нормализует список: нижний регистр, без комментариев, без дублей, отсортирован.
 
     Сортировка не косметика — она делает diff между сборками читаемым, иначе каждая
     выгрузка выглядит как полная переделка файла.
+
+    `inline_comments` — только для НАШИХ исходников (sources/domains): там строка вида
+    `rule34.pw  # почему добавлен` осмысленна, и человеку надо где-то оставить причину.
+    Для зеркала признак выключен намеренно: чужой формат разбирается ровно так, как
+    разбирался, иначе изменение парсера тихо меняет состав опубликованного списка.
     """
     seen: set[str] = set()
     for raw in text.splitlines():
         line = raw.strip().lower()
+        if inline_comments:
+            line = line.split("#", 1)[0].strip()
         if not line or line.startswith(("#", ";", "//")):
             continue
         line = line.lstrip("*.").lstrip(".")
@@ -198,6 +254,184 @@ def upstream_meta(folder: str, filename: str) -> dict:
     }
 
 
+def local_meta(src_name: str) -> dict:
+    """Признак «этот список наш», по форме — тот же `upstream`, по смыслу — обратный.
+
+    Ключи повторяют зеркальные намеренно: интерфейсу это один и тот же вопрос «откуда
+    список и куда нести домен», и различать его стоит значением, а не разбором двух
+    несовместимых форм. Значимая разница ровно одна и она в `editable_locally: true` —
+    дописанное здесь переживает синхронизацию, потому что синхронизация в этот каталог
+    не заходит.
+    """
+    rel = f"sources/domains/{src_name}"
+    return {
+        "repo": SELF_REPO,
+        "folder": "sources/domains",
+        "file": rel,
+        "url": f"{SELF_URL}/blob/HEAD/{rel}",
+        "suggest_url": SELF_SUGGEST_URL,
+        "editable_locally": True,
+    }
+
+
+def read_local_sources() -> dict[str, dict]:
+    """Наши сиды: id списка -> {stem, src, domains, bad}.
+
+    `bad` — строки, которые не разобрались в домен. Молча их отбрасывать нельзя: файл
+    правит человек руками, и опечатка `rule34,pw` иначе выглядит как «добавил, а не
+    работает» — ровно то непонимание, из-за которого этот список и заведён.
+    """
+    out: dict[str, dict] = {}
+    if not LOCAL_SRC.is_dir():
+        return out
+    for f in sorted(LOCAL_SRC.glob("*.lst")):
+        text = f.read_text(encoding="utf-8", errors="replace")
+        domains = _clean(text, inline_comments=True)
+        bad = []
+        for raw in text.splitlines():
+            line = raw.split("#", 1)[0].strip().lower().lstrip("*.").lstrip(".")
+            if line and not DOMAIN_RE.match(line):
+                bad.append(raw.strip())
+        out[LOCAL_PREFIX + f.stem] = {
+            "stem": f.stem, "src": f.name, "domains": domains, "bad": bad,
+        }
+    return out
+
+
+def mirror_domains_on_disk() -> dict[str, set[str]]:
+    """Что лежит в зеркальных файлах СЕЙЧАС: id списка -> домены.
+
+    С диска, а не из результата текущей загрузки: проверка на дубль должна давать один и
+    тот же ответ и в сборке, и в selfcheck без сети, иначе «предупреждения не было»
+    начинает означать «зеркало сегодня не доехало».
+    """
+    out: dict[str, set[str]] = {}
+    if not OUT.is_dir():
+        return out
+    for f in sorted(OUT.glob("*.lst")):
+        if f.name.startswith(LOCAL_PREFIX):
+            continue
+        out[f.stem] = {l.strip() for l in f.read_text(encoding="utf-8").splitlines()
+                       if l.strip()}
+    return out
+
+
+def check_local_duplicates() -> dict[str, dict]:
+    """Домены наших сидов, которые уже покрыты зеркалом: id списка -> {домен: где}.
+
+    Не ошибка и не повод вычеркнуть строку автоматически (см. заголовок модуля), но и не
+    то, о чём стоит молчать: свой список должен оставаться дополнением, а не медленно
+    превращаться в форк чужого.
+    """
+    mirror = mirror_domains_on_disk()
+    flat: set[str] = set()
+    for doms in mirror.values():
+        flat |= doms
+    out: dict[str, dict] = {}
+    for cid, info in read_local_sources().items():
+        dups = {}
+        for d in info["domains"]:
+            hit = _covered_by(d, flat)
+            if hit is None:
+                continue
+            where = sorted(m for m, doms in mirror.items() if hit in doms)
+            dups[d] = {"covered_by": hit, "lists": where}
+        if dups:
+            out[cid] = dups
+    return out
+
+
+def publish_local(meta: dict[str, dict], sets: dict[str, set[str]]) -> None:
+    """Собирает sources/domains/*.lst в lists/domains/own_*.lst и дописывает манифест.
+
+    Работает после зеркала и НЕ зависит от того, доехало ли оно: наш список публикуется
+    и в сборке без сети — иначе первый же сбой у GitHub стирал бы из манифеста
+    единственную часть, которую мы действительно ведём сами.
+    """
+    for cid, info in sorted(read_local_sources().items()):
+        stem, src = info["stem"], info["src"]
+        for line in info["bad"]:
+            log.warning("sources/domains/%s: строка не разобрана в домен и пропущена: %r",
+                        src, line)
+        if not info["domains"]:
+            log.warning("sources/domains/%s: доменов нет — список не публикуется", src)
+            continue
+        if cid in meta:
+            # Возможно только если в апстриме появился файл с именем own_*: id один,
+            # файл один, и молча выиграл бы тот, кто пишет последним.
+            log.error("id %s занят зеркалом — наш sources/domains/%s не опубликован",
+                      cid, src)
+            continue
+        (OUT / f"{cid}.lst").write_text("\n".join(info["domains"]) + "\n",
+                                        encoding="utf-8")
+        sets[cid] = set(info["domains"])
+        entry = {
+            "id": cid,
+            "kind": "domains",
+            "name_ru": f"{RU_NAMES.get(stem, stem)} — наш список",
+            "file": f"domains/{cid}.lst",
+            "count": len(info["domains"]),
+            "source": f"{SELF_REPO}/sources/domains",
+            "maintained_here": local_meta(src),
+            "default_on": False,
+            "is_geoblock": stem == "geoblock",
+        }
+        # Связь с зеркалом — по файлу на диске, а не по результату сегодняшней загрузки:
+        # иначе в сборке без сети поле пропадает, а «поля не стало» неотличимо от «связи
+        # больше нет». Симметричная половина ставится там, где зеркало в манифесте есть.
+        if (OUT / f"{stem}.lst").is_file():
+            entry["complements"] = [stem]
+            if stem in meta:
+                meta[stem]["complemented_by"] = sorted(
+                    set(meta[stem].get("complemented_by", [])) | {cid})
+        meta[cid] = entry
+        log.info("%s: %d доменов (наш список, sources/domains/%s)",
+                 cid, len(info["domains"]), src)
+
+    for cid, dups in check_local_duplicates().items():
+        if cid not in meta:
+            continue
+        names = sorted(dups)
+        meta[cid]["already_in_upstream"] = {
+            "count": len(names),
+            "domains": names[:DUP_NAMES_MAX],
+        }
+        log.warning("%s: %d домен(ов) уже есть в зеркале — держать их у себя незачем: %s",
+                    cid, len(names),
+                    ", ".join(f"{d} (в {', '.join(v['lists'])})"
+                              for d, v in sorted(dups.items())[:5]))
+
+
+def _keep_mirrors_from_manifest(entries: list[dict]) -> list[dict]:
+    """Если зеркало не доехало ВООБЩЕ — оставить в манифесте прежние зеркальные записи.
+
+    Раньше пустой ответ GitHub означал `domain_lists: []`, то есть у всех установленных
+    роутеров доменные списки разом исчезали из манифеста, хотя файлы лежат на месте.
+    Заметно это стало со своим списком: без защиты сборка без сети опубликовала бы
+    манифест, где из 23 доменных списков остался один наш.
+
+    Только на случай «не доехало ничего»: удаление ОДНОГО файла в апстриме — настоящее
+    изменение, и оно по-прежнему доезжает до манифеста.
+    """
+    if any("upstream" in e for e in entries):
+        return entries
+    manifest = ROOT / "lists" / "categories.json"
+    if not manifest.is_file():
+        return entries
+    try:
+        old = json.loads(manifest.read_text(encoding="utf-8")).get("domain_lists") or []
+    except Exception as exc:  # noqa: BLE001
+        log.warning("прежний манифест не прочитан (%s)", exc)
+        return entries
+    have = {e["id"] for e in entries}
+    kept = [e for e in old if "upstream" in e and e["id"] not in have
+            and (ROOT / "lists" / e["file"]).is_file()]
+    if kept:
+        log.error("зеркало не загрузилось ни одним файлом — в манифесте сохранены "
+                  "%d прежних зеркальных записи(ей), файлы на диске не тронуты", len(kept))
+    return sorted(entries + kept, key=lambda e: e["id"])
+
+
 def _covered_by(domain: str, published: set[str]) -> str | None:
     """Домен или его родитель, уже лежащий в доменных списках; None — нет ни одного.
 
@@ -255,7 +489,7 @@ def publish() -> list[dict]:
     meta: dict[str, dict] = {}
     src_file: dict[str, str] = {}   # id доменного списка -> имя файла в апстриме
 
-    for folder in FOLDERS:
+    for folder in FOLDERS if requests is not None else ():
         try:
             files = _list_folder(folder)
         except Exception as exc:  # noqa: BLE001
@@ -296,14 +530,24 @@ def publish() -> list[dict]:
             }
             log.info("%s: %d доменов", cid, len(domains))
 
+    if requests is None:
+        log.error("requests не установлен — зеркало не обновлено; наш список публикуется")
+
+    # Наш список публикуется ПОСЛЕ зеркала и до подсчёта пересечений: пересечения у него
+    # считаются на общих основаниях, как у любого другого доменного списка.
+    publish_local(meta, sets)
+
     for cid, entries in _overlaps(sets).items():
         meta[cid]["overlaps"] = entries
+    # src_file — только зеркальные: `same_as_ip` значит «адресная категория собрана из
+    # ТОГО ЖЕ файла апстрима», а наш sources/domains/porn.lst ни одной категории не
+    # источник. Совпадение имён здесь означало бы неправду в манифесте.
     for cid, ids in _ip_equivalents(src_file).items():
         # "То же самое адресами" — самая вероятная ошибка настройки: два канала,
         # одна цель, двойной расход и спор за приоритет.
         meta[cid]["same_as_ip"] = ids
 
-    return [meta[k] for k in sorted(meta)]
+    return _keep_mirrors_from_manifest([meta[k] for k in sorted(meta)])
 
 
 def patch_manifest() -> int:

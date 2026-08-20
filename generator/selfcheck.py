@@ -10,8 +10,14 @@
   2. заявленное против выпущенного — совпадают ли наборы префиксов у категорий, про
      которые манифест говорит «тот же список адресов», и нет ли ПАР, про которые он
      молчит (именно так meta и whatsapp жили одинаковыми и не связанными);
-  3. манифест как контракт — у доменных списков есть признак внешнего источника, у
-     категорий поле симметрично и указывает на существующие id.
+  3. манифест как контракт — у каждого доменного списка есть признак источника (зеркало
+     `upstream` либо наш `maintained_here`, ровно один), у категорий поле симметрично и
+     указывает на существующие id;
+  4. наш собственный доменный список (sources/domains -> lists/domains/own_*.lst) —
+     опубликован, помечен как наш и совпадает с исходником. Регенерация собирает и файлы,
+     и манифест заново целиком, поэтому «нашего списка не стало» неотличимо от «его
+     никогда не было»: единственная защита — проверка, что исходник ТРЕБУЕТ выпущенного
+     файла и записи в манифесте.
 
 Плюс отчёт про тематические сиды: он ничего не роняет, но говорит вслух, сколько ручных
 доменов в доменные списки не попало (см. domain_lists.check_thematic_seed_coverage).
@@ -137,18 +143,136 @@ def check_manifest() -> list[str]:
             errs.append(f"манифест: у {cid} same_prefixes_as в categories и в services "
                         f"расходятся — интерфейс читает services")
 
-    for d in data.get("domain_lists", []):
-        up = d.get("upstream")
-        if not isinstance(up, dict):
-            errs.append(f"манифест: у доменного списка {d.get('id')} нет upstream — "
-                        f"интерфейс не сможет сказать, что список внешний")
+    # Признак источника обязателен у КАЖДОГО доменного списка, и он ровно один: список
+    # либо зеркалится (`upstream`), либо ведётся здесь (`maintained_here`). Разница —
+    # единственное, что отвечает человеку на вопрос «куда нести домен, которого нет»,
+    # и потерять её при регенерации значит вернуть ровно то непонимание, из-за которого
+    # оба поля и заведены (I-077, splify2#7).
+    doms = {d.get("id"): d for d in data.get("domain_lists", [])}
+    for cid, d in doms.items():
+        up, own = d.get("upstream"), d.get("maintained_here")
+        if isinstance(up, dict) and isinstance(own, dict):
+            errs.append(f"манифест: у {cid} сразу upstream и maintained_here — список "
+                        f"либо зеркало, либо наш, третьего значения у этого нет")
+        elif isinstance(own, dict):
+            for k in UPSTREAM_KEYS:
+                if k not in own:
+                    errs.append(f"манифест: {cid}.maintained_here без поля {k!r}")
+            if own.get("editable_locally") is not True:
+                errs.append(f"манифест: {cid}.maintained_here.editable_locally должно быть "
+                            f"true — этот список синхронизация не перезаписывает")
+            if own.get("repo") != domain_lists_const("SELF_REPO"):
+                errs.append(f"манифест: {cid}.maintained_here.repo ведёт не в наш "
+                            f"репозиторий — предложить домен будет некуда")
+        elif isinstance(up, dict):
+            for k in UPSTREAM_KEYS:
+                if k not in up:
+                    errs.append(f"манифест: {cid}.upstream без поля {k!r}")
+            if up.get("editable_locally") is not False:
+                errs.append(f"манифест: {cid}.upstream.editable_locally должно быть "
+                            f"false — зеркало перезаписывается синхронизацией целиком")
+        else:
+            errs.append(f"манифест: у доменного списка {cid} нет ни upstream, ни "
+                        f"maintained_here — интерфейс не сможет сказать, чей это список")
+
+    # «Дополняет» — отношение симметричное, как и «тот же набор префиксов»: интерфейс
+    # читает его с любой стороны, и односторонняя связь показала бы наш список рядом с
+    # зеркалом, но не зеркало рядом с нашим.
+    for cid, d in doms.items():
+        for other in d.get("complements", []):
+            if other not in doms:
+                errs.append(f"манифест: {cid}.complements ссылается на неизвестный "
+                            f"доменный список {other}")
+            elif cid not in (doms[other].get("complemented_by") or []):
+                errs.append(f"манифест: {cid} дополняет {other}, а обратной ссылки "
+                            f"complemented_by нет")
+        for other in d.get("complemented_by", []):
+            if other not in doms:
+                errs.append(f"манифест: {cid}.complemented_by ссылается на неизвестный "
+                            f"доменный список {other}")
+            elif cid not in (doms[other].get("complements") or []):
+                errs.append(f"манифест: {cid} дополняется {other}, а тот про это молчит")
+    return errs
+
+
+def domain_lists_const(name: str):
+    """Значение константы генератора без падения, если модуль не импортируется."""
+    try:
+        import domain_lists
+    except Exception:  # noqa: BLE001
+        return None
+    return getattr(domain_lists, name, None)
+
+
+def check_local_lists() -> list[str]:
+    """Наш собственный доменный список: опубликован, помечен и не потерян регенерацией.
+
+    Ровно та ошибка, ради которой этот файл и заведён, только на новой сущности: манифест
+    и lists/domains собираются заново ЦЕЛИКОМ, и «нашего списка не стало» ничем не
+    отличается от «его никогда не было» — ни для человека, который его вёл, ни для
+    роутера, который его качал. Поэтому исходник в sources/domains ТРЕБУЕТ и файла, и
+    записи в манифесте, и совпадения их содержимого.
+    """
+    errs: list[str] = []
+    try:
+        import domain_lists
+    except Exception as exc:  # noqa: BLE001
+        return [f"наш доменный список: проверка не выполнена ({exc})"]
+
+    sources = domain_lists.read_local_sources()
+    entries = {}
+    if MANIFEST.is_file():
+        data = json.loads(MANIFEST.read_text(encoding="utf-8"))
+        entries = {d["id"]: d for d in data.get("domain_lists", [])
+                   if d["id"].startswith(domain_lists.LOCAL_PREFIX)}
+
+    for cid, info in sorted(sources.items()):
+        for line in info["bad"]:
+            errs.append(f"sources/domains/{info['src']}: строка не разбирается в домен "
+                        f"и в список не попадёт: {line!r}")
+        if not info["domains"]:
             continue
-        for k in UPSTREAM_KEYS:
-            if k not in up:
-                errs.append(f"манифест: {d.get('id')}.upstream без поля {k!r}")
-        if up.get("editable_locally") is not False:
-            errs.append(f"манифест: {d.get('id')}.upstream.editable_locally должно быть "
-                        f"false — зеркало перезаписывается синхронизацией целиком")
+        out = LISTS / "domains" / f"{cid}.lst"
+        if not out.is_file():
+            errs.append(f"sources/domains/{info['src']}: списка {out.name} нет — наш "
+                        f"список потерян при регенерации")
+            continue
+        published = [l.strip() for l in out.read_text(encoding="utf-8").splitlines()
+                     if l.strip()]
+        if published != info["domains"]:
+            errs.append(f"{out.name}: содержимое разошлось с sources/domains/"
+                        f"{info['src']} (в файле {len(published)}, в исходнике "
+                        f"{len(info['domains'])})")
+        if not MANIFEST.is_file():
+            continue
+        e = entries.get(cid)
+        if e is None:
+            errs.append(f"манифест: нашего списка {cid} нет, хотя файл опубликован — "
+                        f"запись потеряна при регенерации, и потребитель его не увидит")
+            continue
+        if e.get("count") != len(published):
+            errs.append(f"манифест: у {cid} count={e.get('count')}, а в файле "
+                        f"{len(published)} доменов")
+        if not isinstance(e.get("maintained_here"), dict):
+            errs.append(f"манифест: у {cid} нет maintained_here — наш список выглядит "
+                        f"как зеркало, и предлагать домен человеку будет некуда")
+
+    for f in sorted((LISTS / "domains").glob(f"{domain_lists.LOCAL_PREFIX}*.lst")):
+        cid = f.stem
+        if cid not in sources:
+            errs.append(f"{f.name}: опубликован, а исходника sources/domains/"
+                        f"{cid[len(domain_lists.LOCAL_PREFIX):]}.lst нет — файл ничем "
+                        f"не воспроизводится")
+
+    # Дубли зеркала — не ошибка (см. domain_lists), но заявленное в манифесте должно
+    # совпадать с измеренным: устаревшее число здесь — та же опубликованная неправда.
+    dups = domain_lists.check_local_duplicates()
+    for cid, e in entries.items():
+        claimed = (e.get("already_in_upstream") or {}).get("count", 0)
+        actual = len(dups.get(cid, {}))
+        if claimed != actual:
+            errs.append(f"манифест: {cid}.already_in_upstream обещает {claimed}, а с "
+                        f"зеркалом пересекается {actual} домен(ов)")
     return errs
 
 
@@ -168,6 +292,13 @@ def report_thematic_seeds() -> None:
         print("    например: " + ", ".join(r["prefix_only"][:5]))
         print("    (такой домен идёт в резолв и становится префиксом; для сайта за общим "
               "CDN это не покрытие — см. I-077)")
+    # Наш список: сколько доменов ведём сами и сколько из них уже приехало из зеркала.
+    # Не ошибка — сигнал, что сид можно убрать, наш список остаётся дополнением.
+    for cid, info in sorted(domain_lists.read_local_sources().items()):
+        dups = domain_lists.check_local_duplicates().get(cid, {})
+        print(f"  наш список {cid}: доменов {len(info['domains'])}, "
+              f"уже есть в зеркале {len(dups)}"
+              + (f" ({', '.join(sorted(dups)[:5])})" if dups else ""))
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -176,6 +307,7 @@ def main(argv: list[str] | None = None) -> int:
         ("схема категорий", schema.validate()),
         ("выпущенные списки против схемы", check_lists()),
         ("манифест", check_manifest()),
+        ("наш доменный список", check_local_lists()),
     ]
     bad = 0
     for name, errs in groups:

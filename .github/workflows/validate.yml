@@ -70,7 +70,33 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Self-check (схема, списки против схемы, манифест)
+      - name: Validate own domain sources
+        run: |
+          set -e
+          fail=0
+          [ -d sources/domains ] || exit 0
+          for f in sources/domains/*.lst; do
+            [ -f "$f" ] || continue
+            # Строка либо пустая, либо комментарий, либо домен (с возможным «# почему» в
+            # конце). Опечатка иначе доедет до публикации молча: домен просто не попадёт
+            # в список, а человек будет уверен, что добавил его.
+            n=0
+            while IFS= read -r line; do
+              line="${line%%#*}"
+              line="$(echo "$line" | tr -d '[:space:]')"
+              [ -z "$line" ] && continue
+              if ! echo "$line" | grep -qE '^[a-z0-9_]([a-z0-9_-]*[a-z0-9_])?(\.[a-z0-9_]([a-z0-9_-]*[a-z0-9_])?)*\.[a-z]{2,}$'; then
+                echo "::error file=$f::не домен: $line"
+                fail=1
+              else
+                n=$((n+1))
+              fi
+            done < "$f"
+            echo "✓ $f ($n доменов)"
+          done
+          exit $fail
+
+      - name: Self-check (схема, списки против схемы, манифест, наш список)
         run: |
           pip install -q requests
           python generator/selfcheck.py
@@ -91,11 +117,28 @@ jobs:
               for other in c.get('same_prefixes_as', []):
                   assert other in ids, f'{c["id"]}: same_prefixes_as → неизвестный {other}'
                   assert c.get('same_prefixes_reason_ru'), f'{c["id"]}: нет same_prefixes_reason_ru'
+          # Признак источника у доменного списка обязателен и ровно один: зеркало
+          # (upstream, дописать нельзя) либо наш список (maintained_here, дописать
+          # можно — сюда). Без него интерфейсу нечего ответить на «домена нет».
+          # Обратные кавычки здесь не ставить: шаг целиком — python -c \"...\" в двойных
+          # кавычках, и они превратились бы в подстановку команды.
+          own = 0
           for dl in d.get('domain_lists', []):
-              up = dl.get('upstream')
-              assert isinstance(up, dict), f'доменный список {dl["id"]} без upstream'
-              assert up.get('editable_locally') is False, f'{dl["id"]}: upstream.editable_locally != false'
-              assert up.get('url') and up.get('suggest_url'), f'{dl["id"]}: upstream без ссылок'
+              src = dl.get('upstream') or dl.get('maintained_here')
+              assert isinstance(src, dict), f'доменный список {dl["id"]} без признака источника'
+              assert not (dl.get('upstream') and dl.get('maintained_here')), f'{dl["id"]}: сразу upstream и maintained_here'
+              assert src.get('url') and src.get('suggest_url'), f'{dl["id"]}: признак источника без ссылок'
+              if dl.get('maintained_here'):
+                  own += 1
+                  assert src.get('editable_locally') is True, f'{dl["id"]}: наш список с editable_locally != true'
+              else:
+                  assert src.get('editable_locally') is False, f'{dl["id"]}: upstream.editable_locally != false'
+          # Каждый исходник sources/domains обязан быть опубликован: манифест собирается
+          # заново целиком, и потерянная запись выглядит как «списка никогда не было».
+          import pathlib
+          for f in sorted(pathlib.Path('sources/domains').glob('*.lst')) if pathlib.Path('sources/domains').is_dir() else []:
+              cid = 'own_' + f.stem
+              assert any(x['id'] == cid for x in d.get('domain_lists', [])), f'{f}: нет записи {cid} в манифесте'
           print('categories.json OK:', len(d['categories']), 'категорий,',
-                len(d.get('domain_lists', [])), 'доменных списков')
+                len(d.get('domain_lists', [])), 'доменных списков, из них наших', own)
           "

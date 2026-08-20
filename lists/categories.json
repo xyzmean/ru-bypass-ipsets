@@ -463,6 +463,27 @@
       "is_geoblock": false
     },
     {
+      "id": "own_porn",
+      "kind": "domains",
+      "name_ru": "Для взрослых — наш список",
+      "file": "domains/own_porn.lst",
+      "count": 1,
+      "source": "xyzmean/ru-bypass-ipsets/sources/domains",
+      "maintained_here": {
+        "repo": "xyzmean/ru-bypass-ipsets",
+        "folder": "sources/domains",
+        "file": "sources/domains/porn.lst",
+        "url": "https://github.com/xyzmean/ru-bypass-ipsets/blob/HEAD/sources/domains/porn.lst",
+        "suggest_url": "https://github.com/xyzmean/ru-bypass-ipsets/issues/new",
+        "editable_locally": true
+      },
+      "default_on": false,
+      "is_geoblock": false,
+      "complements": [
+        "porn"
+      ]
+    },
+    {
       "id": "porn",
       "kind": "domains",
       "name_ru": "Для взрослых",
@@ -478,7 +499,10 @@
         "editable_locally": false
       },
       "default_on": false,
-      "is_geoblock": false
+      "is_geoblock": false,
+      "complemented_by": [
+        "own_porn"
+      ]
     },
     {
       "id": "svc_cloudflare",
