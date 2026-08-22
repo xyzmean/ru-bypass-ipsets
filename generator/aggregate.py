@@ -272,6 +272,36 @@ def subtract_shared_proxy(
     return lib.punch_out_counted(nets, ranges)
 
 
+def empty_shared_proxy(categories: list[dict], cat_networks: dict) -> list[str]:
+    """Категории общих обратных прокси, у которых список вышел пустым.
+
+    Пустой список прокси — не «файл, который никто не включил». Эти категории служат
+    двум целям сразу: публикуются файлом и одновременно являются вычитаемым для всех
+    остальных (`subtract_shared_proxy`). Значит ноль префиксов у провайдера означает,
+    что вычитание этого провайдера не выполнилось НИ У ОДНОЙ категории, и его
+    anycast-края уехали в списки, включённые по умолчанию.
+
+    Ноль здесь никогда не значит «у провайдера нет префиксов» — значит «pull провалился».
+    У девяти из десяти прокси источник это ASN с тремя фолбэками (`asn_to_cidrs`), у
+    cloudfront — фид AWS; и тот и другой при отказе возвращают пустой список, печатают
+    warning и идут дальше. Ровно так cloudfront.lst выпускался пустым из-за имени вида в
+    диспетчере (см. `asn_pull.pull_cdn`), и ровно так 2026-08-22T04:20Z вышел пустым
+    fastly.lst: 38 префиксов Fastly остались лежать в rkn.lst и ipsum.lst (оба
+    default_on), 6 — в twitter_x.lst.
+
+    Заметить это по выпущенным спискам невозможно, поэтому проверка стоит в сборке, а не
+    в selfcheck: единственный источник правды о том, что надо было вычесть, — тот самый
+    файл, который вышел пустым. Проверка «пересекается ли rkn.lst с fastly.lst» на плохой
+    сборке зелёная, потому что пересекать не с чем.
+
+    Хостинги (`is_infra` без `is_shared_proxy`) сюда не входят: у них вычитаются только
+    широкие диапазоны и только у сервисов, и пустой список хостинга чужие сайты в туннель
+    не уводит.
+    """
+    return [c["id"] for c in categories
+            if c.get("is_shared_proxy") and not cat_networks.get(c["id"])]
+
+
 def subtract_infra(
     nets: list[ipaddress.IPv4Network], infra: list[ipaddress.IPv4Network]
 ) -> tuple[list[ipaddress.IPv4Network], int]:
@@ -639,6 +669,21 @@ def main():
         counts[cid] = len(cidrs)
         lib.write_list(LISTS / f"{cid}.lst", cidrs)
         log.info("%s: %d CIDR", cid, counts[cid])
+
+    # Гейт общих прокси — до агрегатов и до записи манифеста. Если у провайдера вышел
+    # пустой список, его вычитание не выполнилось у всех остальных категорий, и снапшот
+    # публиковать нельзя: он уводит в туннель чужие сайты за anycast-краем. Оставить
+    # роутеры на прошлой сборке здесь дешевле — та сборка вычитание выполнила.
+    blind_proxy = empty_shared_proxy(schema.CATEGORIES, cat_networks)
+    if blind_proxy and not sample:
+        log.error("GATE FAIL: пустые списки общих прокси: %s — вычитание этих провайдеров "
+                  "не выполнилось ни у одной категории, их края уехали бы в default_on. "
+                  "Публикация отменена, роутеры остаются на прошлой сборке.",
+                  ", ".join(blind_proxy))
+        sys.exit(2)
+    if blind_proxy:
+        log.warning("SAMPLE-режим: пустые списки общих прокси не валят сборку: %s",
+                    ", ".join(blind_proxy))
 
     # агрегаты
     _build_aggregates(schema.CATEGORIES, cat_networks, counts)

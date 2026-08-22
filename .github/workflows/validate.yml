@@ -5,6 +5,7 @@ on:
     paths:
       - 'lists/**'
       - 'generator/**'
+      - 'tests/**'
   # Прямой push в main — основной путь изменений в этом репозитории (PR здесь не
   # заводятся), и без этого триггера проверка не запускалась вовсе там, где нужнее всего.
   push:
@@ -12,6 +13,7 @@ on:
     paths:
       - 'lists/**'
       - 'generator/**'
+      - 'tests/**'
       - '.github/workflows/validate.yml'
 
 jobs:
@@ -100,6 +102,14 @@ jobs:
         run: |
           pip install -q requests
           python generator/selfcheck.py
+
+      # Стенды репозитория. Сюда же попадает автокоммит сборки (`chore(lists):
+      # auto-resolve` идёт push'ем в main и трогает lists/**), то есть гейт пустых списков
+      # общих прокси проверяется и на опубликованном снапшоте, а не только внутри сборки.
+      - name: Стенды (tests/run.sh)
+        run: |
+          pip install -q -r generator/requirements.txt
+          sh tests/run.sh
 
       - name: Validate categories.json
         run: |
