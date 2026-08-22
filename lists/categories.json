@@ -1,6 +1,6 @@
 {
   "version": "2026-08-22",
-  "generated_at": "2026-08-22T04:20:07Z",
+  "generated_at": "2026-08-22T10:02:03Z",
   "base_url": "https://raw.githubusercontent.com/xyzmean/ru-bypass-ipsets/main/lists",
   "ipsum_min_count": 5000,
   "sources": {
@@ -20,7 +20,7 @@
       "total": 873,
       "in_domain_lists": 775,
       "prefix_only": 98,
-      "behind_shared_proxy": 9
+      "behind_shared_proxy": 52
     }
   },
   "aliases": [
@@ -149,7 +149,7 @@
       "file": "twitter_x.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 20
+      "count": 13
     },
     {
       "id": "youtube",
@@ -238,7 +238,7 @@
       "file": "fastly.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 0
+      "count": 111
     },
     {
       "id": "ddos_guard",
@@ -337,7 +337,7 @@
       "file": "rkn.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 11798,
+      "count": 11212,
       "renamed_from": [
         "streaming.lst",
         "social.lst",
@@ -357,7 +357,7 @@
       "file": "geoblock.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 102,
+      "count": 410,
       "renamed_from": [
         "streaming_GB.lst",
         "social_GB.lst",
@@ -832,7 +832,7 @@
       "file": "rkn_all.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 11759,
+      "count": 11171,
       "aggregate": true
     },
     {
@@ -842,7 +842,7 @@
       "file": "ipsum.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 11759,
+      "count": 11173,
       "aggregate": true
     },
     {
@@ -852,7 +852,7 @@
       "file": "all.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 11784,
+      "count": 11403,
       "aggregate": true
     },
     {
@@ -862,7 +862,7 @@
       "file": "hodca.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 6418,
+      "count": 6528,
       "aggregate": true
     }
   ],
@@ -937,7 +937,7 @@
       "is_geoblock": false,
       "is_infra": false,
       "prefixes_file": "twitter_x.lst",
-      "prefixes_count": 20,
+      "prefixes_count": 13,
       "domains_files": [
         "domains/svc_twitter.lst"
       ],
@@ -1069,7 +1069,7 @@
       "is_geoblock": false,
       "is_infra": true,
       "prefixes_file": "fastly.lst",
-      "prefixes_count": 0,
+      "prefixes_count": 111,
       "domains_files": [],
       "domains_count": 0
     },
