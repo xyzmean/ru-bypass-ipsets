@@ -269,8 +269,7 @@ def subtract_shared_proxy(
     if not proxy:
         return nets, 0
     ranges = list(ipaddress.collapse_addresses(proxy))
-    touched = sum(1 for n in nets if any(n.overlaps(r) for r in ranges))
-    return lib.punch_out(nets, ranges), touched
+    return lib.punch_out_counted(nets, ranges)
 
 
 def subtract_infra(
@@ -295,8 +294,8 @@ def subtract_infra(
     infra_set = list(ipaddress.collapse_addresses(infra))
     narrow = [n for n in nets if n.prefixlen > INFRA_SUBTRACT_MAX_PREFIXLEN]
     wide = [n for n in nets if n.prefixlen <= INFRA_SUBTRACT_MAX_PREFIXLEN]
-    touched = sum(1 for n in wide if any(n.overlaps(r) for r in infra_set))
-    return narrow + lib.punch_out(wide, infra_set), touched
+    punched, touched = lib.punch_out_counted(wide, infra_set)
+    return narrow + punched, touched
 
 
 # ─────────────── индекс ───────────────
