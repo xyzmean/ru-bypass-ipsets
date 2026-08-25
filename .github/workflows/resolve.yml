@@ -81,13 +81,22 @@ jobs:
             git push origin main
           fi
 
+      # Ассеты релиза лежат ПЛОСКО, а lists/ и lists/domains/ пересекаются по именам
+      # (geoblock.lst, hodca.lst). Прежняя команда отдавала оба каталога напрямую, GitHub
+      # отвергал второй файл с тем же именем (HTTP 422), gh откатывал релиз целиком — и
+      # всё это молчала строка «release не создан (возможно уже существует)». Отсюда два
+      # изменения: раскладка под уникальными именами и отсутствие `|| echo`. Списки к
+      # этому шагу уже закоммичены и запушены, поэтому красный шаг означает ровно то, что
+      # случилось: списки опубликованы, релиз — нет.
       - name: Create release
         if: success()
         run: |
+          set -e
           tag="$(date -u +%Y-%m-%d_%H-%M)"
-          gh release create "$tag" lists/*.lst lists/domains/*.lst lists/categories.json \
+          dir="$(python generator/release_assets.py --stage "$RUNNER_TEMP/release-assets")"
+          gh release create "$tag" "$dir"/* \
             --title "Lists $tag" \
             --notes "Автоматическая сборка списков. См. lists/categories.json." \
-            --latest || echo "release не создан (возможно уже существует)"
+            --latest
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
