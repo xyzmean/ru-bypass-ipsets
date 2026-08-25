@@ -136,6 +136,14 @@ def check_manifest() -> list[str]:
             errs.append(f"манифест: {cid} побайтово совпадает с {', '.join(others)}, но "
                         f"same_prefixes_as в манифесте нет — поле потеряно при регенерации")
 
+    # Планка гейта просадки живёт в этом же манифесте, и потерять её можно ровно так же,
+    # как same_prefixes_as выше: перестроили source_meta — поля не стало. Разница в том,
+    # что тут никто не заметит. Гейт не падает и не предупреждает, он молча перестаёт
+    # сравнивать, и следующий обвал резолва уедет к роутерам как обычная сборка.
+    if not isinstance((data.get("sources") or {}).get("resolved_domains"), int):
+        errs.append("манифест: нет sources.resolved_domains — гейту просадки резолва в "
+                    "следующей сборке нечем мерить, и он замолчит, ни о чём не сказав")
+
     svc = {s["id"]: s for s in data.get("services", [])}
     for cid, c in cats.items():
         if cid in svc and (c.get("same_prefixes_as") or []) != (

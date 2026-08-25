@@ -142,6 +142,52 @@ check(idx["sources"].get("resolved_domains") == 14381,
 check(idx["sources"].get("resolved_domains_recent") == [14381, 14512],
       "история не публикуется — планка следующей сборки снова станет однодневной")
 
+# ── 6. Планки гейтов не должны исчезнуть из манифеста молча ─────────────────────
+# Обе планки живут в самом манифесте, и это делает их уязвимыми так же, как
+# same_prefixes_as: манифест собирается заново ЦЕЛИКОМ, поле пропадает при перестройке
+# source_meta, и гейт после этого не падает и не предупреждает — он просто перестаёт
+# сравнивать. Поэтому состав полей проверяется дважды: генератором до записи манифеста и
+# self-check'ом по уже опубликованному.
+good = {
+    "sources": {"resolved_domains": 14381, "resolved_domains_recent": [14381, 14512]},
+    "categories": [{"id": "rkn", "addresses": 6_307_504}],
+    "aggregates": [{"id": "ipsum", "addresses": 7_272_640}],
+}
+check(aggregate.gate_inputs_missing(good) == [], "полный манифест назван неполным")
+
+import copy  # noqa: E402
+
+for drop, what in (
+    (lambda d: d["sources"].pop("resolved_domains"), "sources.resolved_domains"),
+    (lambda d: d["sources"].pop("resolved_domains_recent"), "sources.resolved_domains_recent"),
+    (lambda d: d["categories"][0].pop("addresses"), "addresses у категории"),
+    (lambda d: d["aggregates"][0].pop("addresses"), "addresses у агрегата"),
+):
+    broken = copy.deepcopy(good)
+    drop(broken)
+    check(aggregate.gate_inputs_missing(broken) != [],
+          f"потерянное поле {what} генератором не замечено")
+
+check(aggregate.gate_inputs_missing({"sources": {"resolved_domains": 14381,
+                                                 "resolved_domains_recent": []}}) != [],
+      "пустая история принята за планку")
+
+# Тот же вопрос по УЖЕ опубликованному манифесту — вторым рубежом, в self-check.
+import selfcheck  # noqa: E402
+
+check(not [e for e in selfcheck.check_manifest() if "resolved_domains" in e],
+      "self-check ругается на планку в настоящем опубликованном манифесте")
+tmp = Path(__file__).resolve().parent / ".gate_manifest.tmp.json"
+try:
+    tmp.write_text(json.dumps({"sources": {}, "categories": [], "aggregates": []}),
+                   encoding="utf-8")
+    real, selfcheck.MANIFEST = selfcheck.MANIFEST, tmp
+    check([e for e in selfcheck.check_manifest() if "resolved_domains" in e],
+          "манифест без планки self-check'ом не назван — гейт замолчал бы навсегда")
+finally:
+    selfcheck.MANIFEST = real
+    tmp.unlink(missing_ok=True)
+
 print(f"gate_resolve_volume: проверок {checks}, провалов {len(fails)}")
 for f in fails:
     print(f"  FAIL: {f}")

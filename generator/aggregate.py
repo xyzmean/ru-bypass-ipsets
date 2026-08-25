@@ -396,6 +396,32 @@ def coverage_collapsed(current: dict[str, int], previous: dict[str, int]) -> lis
     return bad
 
 
+def gate_inputs_missing(index: dict) -> list[str]:
+    """Чего в собранном манифесте не хватает гейтам СЛЕДУЮЩЕЙ сборки.
+
+    Обе планки — общая (`sources.resolved_domains` + история) и покатегорийная
+    (`addresses` у каждой записи) — живут в манифесте, а он собирается заново целиком.
+    Поле, потерянное при очередной перестройке source_meta или build_index, не роняет
+    ничего и ни о чём не предупреждает: гейт просто перестаёт сравнивать, и узнать об
+    этом можно только по следующей беде, которую он не поймал. Поэтому состав полей
+    проверяется ДО записи манифеста — на свежесобранном словаре, где устареть он не
+    может.
+    """
+    missing: list[str] = []
+    src = index.get("sources") or {}
+    if not isinstance(src.get("resolved_domains"), int):
+        missing.append("sources.resolved_domains")
+    history = src.get("resolved_domains_recent")
+    if not isinstance(history, list) or not history \
+            or not all(isinstance(v, int) for v in history):
+        missing.append("sources.resolved_domains_recent")
+    for key in ("categories", "aggregates"):
+        for entry in index.get(key) or ():
+            if not isinstance(entry.get("addresses"), int):
+                missing.append(f"{key}[{entry.get('id')}].addresses")
+    return missing
+
+
 def shrink_allowed() -> bool:
     """Сборка, в которой сокращение состава разрешено осознанно.
 
@@ -975,11 +1001,22 @@ def main():
     except Exception as exc:  # noqa: BLE001
         log.warning("проверка тематических сидов не выполнена: %s", exc)
 
+    index = build_index(counts, source_meta, domain_entries, same_prefixes, addresses)
+
+    # Последняя проверка перед записью — про сам манифест, а не про данные в нём: несёт
+    # ли он то, по чему будут сравнивать гейты следующей сборки. Провал здесь означает
+    # ошибку в генераторе, а не беду со списками, и лечится он одной строкой — поэтому
+    # сборка останавливается, а не пишет предупреждение в журнал, которого никто не
+    # читает, пока не случится вторая беда.
+    lost = gate_inputs_missing(index)
+    if lost:
+        log.error("GATE FAIL: в манифесте нет полей, по которым сравнивают гейты "
+                  "следующей сборки: %s. Опубликовать такой манифест значит выключить "
+                  "охрану молча и навсегда.", ", ".join(lost[:10]))
+        sys.exit(2)
+
     (LISTS / "categories.json").write_text(
-        json.dumps(build_index(counts, source_meta, domain_entries, same_prefixes,
-                              addresses),
-                   ensure_ascii=False, indent=2)
-        + "\n",
+        json.dumps(index, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )
     log.info("categories.json записан.")
