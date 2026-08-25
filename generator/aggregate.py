@@ -279,6 +279,80 @@ def resolve_volume_collapsed(resolved: int, previous: int | None) -> bool:
     return resolved < previous * RESOLVE_DROP_GATE
 
 
+# Доля от прошлой сборки, ниже которой просевшим считается ОТДЕЛЬНЫЙ список. Грубее
+# общего гейта намеренно: у одной категории разброс между здоровыми сборками больше, чем
+# у суммы (geoblock ходит 171 456 ↔ 199 872 адресов, rkn — 6,07 ↔ 6,31 млн).
+CATEGORY_DROP_GATE = 0.5
+
+# Ниже этого покрытия доля не считается вовсе. У мелких списков она шумит на десятки
+# процентов по причинам, не имеющим отношения к беде: tiktok ходит 2 816 ↔ 4 864 адреса
+# между соседними ЗДОРОВЫМИ сборками, то есть падает на 42% сам по себе. Мелкие списки
+# при этом не остаются без охраны — правило «был непустым, стал пустым» ниже размера не
+# спрашивает, а именно так выглядела I-105.
+CATEGORY_DROP_MIN = 65_536
+
+
+def category_addresses(nets) -> int:
+    """Сколько адресов покрывает список. Мера та же, что у гейта резолва, и по той же
+    причине: на просадке строк становится БОЛЬШЕ, а адресов меньше."""
+    return sum(n.num_addresses for n in nets)
+
+
+def previous_category_addresses(manifest: Path | None = None) -> dict[str, int]:
+    """Покрытие каждого списка в ПРОШЛОЙ опубликованной сборке — из манифеста на диске.
+
+    Агрегаты читаются наравне с категориями: они тоже публикуются файлами, и `ipsum.lst`,
+    потерявший половину адресов, — та же беда, что и категория. Ни файла, ни поля, ни
+    разбираемого json — сравнивать не с чем, и гейт молчит, а не падает.
+    """
+    path = manifest if manifest is not None else LISTS / "categories.json"
+    try:
+        got = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:  # noqa: BLE001
+        return {}
+    out: dict[str, int] = {}
+    for key in ("categories", "aggregates"):
+        for entry in got.get(key) or ():
+            cid, addrs = entry.get("id"), entry.get("addresses")
+            if isinstance(cid, str) and isinstance(addrs, int):
+                out[cid] = addrs
+    return out
+
+
+def coverage_collapsed(current: dict[str, int], previous: dict[str, int]) -> list[str]:
+    """Какие списки просели относительно прошлой сборки настолько, что публиковать нельзя.
+
+    Правил два, потому что это две разные беды. «Был непустым, вышел пустым» — всегда
+    провал, каким бы маленьким список ни был: это I-105 дословно, и шумом такое не
+    бывает. Просадка доли считается только у списков крупнее CATEGORY_DROP_MIN.
+
+    Списка нет в текущей сборке — это переименование или исключение из схемы, а не
+    просадка: файл в таком случае удаляется целиком, и говорить о его покрытии не о чем.
+    """
+    bad: list[str] = []
+    for cid, prev in sorted(previous.items()):
+        if prev <= 0 or cid not in current:
+            continue
+        now = current[cid]
+        if now == 0:
+            bad.append(f"{cid}: 0 против {prev}")
+        elif prev >= CATEGORY_DROP_MIN and now < prev * CATEGORY_DROP_GATE:
+            bad.append(f"{cid}: {now} против {prev}")
+    return bad
+
+
+def shrink_allowed() -> bool:
+    """Сборка, в которой сокращение состава разрешено осознанно.
+
+    Склейка категорий, переименование, исключение источника — работа владельца, и после
+    неё покрытие законно падает. Без выключателя гейт запер бы публикацию именно в тот
+    день, когда списки меняли нарочно, а сказать об этом мог бы только красной сборкой.
+    Ключ живёт одну сборку (переменная окружения, вход workflow_dispatch), а не в схеме:
+    признак в схеме пришлось бы снимать вторым коммитом, и он остался бы висеть.
+    """
+    return os.environ.get("ALLOW_SHRINK") == "1"
+
+
 def subtract_shared_proxy(
     nets: list[ipaddress.IPv4Network], proxy: list[ipaddress.IPv4Network]
 ) -> tuple[list[ipaddress.IPv4Network], int]:
@@ -447,6 +521,7 @@ def build_index(
     source_meta: dict,
     domain_entries: list[dict] | None = None,
     same_prefixes: dict[str, dict] | None = None,
+    addresses: dict[str, int] | None = None,
 ) -> dict:
     """Собрать манифест. `same_prefixes` — результат same_prefixes_groups() по
     собранным спискам; None означает «списков под рукой нет», и тогда берётся
@@ -455,6 +530,7 @@ def build_index(
     version = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d")
     if same_prefixes is None:
         same_prefixes = schema.declared_same_prefixes()
+    addresses = addresses or {}
 
     def entry(c, aggregate=False):
         old = schema.RENAMED_FROM.get(c["id"], [])
@@ -469,6 +545,11 @@ def build_index(
             "default_on": c["default_on"],
             "is_geoblock": c["is_geoblock"],
             "count": counts.get(c["id"], 0),
+            # Сколько АДРЕСОВ покрывает список — рядом с числом строк, а не вместо него.
+            # Число строк на просадке РАСТЁТ (меньше найденных адресов — меньше соседних
+            # /24 слипается в префикс), поэтому охранять покрытие им нельзя. Поле читает
+            # покатегорийный гейт следующей сборки, см. coverage_collapsed().
+            "addresses": addresses.get(c["id"], 0),
             # Какие списки схлопнулись в этот. Потребитель по этому полю переносит
             # настройку молча вместо того, чтобы молча перестать обновлять файл.
             **({"renamed_from": [f"{o}.lst" for o in old]} if old else {}),
@@ -643,6 +724,7 @@ def main():
 
     # E: сборка сетей по категориям
     counts: dict[str, int] = {}
+    addresses: dict[str, int] = {}
     cat_networks: dict[str, list[ipaddress.IPv4Network]] = {}
     LISTS.mkdir(parents=True, exist_ok=True)
 
@@ -721,6 +803,7 @@ def main():
         cidrs = lib.finalize(nets)
         cat_networks[cid] = [ipaddress.ip_network(c, strict=False) for c in cidrs]
         counts[cid] = len(cidrs)
+        addresses[cid] = category_addresses(cat_networks[cid])
         lib.write_list(LISTS / f"{cid}.lst", cidrs)
         log.info("%s: %d CIDR", cid, counts[cid])
 
@@ -740,7 +823,23 @@ def main():
                     ", ".join(blind_proxy))
 
     # агрегаты
-    _build_aggregates(schema.CATEGORIES, cat_networks, counts)
+    _build_aggregates(schema.CATEGORIES, cat_networks, counts, addresses)
+
+    # Гейт покрытия по спискам — после агрегатов (они публикуются такими же файлами) и до
+    # записи манифеста: пока манифест не переписан, на диске лежит прошлый, и сравнивать
+    # есть с чем. Ступенькой ниже гейта резолва по цене отмены — списки к этому моменту
+    # уже на диске, — но всё ещё до git, а роутеры берут списки оттуда.
+    shrunk = coverage_collapsed(addresses, previous_category_addresses())
+    if shrunk and not sample and not shrink_allowed():
+        log.error("GATE FAIL: покрытие просело у списков: %s — общее число доменов при "
+                  "этом могло остаться здоровым, поэтому гейт резолва такого не видит "
+                  "(так вышла I-105). Публикация отменена, роутеры остаются на прошлой "
+                  "сборке. Если состав сокращён нарочно — ALLOW_SHRINK=1 на одну сборку.",
+                  "; ".join(shrunk))
+        sys.exit(2)
+    if shrunk:
+        log.warning("просадка покрытия не валит эту сборку (%s): %s",
+                    "SAMPLE" if sample else "ALLOW_SHRINK", "; ".join(shrunk))
 
     # Кто с кем совпал ПОЛНОСТЬЮ — по собранным спискам, а не по схеме. Идёт в манифест
     # полем same_prefixes_as: две категории с общей автономной системой дают один и тот
@@ -811,7 +910,8 @@ def main():
         log.warning("проверка тематических сидов не выполнена: %s", exc)
 
     (LISTS / "categories.json").write_text(
-        json.dumps(build_index(counts, source_meta, domain_entries, same_prefixes),
+        json.dumps(build_index(counts, source_meta, domain_entries, same_prefixes,
+                              addresses),
                    ensure_ascii=False, indent=2)
         + "\n",
         encoding="utf-8",
@@ -830,7 +930,7 @@ def main():
     log.info("=== build завершён ===")
 
 
-def _build_aggregates(categories, cat_networks, counts):
+def _build_aggregates(categories, cat_networks, counts, addresses=None):
     """Агрегаты. Инфраструктура в них НЕ входит — она целиком в `hodca`.
 
     Это главная правка всего разбора. Раньше `non_gb` собирался как «все категории без
@@ -863,6 +963,9 @@ def _build_aggregates(categories, cat_networks, counts):
                       ("all", all_nets), ("hodca", infra)):
         cidrs = lib.finalize(nets)
         counts[aid] = len(cidrs)
+        if addresses is not None:
+            addresses[aid] = category_addresses(
+                [ipaddress.ip_network(c, strict=False) for c in cidrs])
         lib.write_list(LISTS / f"{aid}.lst", cidrs)
         log.info("агрегат %s: %d CIDR", aid, len(cidrs))
 

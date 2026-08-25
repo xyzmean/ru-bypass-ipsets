@@ -11,6 +11,13 @@ on:
       - 'generator/**'
       - '.github/workflows/resolve.yml'
   workflow_dispatch:
+    inputs:
+      allow_shrink:
+        description: >-
+          Состав списков сокращён НАРОЧНО (склейка, переименование, исключение
+          источника) — пропустить гейт покрытия на эту одну сборку.
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -44,6 +51,10 @@ jobs:
           pip install -r generator/requirements.txt
 
       - name: Run pipeline
+        env:
+          # Пусто для расписания и для push — гейт покрытия работает. Единицей его
+          # выключает человек, который сам и сократил состав списков.
+          ALLOW_SHRINK: ${{ inputs.allow_shrink && '1' || '' }}
         run: |
           cd generator
           python aggregate.py

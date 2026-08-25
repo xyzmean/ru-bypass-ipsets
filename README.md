@@ -203,6 +203,7 @@ rule34.pw    # splify2#7: за Cloudflare, адресами не ловится
 | `complements` / `complemented_by` | `domain_lists` | наш список и зеркало, которое он дополняет (симметрично) |
 | `already_in_upstream` | `domain_lists` | сколько доменов нашего списка уже есть в зеркале — их можно убрать |
 | `sources.thematic_seeds` | корень | сколько ручных сидов есть в доменных списках, а сколько существует только префиксами |
+| `addresses` | `categories`, `aggregates` | сколько АДРЕСОВ покрывает список (не строк). Мера гейта просадки: на просевшей сборке строк становится больше, а адресов меньше |
 
 Каждое из них пишет генератор и проверяет `generator/selfcheck.py` — манифест собирается
 заново ЦЕЛИКОМ при каждой сборке, поэтому непроверяемое поле рано или поздно теряется молча.
@@ -222,6 +223,7 @@ https://raw.githubusercontent.com/xyzmean/ru-bypass-ipsets/main/lists/<category>
 pip install -r generator/requirements.txt
 python generator/aggregate.py            # полный прогон
 SAMPLE=200 python generator/aggregate.py # проверка на 200 РКН-доменах (без gate)
+ALLOW_SHRINK=1 python generator/aggregate.py  # состав сокращён НАРОЧНО: пропустить гейт покрытия
 python generator/selfcheck.py            # схема, списки против схемы, манифест (без сети, секунды)
 ```
 
