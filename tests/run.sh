@@ -9,7 +9,7 @@
 set -e
 cd "$(dirname "$0")/.."
 fail=0
-for t in tests/gate_shared_proxy.py; do
+for t in tests/gate_shared_proxy.py tests/precheck_states.py; do
   echo "--- $t"
   python3 "$t" || fail=1
 done

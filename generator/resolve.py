@@ -6,6 +6,8 @@
   2. Короткий таймаут (QUERY_TIMEOUT=3.0).
   3. Двухфазный резолв: PRE-CHECK (1 быстрый NS) → FULL (все 6 NS, union).
      Применяется к большим «мусорным» пулам (rkn_other), чтобы отсечь мёртвые.
+     Отсекает только тех, на кого получен ОТРИЦАТЕЛЬНЫЙ ОТВЕТ: неответ одного NS
+     оставляет домен в полном резолве (см. precheck_partition).
 
 Возвращает ResolveMap: {domain -> (ips, networks)}.
 """
@@ -37,6 +39,7 @@ QUERY_TIMEOUT = 3.0      # один запрос к одному NS
 QUERY_LIFETIME = 6.0     # общее время на NS (превышение = отмена)
 PRECHECK_TIMEOUT = 2.0
 PRECHECK_LIFETIME = 3.0
+PRECHECK_NS = "1.1.1.1"   # тот же, что первым в NAMESERVERS: pre-check спрашивает одного
 
 THREADS = 80             # доменов одновременно
 
@@ -95,20 +98,53 @@ def _resolve_all_ns_parallel(idn: str) -> set[str]:
     return ips
 
 
-def _precheck_alive(domain: str) -> bool:
-    """Быстрый pre-check через 1 быстрый NS: жив ли домен вообще."""
+# Три состояния pre-check, а не два. Разница между «нам ответили, что домена нет» и «нам
+# не ответили вовсе» — это разница между «отбросить законно» и «отбросить наугад», и
+# отбрасывать здесь означает выкинуть домен из сборки целиком: полного резолва по шести
+# NS у него уже не будет. Пока состояний было два, любой таймаут, отказ или лимит
+# запросов на стороне одного резолвера значил «домена нет».
+PRECHECK_ALIVE = "alive"
+PRECHECK_DEAD = "dead"
+PRECHECK_UNKNOWN = "unknown"
+
+
+def _precheck_state(domain: str) -> str:
+    """Быстрый pre-check через 1 быстрый NS: жив / мёртв / ответа не получено."""
     idn = _idna(domain)
     if not idn:
-        return False
+        return PRECHECK_DEAD
     resolver = dns.resolver.Resolver(configure=False)
-    resolver.nameservers = ["1.1.1.1"]
+    resolver.nameservers = [PRECHECK_NS]
     resolver.timeout = PRECHECK_TIMEOUT
     resolver.lifetime = PRECHECK_LIFETIME
     try:
         ans = resolver.resolve(idn, "A")
-        return any(_is_public_ip(str(r.address)) for r in ans)
+    except (dns.resolver.NXDOMAIN, dns.resolver.NoAnswer):
+        return PRECHECK_DEAD          # ответ получен, и он отрицательный
     except Exception:
-        return False
+        return PRECHECK_UNKNOWN       # молчание, отказ, таймаут — про домен ничего не известно
+    return PRECHECK_ALIVE if any(_is_public_ip(str(r.address)) for r in ans) else PRECHECK_DEAD
+
+
+def precheck_partition(domains: list[str]) -> tuple[list[str], list[str], list[str]]:
+    """Разбить пул на (в полный резолв, живые, без ответа).
+
+    В полный резолв идут живые ПЛЮС те, про кого pre-check ничего не узнал: у них ещё
+    есть пять других нейм-серверов, и стоит это одного запроса на домен. Отбрасываются
+    только те, на кого получен отрицательный ответ.
+    """
+    states: dict[str, str] = {}
+    with concurrent.futures.ThreadPoolExecutor(max_workers=THREADS) as pool:
+        futures = {pool.submit(_precheck_state, d): d for d in domains}
+        done = 0
+        for fut in concurrent.futures.as_completed(futures):
+            states[futures[fut]] = fut.result()
+            done += 1
+            if done % 5000 == 0:
+                log.info("pre-check: %d/%d", done, len(futures))
+    alive = [d for d, s in states.items() if s == PRECHECK_ALIVE]
+    unknown = [d for d, s in states.items() if s == PRECHECK_UNKNOWN]
+    return alive + unknown, alive, unknown
 
 
 def resolve_one(domain: str, reader=None) -> ResolveResult:
@@ -151,19 +187,12 @@ def resolve_domains(
     # --- фаза pre-check ---
     to_resolve = domains
     if precheck:
-        log.info("pre-check (%d доменов, 1 NS %ss): …", len(domains), PRECHECK_TIMEOUT)
-        alive = []
-        with concurrent.futures.ThreadPoolExecutor(max_workers=THREADS) as pool:
-            futures = {pool.submit(_precheck_alive, d): d for d in domains}
-            done = 0
-            for fut in concurrent.futures.as_completed(futures):
-                if fut.result():
-                    alive.append(futures[fut])
-                done += 1
-                if done % 5000 == 0:
-                    log.info("pre-check: %d/%d", done, len(domains))
-        log.info("pre-check: живых %d / %d", len(alive), len(domains))
-        to_resolve = alive
+        log.info("pre-check (%d доменов, 1 NS %s, %ss): …",
+                 len(domains), PRECHECK_NS, PRECHECK_TIMEOUT)
+        to_resolve, alive, unknown = precheck_partition(domains)
+        log.info("pre-check: живых %d, без ответа %d (идут в полный резолв), мёртвых %d / %d",
+                 len(alive), len(unknown),
+                 len(set(domains)) - len(alive) - len(unknown), len(domains))
 
     # --- фаза полного резолва ---
     results: dict[str, ResolveResult] = {}
