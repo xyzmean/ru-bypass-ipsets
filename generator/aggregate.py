@@ -242,6 +242,43 @@ def _extra_cidrs(category: dict) -> list[ipaddress.IPv4Network]:
 INFRA_SUBTRACT_MAX_PREFIXLEN = 24
 
 
+# Доля от прошлой сборки, ниже которой снапшот не публикуется. Здоровые сборки
+# различаются между собой на проценты (14 381, 14 512, 14 816 доменов с адресами), а
+# просевшие давали 3 307–3 462 — то есть 0.7 оставляет обвалу запас в обе стороны.
+RESOLVE_DROP_GATE = 0.7
+
+
+def previous_resolved_count(manifest: Path | None = None) -> int | None:
+    """Сколько доменов дали адреса в ПРОШЛОЙ опубликованной сборке.
+
+    Читается из манифеста, лежащего на диске: сборка идёт в чекауте main, и до записи
+    нового `lists/categories.json` там лежит именно прошлый. Ни файла, ни поля, ни
+    разбираемого json — значит сравнивать не с чем, и гейт молчит, а не падает.
+    """
+    path = manifest if manifest is not None else LISTS / "categories.json"
+    try:
+        got = json.loads(path.read_text(encoding="utf-8"))["sources"]["resolved_domains"]
+    except Exception:  # noqa: BLE001
+        return None
+    return got if isinstance(got, int) else None
+
+
+def resolve_volume_collapsed(resolved: int, previous: int | None) -> bool:
+    """Просел ли резолв настолько, что публиковать нельзя.
+
+    Мера — число доменов, ДАВШИХ адреса, а не число строк в списках: строк на просевшей
+    сборке становится БОЛЬШЕ (меньше адресов — меньше соседних /24 слипается в префикс),
+    поэтому по строкам обвал выглядит ростом, и гейт по ipsum.lst его пропускает.
+
+    Храповик здесь односторонний: планка берётся от прошлой сборки, поэтому медленное
+    сползание гейт не поймает, а обвал — поймает. Просевшая прошлая сборка планку не
+    задирает, то есть запереть публикацию навсегда этот гейт не может.
+    """
+    if not previous or previous <= 0:
+        return False
+    return resolved < previous * RESOLVE_DROP_GATE
+
+
 def subtract_shared_proxy(
     nets: list[ipaddress.IPv4Network], proxy: list[ipaddress.IPv4Network]
 ) -> tuple[list[ipaddress.IPv4Network], int]:
@@ -584,6 +621,23 @@ def main():
     resolve_cache = {**cache_direct, **cache_pre}
     log.info("кеш резолва: %d доменов", len(resolve_cache))
 
+    # Гейт просадки резолва — ДО того, как записан хоть один список: почти всё содержимое
+    # списков берётся отсюда, и провал резолва в файлах не виден (см. tests/
+    # gate_resolve_volume.py). Планка — прошлая опубликованная сборка.
+    resolved_domains = sum(1 for r in resolve_cache.values() if r.ips)
+    prev_resolved = previous_resolved_count()
+    log.info("доменов с адресами: %d (в прошлой сборке %s)",
+             resolved_domains, prev_resolved if prev_resolved is not None else "неизвестно")
+    if resolve_volume_collapsed(resolved_domains, prev_resolved) and not sample:
+        log.error("GATE FAIL: адреса дали %d доменов против %d в прошлой сборке (порог %.0f%%) "
+                  "— резолв просел, а по числу строк в списках это не видно. Публикация "
+                  "отменена, роутеры остаются на прошлой сборке.",
+                  resolved_domains, prev_resolved, RESOLVE_DROP_GATE * 100)
+        sys.exit(2)
+    if resolve_volume_collapsed(resolved_domains, prev_resolved):
+        log.warning("SAMPLE-режим: просадка резолва не валит сборку (%d против %d)",
+                    resolved_domains, prev_resolved)
+
     # ASN-карта
     asn_map = asn_pull.load_asn_map()
 
@@ -714,6 +768,8 @@ def main():
         "geoblock_count": len(geoblock_domains),
         "geolite": bool(geolite_path),
         "nameservers": resolver.NAMESERVERS,
+        # Планка для гейта просадки в СЛЕДУЮЩЕЙ сборке: сравнивать ей больше не с чем.
+        "resolved_domains": resolved_domains,
     }
     # Домены публикуются как есть. Сбой здесь не должен ронять адресную сборку:
     # это независимая часть, и лучше выпустить манифест без доменных списков, чем не
