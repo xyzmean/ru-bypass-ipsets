@@ -263,6 +263,12 @@ def previous_resolved_count(manifest: Path | None = None) -> int | None:
     return got if isinstance(got, int) else None
 
 
+# Сколько опубликованных сборок помнит планка. Восемь при сборке раз в три дня — это
+# около трёх недель: достаточно, чтобы сползание не успело переписать планку под себя, и
+# мало, чтобы законный рост базы доехал до планки за пару сборок.
+RESOLVE_HISTORY_LEN = 8
+
+
 def resolve_volume_collapsed(resolved: int, previous: int | None) -> bool:
     """Просел ли резолв настолько, что публиковать нельзя.
 
@@ -270,13 +276,62 @@ def resolve_volume_collapsed(resolved: int, previous: int | None) -> bool:
     сборке становится БОЛЬШЕ (меньше адресов — меньше соседних /24 слипается в префикс),
     поэтому по строкам обвал выглядит ростом, и гейт по ipsum.lst его пропускает.
 
-    Храповик здесь односторонний: планка берётся от прошлой сборки, поэтому медленное
-    сползание гейт не поймает, а обвал — поймает. Просевшая прошлая сборка планку не
-    задирает, то есть запереть публикацию навсегда этот гейт не может.
+    `previous` — планка, а не буквально прошлая сборка: её считает resolve_baseline() по
+    медиане последних опубликованных. Планка «от прошлой» ловила обвал и по построению
+    пропускала сползание — каждая сборка сравнивалась с уже просевшей предыдущей, и три
+    шага по 25% проходили там, где один шаг на 50% публикацию отменял.
     """
     if not previous or previous <= 0:
         return False
     return resolved < previous * RESOLVE_DROP_GATE
+
+
+def resolve_baseline_of(history: list[int]) -> int | None:
+    """Медиана истории — планка гейта. None, если истории нет.
+
+    Медиана, а не среднее и не максимум: одна странная сборка (частичный сбой резолвера,
+    временно упавший источник) среднее перекашивает, максимум запирает публикацию до
+    повторения рекорда, а медиана переживает и то и другое.
+    """
+    if not history:
+        return None
+    ordered = sorted(history)
+    mid = len(ordered) // 2
+    if len(ordered) % 2:
+        return ordered[mid]
+    return (ordered[mid - 1] + ordered[mid]) // 2
+
+
+def previous_resolved_history(manifest: Path | None = None) -> list[int]:
+    """История числа доменов с адресами по опубликованным сборкам — из манифеста.
+
+    В ней только ОПУБЛИКОВАННЫЕ сборки: отменённая гейтом манифест не переписывает.
+    Отсюда важное свойство — просадка планку не задирает и запереть публикацию навсегда
+    не может; законное же сокращение базы снимается ALLOW_SHRINK на одну сборку.
+    """
+    path = manifest if manifest is not None else LISTS / "categories.json"
+    try:
+        got = json.loads(path.read_text(encoding="utf-8"))["sources"]["resolved_domains_recent"]
+    except Exception:  # noqa: BLE001
+        return []
+    if not isinstance(got, list):
+        return []
+    return [v for v in got if isinstance(v, int) and v > 0]
+
+
+def resolve_baseline(manifest: Path | None = None) -> int | None:
+    """Планка для гейта просадки: медиана истории, а без истории — прошлое число.
+
+    Запасной путь нужен ровно один раз — первой сборке после появления поля истории:
+    манифест на диске тогда старой формы, и без него эта сборка осталась бы без охраны.
+    """
+    return resolve_baseline_of(previous_resolved_history(manifest)) \
+        or previous_resolved_count(manifest)
+
+
+def next_resolve_history(resolved: int, history: list[int]) -> list[int]:
+    """История для манифеста этой сборки: свежее значение в голову, хвост обрезан."""
+    return ([resolved] + list(history))[:RESOLVE_HISTORY_LEN]
 
 
 # Доля от прошлой сборки, ниже которой просевшим считается ОТДЕЛЬНЫЙ список. Грубее
@@ -706,18 +761,22 @@ def main():
     # списков берётся отсюда, и провал резолва в файлах не виден (см. tests/
     # gate_resolve_volume.py). Планка — прошлая опубликованная сборка.
     resolved_domains = sum(1 for r in resolve_cache.values() if r.ips)
-    prev_resolved = previous_resolved_count()
-    log.info("доменов с адресами: %d (в прошлой сборке %s)",
-             resolved_domains, prev_resolved if prev_resolved is not None else "неизвестно")
-    if resolve_volume_collapsed(resolved_domains, prev_resolved) and not sample:
-        log.error("GATE FAIL: адреса дали %d доменов против %d в прошлой сборке (порог %.0f%%) "
-                  "— резолв просел, а по числу строк в списках это не видно. Публикация "
-                  "отменена, роутеры остаются на прошлой сборке.",
+    resolve_history = previous_resolved_history()
+    prev_resolved = resolve_baseline()
+    log.info("доменов с адресами: %d (планка %s, история %s)",
+             resolved_domains, prev_resolved if prev_resolved is not None else "неизвестна",
+             resolve_history or "пуста")
+    if resolve_volume_collapsed(resolved_domains, prev_resolved) \
+            and not sample and not shrink_allowed():
+        log.error("GATE FAIL: адреса дали %d доменов против планки %d по последним "
+                  "сборкам (порог %.0f%%) — резолв просел, а по числу строк в списках "
+                  "это не видно. Публикация отменена, роутеры остаются на прошлой "
+                  "сборке. Если база сократилась нарочно — ALLOW_SHRINK=1 на одну сборку.",
                   resolved_domains, prev_resolved, RESOLVE_DROP_GATE * 100)
         sys.exit(2)
     if resolve_volume_collapsed(resolved_domains, prev_resolved):
-        log.warning("SAMPLE-режим: просадка резолва не валит сборку (%d против %d)",
-                    resolved_domains, prev_resolved)
+        log.warning("просадка резолва не валит эту сборку (%s): %d против планки %d",
+                    "SAMPLE" if sample else "ALLOW_SHRINK", resolved_domains, prev_resolved)
 
     # ASN-карта
     asn_map = asn_pull.load_asn_map()
@@ -869,6 +928,13 @@ def main():
         "nameservers": resolver.NAMESERVERS,
         # Планка для гейта просадки в СЛЕДУЮЩЕЙ сборке: сравнивать ей больше не с чем.
         "resolved_domains": resolved_domains,
+        # И история, по которой планка считается медианой. Хранится здесь, а не рядом с
+        # репозиторием: манифест — единственное, что доезжает от сборки до сборки.
+        # Заведена от прошлого числа, если истории ещё нет, — иначе планка первых сборок
+        # после правки была бы однодневной, то есть той самой, от которой уходим.
+        "resolved_domains_recent": next_resolve_history(
+            resolved_domains,
+            resolve_history or ([prev_resolved] if prev_resolved else [])),
     }
     # Домены публикуются как есть. Сбой здесь не должен ронять адресную сборку:
     # это независимая часть, и лучше выпустить манифест без доменных списков, чем не
