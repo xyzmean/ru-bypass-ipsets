@@ -94,17 +94,58 @@ def _from_bgpview(asn: int) -> list[str]:
         return []
 
 
-def asn_to_cidrs(asn: int) -> list[ipaddress.IPv4Network]:
-    """Получить все IPv4-префиксы ASN из нескольких источников."""
-    for getter in (_from_ripestat, _from_ipguide, _from_bgpview):
-        prefixes = getter(asn)
-        if prefixes:
-            nets = [n for p in prefixes if (n := _valid_ipv4_prefix(p))]
-            if nets:
-                log.info("ASN %s: %d префиксов (через %s)", asn, len(nets), getter.__name__)
-                return nets
-    log.warning("ASN %s: префиксы не получены ниоткуда", asn)
-    return []
+class AsnUnavailable(RuntimeError):
+    """Ни один источник не отдал префиксы ASN.
+
+    Это ОТСУТСТВУЮЩИЙ ВХОД, а не ответ «у ASN нет префиксов», и разница здесь не
+    терминологическая. Пустой список молча собирал категорию из одних доменов, а
+    недостачу замечал гейт покрытия — через пятнадцать минут, уже после резолва, и
+    сообщением про просадку списка, то есть указанием не на ту причину. Хуже того,
+    единственный выход, который гейт предлагает человеку, — ALLOW_SHRINK=1, то есть
+    выпустить урезанный список.
+    """
+
+    def __init__(self, asn: int):
+        self.asn = asn
+        super().__init__(
+            f"ASN {asn}: ни один из трёх источников не отдал префиксы. Это отсутствующий "
+            f"вход, а не пустой ASN: список этого сервиса собрать не из чего. "
+            f"ALLOW_SHRINK здесь не поможет и не предлагается — он выпускает урезанный "
+            f"список, а урезан он не по составу, а по недостающему источнику."
+        )
+
+
+# Молчание всех трёх источников почти всегда мгновенное и почти всегда чужое. Замерено в
+# сборке 2026-08-27T10:51: RIPEstat не ответила по ASN 15169 в 11:08:29, а в 11:08:31 —
+# через две секунды, по тому же ASN, для соседней категории — отдала 1233 префикса.
+# Поэтому цепочка источников переспрашивается, и паузы растут: короткая снимает всплеск,
+# длинная переживает лимит запросов на стороне источника.
+ASN_RETRY_PAUSES = (5, 20)
+
+
+def asn_to_cidrs(asn: int, sleep=time.sleep) -> list[ipaddress.IPv4Network]:
+    """Получить все IPv4-префиксы ASN из нескольких источников.
+
+    Пустой ответ ВСЕХ источников на ВСЕХ попытках — исключение AsnUnavailable, а не
+    пустой список: см. его док-строку.
+    """
+    attempts = len(ASN_RETRY_PAUSES) + 1
+    for attempt in range(attempts):
+        for getter in (_from_ripestat, _from_ipguide, _from_bgpview):
+            prefixes = getter(asn)
+            if prefixes:
+                nets = [n for p in prefixes if (n := _valid_ipv4_prefix(p))]
+                if nets:
+                    log.info("ASN %s: %d префиксов (через %s)",
+                             asn, len(nets), getattr(getter, "__name__", getter))
+                    return nets
+        if attempt < attempts - 1:
+            pause = ASN_RETRY_PAUSES[attempt]
+            log.warning("ASN %s: ни один источник не ответил (попытка %d из %d), "
+                        "пауза %d с", asn, attempt + 1, attempts, pause)
+            sleep(pause)
+    log.error("ASN %s: префиксы не получены ниоткуда за %d попыт(ки)", asn, attempts)
+    raise AsnUnavailable(asn)
 
 
 def load_asn_map() -> dict:

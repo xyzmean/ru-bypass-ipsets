@@ -846,8 +846,19 @@ def main():
             for dom in domains_by_cat.get(cid, ()):
                 if dom in resolve_cache:
                     nets += result_to_networks(resolve_cache[dom])
-            # ASN/CDN для сервисов
-            nets += _asn_cidrs(cat, asn_map)
+            # ASN/CDN для сервисов.
+            #
+            # Недоступный источник ASN останавливает сборку ЗДЕСЬ, а не всплывает гейтом
+            # покрытия пятнадцатью минутами позже: гейт сообщает «список просел», и это
+            # правда, но причина не в составе списка, а в том, что его не из чего собрать.
+            # Разница видна по тому, что человеку предлагают сделать: гейт покрытия зовёт
+            # ALLOW_SHRINK=1, то есть выпустить урезанный список.
+            try:
+                nets += _asn_cidrs(cat, asn_map)
+            except asn_pull.AsnUnavailable as exc:
+                log.error("GATE FAIL: %s: %s Публикация отменена, роутеры остаются на "
+                          "прошлой сборке.", cid, exc)
+                sys.exit(2)
             nets += _cdn_cidrs(cat)
             nets += _extra_cidrs(cat)
 
