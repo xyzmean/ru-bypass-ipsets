@@ -24,53 +24,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Validate .lst format
-        run: |
-          set -e
-          fail=0
-          CIDR_RE='^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/(3[0-2]|[12]?[0-9])$'
-          for f in lists/*.lst; do
-            [ -f "$f" ] || continue
-            # 1) каждая строка — валидный IPv4 CIDR
-            while IFS= read -r line; do
-              [ -z "$line" ] && continue
-              if ! [[ "$line" =~ $CIDR_RE ]]; then
-                echo "::error file=$f::невалидная строка: $line"
-                fail=1
-              fi
-            done < "$f"
-            # 2) октеты 0–255
-            while IFS= read -r line; do
-              [ -z "$line" ] && continue
-              IFS=/ read -r ip prefix <<< "$line"
-              IFS=. read -r o1 o2 o3 o4 <<< "$ip"
-              for o in "$o1" "$o2" "$o3" "$o4"; do
-                if [ "$o" -gt 255 ] 2>/dev/null; then
-                  echo "::error file=$f::октет >255: $line"
-                  fail=1
-                fi
-              done
-            done < "$f"
-            # 3) сортировка (численная для IP через -V)
-            if ! diff -q <(sort -V "$f") "$f" >/dev/null 2>&1; then
-              echo "::warning file=$f::не отсортирован (требуется -V порядок)"
-            fi
-            # 4) дедуп
-            dup=$(sort "$f" | uniq -d | head -3)
-            if [ -n "$dup" ]; then
-              echo "::error file=$f::дубликаты: $dup"
-              fail=1
-            fi
-            echo "✓ $f ($(wc -l < "$f") строк)"
-          done
-          exit $fail
-
-      # setup-python здесь появился вместе с self-check: шаг ниже уже вызывал `python`,
-      # но джоб никогда не проверялся на практике — validate.yml запускался только на
-      # pull request, а в этом репозитории коммитят прямо в main.
+      # Форма списков проверяется стендом tests/gate_list_format.py — тем же файлом, что
+      # вызывает публикующая сборка перед коммитом. Раньше это были тридцать строк на bash
+      # здесь и ничего там, а расходиться двум реализациям одной проверки достаточно одного
+      # правила: строгой стала бы та, которую человек и так видит, а публикуемые данные
+      # остались бы под прежней. Прогон стендов — шагом ниже.
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -q -r generator/requirements.txt
 
       - name: Validate own domain sources
         run: |
@@ -99,24 +65,21 @@ jobs:
           exit $fail
 
       - name: Self-check (схема, списки против схемы, манифест, наш список)
-        run: |
-          pip install -q requests
-          python generator/selfcheck.py
+        run: python generator/selfcheck.py
 
       # Стенды репозитория.
       #
-      # ВНИМАНИЕ, и это стоило одной неверно написанной строки: автокоммит сборки сюда НЕ
-      # попадает. `chore(lists): auto-resolve` уходит push'ем в main с `secrets.GITHUB_TOKEN`,
-      # а push, сделанный этим токеном, workflow не запускает — так GitHub защищается от
-      # рекурсии. Проверить это можно за секунду: у validate.yml за всю историю четыре
-      # прогона, и все четыре на коммитах человека. Ни один опубликованный снапшот списков
-      # ничем отсюда не проверялся — ни формат, ни дедуп, ни манифест, ни эти стенды.
-      # Значит здесь стенды сторожат ТОЛЬКО то, что толкают руками, а публикуемые данные
-      # сторожит гейт внутри самой сборки (aggregate.py). Продолжение — в splicicd, I-108.
+      # ВНИМАНИЕ: автокоммит сборки сюда НЕ попадает. `chore(lists): auto-resolve` уходит
+      # push'ем в main с `secrets.GITHUB_TOKEN`, а push, сделанный этим токеном, workflow не
+      # запускает — так GitHub защищается от рекурсии. Проверить это можно за секунду:
+      # `gh run list --workflow=validate.yml` не покажет ни одного прогона на коммите бота.
+      # Значит этот прогон сторожит только то, что толкают руками.
+      #
+      # Опубликованные списки сторожит второй вызов ТОГО ЖЕ tests/run.sh — в resolve.yml
+      # перед шагом коммита (I-108). Поэтому проверок формы здесь больше нет отдельным
+      # шагом на bash: одна проверка живёт одним файлом и вызывается с двух сторон.
       - name: Стенды (tests/run.sh)
-        run: |
-          pip install -q -r generator/requirements.txt
-          sh tests/run.sh
+        run: sh tests/run.sh
 
       - name: Validate categories.json
         run: |
