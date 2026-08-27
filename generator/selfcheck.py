@@ -309,13 +309,32 @@ def report_thematic_seeds() -> None:
               + (f" ({', '.join(sorted(dups)[:5])})" if dups else ""))
 
 
+def run_group(name: str, fn) -> list[str]:
+    """Прогнать группу проверок. Исключение внутри — такая же ошибка, как названная ею.
+
+    Раньше группы вычислялись списком ДО цикла — то есть все четыре вызывались раньше,
+    чем начиналась печать. Любое исключение внутри любой из них (битая строка в списке,
+    отсутствующий файл, нечитаемый JSON) роняло весь запуск трассировкой, и `--warn-only`
+    к нему уже не относился: до кода возврата дело не доходило. В публикующей сборке это
+    ровно то, чего --warn-only и должен был не допустить, — снапшот собран, но не
+    опубликован из-за проверки, которая обещала быть мягкой (I-121).
+    """
+    try:
+        return list(fn())
+    except Exception as exc:  # noqa: BLE001 — причина неважна, важно не уронить шаг
+        return [f"проверка не отработала: {type(exc).__name__}: {exc}"]
+
+
 def main(argv: list[str] | None = None) -> int:
     warn_only = "--warn-only" in (argv if argv is not None else sys.argv[1:])
     groups = [
-        ("схема категорий", schema.validate()),
-        ("выпущенные списки против схемы", check_lists()),
-        ("манифест", check_manifest()),
-        ("наш доменный список", check_local_lists()),
+        (name, run_group(name, fn))
+        for name, fn in (
+            ("схема категорий", schema.validate),
+            ("выпущенные списки против схемы", check_lists),
+            ("манифест", check_manifest),
+            ("наш доменный список", check_local_lists),
+        )
     ]
     bad = 0
     for name, errs in groups:
@@ -330,7 +349,10 @@ def main(argv: list[str] | None = None) -> int:
         else:
             print(f"✓ {name}")
     print("отчёт:")
-    report_thematic_seeds()
+    try:
+        report_thematic_seeds()
+    except Exception as exc:  # noqa: BLE001 — отчёт ничего не решает, ронять шаг ему нечем
+        print(f"  отчёт не отработал: {type(exc).__name__}: {exc}")
     if bad:
         print(f"ИТОГО: {bad} ошибк(и)")
         return 0 if warn_only else 1
