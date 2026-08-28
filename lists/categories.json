@@ -1,6 +1,6 @@
 {
-  "version": "2026-08-25",
-  "generated_at": "2026-08-25T08:28:17Z",
+  "version": "2026-08-28",
+  "generated_at": "2026-08-28T15:42:23Z",
   "base_url": "https://raw.githubusercontent.com/xyzmean/ru-bypass-ipsets/main/lists",
   "ipsum_min_count": 5000,
   "sources": {
@@ -16,8 +16,9 @@
       "77.88.8.8",
       "8.8.4.4"
     ],
-    "resolved_domains": 16369,
+    "resolved_domains": 16301,
     "resolved_domains_recent": [
+      16301,
       16369,
       16443
     ],
@@ -25,7 +26,7 @@
       "total": 873,
       "in_domain_lists": 775,
       "prefix_only": 98,
-      "behind_shared_proxy": 59
+      "behind_shared_proxy": 55
     }
   },
   "aliases": [
@@ -158,8 +159,8 @@
       "file": "twitter_x.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 15,
-      "addresses": 26880
+      "count": 14,
+      "addresses": 26624
     },
     {
       "id": "youtube",
@@ -196,8 +197,8 @@
       "file": "tiktok.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 7,
-      "addresses": 2816
+      "count": 8,
+      "addresses": 3072
     },
     {
       "id": "roblox",
@@ -226,8 +227,8 @@
       "file": "cloudflare.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 340,
-      "addresses": 1820672
+      "count": 336,
+      "addresses": 1819392
     },
     {
       "id": "cloudfront",
@@ -257,7 +258,7 @@
       "default_on": false,
       "is_geoblock": false,
       "count": 111,
-      "addresses": 363008
+      "addresses": 363520
     },
     {
       "id": "ddos_guard",
@@ -266,8 +267,8 @@
       "file": "ddos_guard.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 18,
-      "addresses": 8192
+      "count": 19,
+      "addresses": 8448
     },
     {
       "id": "qrator",
@@ -286,8 +287,8 @@
       "file": "gcore.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 324,
-      "addresses": 123152
+      "count": 323,
+      "addresses": 122896
     },
     {
       "id": "bunny",
@@ -316,8 +317,8 @@
       "file": "imperva.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 197,
-      "addresses": 230144
+      "count": 201,
+      "addresses": 229888
     },
     {
       "id": "hetzner",
@@ -337,7 +338,7 @@
       "default_on": false,
       "is_geoblock": false,
       "count": 619,
-      "addresses": 4600320
+      "addresses": 4599552
     },
     {
       "id": "digitalocean",
@@ -356,8 +357,8 @@
       "file": "aws.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 5637,
-      "addresses": 172435200
+      "count": 5673,
+      "addresses": 174873344
     },
     {
       "id": "rkn",
@@ -366,8 +367,8 @@
       "file": "rkn.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 11187,
-      "addresses": 6318448,
+      "count": 11191,
+      "addresses": 6319904,
       "renamed_from": [
         "streaming.lst",
         "social.lst",
@@ -387,8 +388,8 @@
       "file": "geoblock.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 470,
-      "addresses": 209600,
+      "count": 416,
+      "addresses": 206080,
       "renamed_from": [
         "streaming_GB.lst",
         "social_GB.lst",
@@ -863,8 +864,8 @@
       "file": "rkn_all.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 11154,
-      "addresses": 7316608,
+      "count": 11176,
+      "addresses": 7315760,
       "aggregate": true
     },
     {
@@ -874,8 +875,8 @@
       "file": "ipsum.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 11153,
-      "addresses": 7283584,
+      "count": 11177,
+      "addresses": 7283248,
       "aggregate": true
     },
     {
@@ -885,8 +886,8 @@
       "file": "all.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 11434,
-      "addresses": 7440000,
+      "count": 11371,
+      "addresses": 7423808,
       "aggregate": true
     },
     {
@@ -896,8 +897,8 @@
       "file": "hodca.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 6517,
-      "addresses": 200200528,
+      "count": 6568,
+      "addresses": 202628176,
       "aggregate": true
     }
   ],
@@ -972,7 +973,7 @@
       "is_geoblock": false,
       "is_infra": false,
       "prefixes_file": "twitter_x.lst",
-      "prefixes_count": 15,
+      "prefixes_count": 14,
       "domains_files": [
         "domains/svc_twitter.lst"
       ],
@@ -1024,7 +1025,7 @@
       "is_geoblock": false,
       "is_infra": false,
       "prefixes_file": "tiktok.lst",
-      "prefixes_count": 7,
+      "prefixes_count": 8,
       "domains_files": [
         "domains/svc_tiktok.lst"
       ],
@@ -1064,7 +1065,7 @@
       "is_geoblock": false,
       "is_infra": true,
       "prefixes_file": "cloudflare.lst",
-      "prefixes_count": 340,
+      "prefixes_count": 336,
       "domains_files": [
         "domains/svc_cloudflare.lst"
       ],
@@ -1116,7 +1117,7 @@
       "is_geoblock": false,
       "is_infra": true,
       "prefixes_file": "ddos_guard.lst",
-      "prefixes_count": 18,
+      "prefixes_count": 19,
       "domains_files": [],
       "domains_count": 0
     },
@@ -1140,7 +1141,7 @@
       "is_geoblock": false,
       "is_infra": true,
       "prefixes_file": "gcore.lst",
-      "prefixes_count": 324,
+      "prefixes_count": 323,
       "domains_files": [],
       "domains_count": 0
     },
@@ -1176,7 +1177,7 @@
       "is_geoblock": false,
       "is_infra": true,
       "prefixes_file": "imperva.lst",
-      "prefixes_count": 197,
+      "prefixes_count": 201,
       "domains_files": [],
       "domains_count": 0
     },
@@ -1230,7 +1231,7 @@
       "is_geoblock": false,
       "is_infra": true,
       "prefixes_file": "aws.lst",
-      "prefixes_count": 5637,
+      "prefixes_count": 5673,
       "domains_files": [],
       "domains_count": 0
     }
