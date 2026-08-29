@@ -132,6 +132,7 @@ RU_NAMES = {
     "anime": "Аниме",
     "block": "Закрыто из РФ (заблокировал РКН)",
     "geoblock": "Не пускают из РФ (гео-блок сайта)",
+    "github": "GitHub",
     "hodca": "Хостинги и CDN",
     "news": "Новости",
     "porn": "Для взрослых",
@@ -368,7 +369,14 @@ def publish_local(meta: dict[str, dict], sets: dict[str, set[str]]) -> None:
         entry = {
             "id": cid,
             "kind": "domains",
-            "name_ru": f"{RU_NAMES.get(stem, stem)} — наш список",
+            # «— наш список» дописывается ТОЛЬКО там, где рядом лежит зеркало того же
+            # имени: суффикс существует, чтобы отличить наш файл от чужого с тем же
+            # названием. У списка, у которого зеркала нет вовсе (github), отличать не от
+            # чего, а суффикс превращался бы в загадку: человек ищет «GitHub», а видит
+            # «GitHub — наш список» и гадает, где же тогда не наш.
+            "name_ru": (f"{RU_NAMES.get(stem, stem)} — наш список"
+                        if (OUT / f"{stem}.lst").is_file()
+                        else RU_NAMES.get(stem, stem)),
             "file": f"domains/{cid}.lst",
             "count": len(info["domains"]),
             "source": f"{SELF_REPO}/sources/domains",
@@ -376,6 +384,18 @@ def publish_local(meta: dict[str, dict], sets: dict[str, set[str]]) -> None:
             "default_on": False,
             "is_geoblock": stem == "geoblock",
         }
+        # Место в каталоге. Каталог у потребителя строится из манифеста и упорядочен так
+        # же, как манифест: сначала адресные категории в порядке схемы, потом доменные
+        # списки. Доменному списку, который человек ищет наравне с сервисами, это место в
+        # хвосте не годится — GitHub должен стоять вверху, рядом с Telegram, а не за
+        # двумя десятками CDN. Поле называет соседа, а не номер: порядок схемы меняется,
+        # и номер разъехался бы с ним молча.
+        try:
+            import categories_schema as _schema
+        except ImportError:  # запуск как модуль из корня
+            from generator import categories_schema as _schema  # type: ignore
+        if (after := _schema.DOMAIN_LIST_AFTER.get(cid)):
+            entry["after"] = after
         # Связь с зеркалом — по файлу на диске, а не по результату сегодняшней загрузки:
         # иначе в сборке без сети поле пропадает, а «поля не стало» неотличимо от «связи
         # больше нет». Симметричная половина ставится там, где зеркало в манифесте есть.

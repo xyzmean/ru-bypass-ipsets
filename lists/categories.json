@@ -516,6 +516,25 @@
       "is_geoblock": false
     },
     {
+      "id": "own_github",
+      "kind": "domains",
+      "name_ru": "GitHub",
+      "file": "domains/own_github.lst",
+      "count": 19,
+      "source": "xyzmean/ru-bypass-ipsets/sources/domains",
+      "maintained_here": {
+        "repo": "xyzmean/ru-bypass-ipsets",
+        "folder": "sources/domains",
+        "file": "sources/domains/github.lst",
+        "url": "https://github.com/xyzmean/ru-bypass-ipsets/blob/HEAD/sources/domains/github.lst",
+        "suggest_url": "https://github.com/xyzmean/ru-bypass-ipsets/issues/new",
+        "editable_locally": true
+      },
+      "default_on": false,
+      "is_geoblock": false,
+      "after": "telegram"
+    },
+    {
       "id": "own_porn",
       "kind": "domains",
       "name_ru": "Для взрослых — наш список",

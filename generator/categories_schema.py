@@ -43,6 +43,10 @@ default_on (рекомендация splify), is_geoblock (группа GB).
 
 from __future__ import annotations
 
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+
 BASE_URL = (
     "https://raw.githubusercontent.com/xyzmean/ru-bypass-ipsets/main/lists"
 )
@@ -168,24 +172,6 @@ CATEGORIES = [
                    "extra_domains": ["netflix.com", "nflxvideo.net", "nflxext.com"]},
     },
     {
-        "id": "github",
-        "name_ru": "GitHub",
-        "description_ru": "GitHub: сайт, API, клон и релизные файлы. Официальный фид "
-                          "api.github.com/meta; адреса раннеров Actions в список не входят.",
-        "default_on": False,
-        "is_geoblock": False,
-        # Вычитание инфраструктуры по этой категории НЕ гоняется, и причина измерена, а не
-        # предположена: 185.199.108.0/22 — это анонс Fastly (он лежит в fastly.lst), и
-        # ровно с этих адресов отдаются raw.githubusercontent.com и
-        # objects.githubusercontent.com. Вычитание сняло бы с GitHub ровно ту часть, ради
-        # которой список и заводится: у людей из splify2#15 закрыт именно этот хост.
-        #
-        # Плата известна и невелика: /22 — это 1024 адреса, и других жильцов, кроме
-        # GitHub Pages, у него нет; фид перечисляет его от имени самого GitHub.
-        "no_subtract": True,
-        "source": {"kind": "service", "files": ["github.lst"], "cdn": "github"},
-    },
-    {
         "id": "openwrt",
         "name_ru": "OpenWrt",
         "description_ru": "Обновление пакетов и прошивок самого роутера: downloads.openwrt.org, "
@@ -267,6 +253,26 @@ CATEGORIES = [
     # Измерено до добавления: 753 адреса этих провайдеров лежали в списках, из них 374 в
     # rkn_other (ddos-guard 186, fastly 113, sucuri 40). Каждый такой адрес — это «увести
     # заодно всё, что за ним живёт», а за обратным прокси живёт что угодно.
+    {
+        "id": "github_cdn",
+        "name_ru": "GitHub CDN",
+        "description_ru": "Все подсети GitHub: официальный фид api.github.com/meta плюс анонсы "
+                          "AS36459. Адреса раннеров Actions в список не входят — это арендованные "
+                          "диапазоны Azure, а не сеть GitHub.",
+        "default_on": False,
+        "is_geoblock": False,
+        "is_infra": True,
+        # Вычитание инфраструктуры по этой категории НЕ гоняется, и причина измерена, а не
+        # предположена: 185.199.108.0/22 — анонс Fastly (он лежит в fastly.lst), и ровно с
+        # этих адресов отдаются raw.githubusercontent.com и objects.githubusercontent.com.
+        # Вычитание сняло бы с GitHub ровно ту часть, ради которой список и заводится: у
+        # людей из splify2#15 закрыт именно этот хост.
+        "no_subtract": True,
+        # Доменов у этой категории нет намеренно: домены GitHub издаются ОТДЕЛЬНЫМ
+        # доменным списком (sources/domains/github.lst → own_github). Здесь — только сеть
+        # GitHub целиком, как у любого другого CDN в этом разделе.
+        "source": {"kind": "service", "files": [], "cdn": "github", "asn": True},
+    },
     {
         "id": "fastly",
         "name_ru": "Fastly CDN",
@@ -515,6 +521,20 @@ SHARED_PROXY_IDS = [c["id"] for c in CATEGORIES if c.get("is_shared_proxy")]
 #
 # Пусто = у сервиса доменного списка нет вовсе, и это честный ответ: WhatsApp живёт на
 # доменах Meta, а у Netflix и AWS доменных списков издатель не публикует.
+# Место доменного списка в каталоге: id списка -> id записи, СРАЗУ ЗА которой он встаёт.
+#
+# Каталог у потребителя (splify2) строится из манифеста и повторяет его порядок: сначала
+# адресные категории в порядке этого файла, потом доменные списки. Для зеркал апстрима это
+# верно — их ищут по названию тематики, — но наш доменный GitHub человек ищет наравне с
+# Telegram, а не за двумя десятками CDN, куда его отправляет хвост манифеста.
+#
+# Соседом, а не номером: порядок CATEGORIES меняется, и номер разъехался бы с ним молча, а
+# «сразу за Telegram» остаётся верным при любой перестановке.
+DOMAIN_LIST_AFTER = {
+    "own_github": "telegram",
+}
+
+
 SERVICE_DOMAIN_LISTS = {
     "telegram": ["svc_telegram"],
     "whatsapp": [],
@@ -526,7 +546,7 @@ SERVICE_DOMAIN_LISTS = {
     "tiktok": ["svc_tiktok"],
     "roblox": ["svc_roblox"],
     "netflix": [],
-    "github": [],
+    "github_cdn": [],
     "openwrt": [],
     "cloudflare": ["svc_cloudflare"],
     "cloudfront": ["svc_cloudfront"],
@@ -548,6 +568,10 @@ SERVICE_DOMAIN_LISTS = {
 #
 # Здесь двадцать имён, то есть двадцать таких молчаний, если карту не опубликовать.
 RENAMED_FROM = {
+    # Категория `github` прожила один выпуск: адресный список и доменный разделены,
+    # адреса стали «GitHub CDN». Роутер хранит ПУТЬ к файлу, поэтому без этой строки
+    # правило, успевшее сослаться на github.lst, перестало бы обновляться молча.
+    "github_cdn": ["github"],
     "rkn": [
         "streaming", "social", "ai", "gaming", "news", "dev", "adult", "media",
         "rkn_other",
@@ -684,6 +708,17 @@ def validate() -> list[str]:
     for cid in SERVICE_DOMAIN_LISTS:
         if cid not in ids:
             errs.append(f"SERVICE_DOMAIN_LISTS: неизвестная категория {cid!r}")
+    # Сосед по каталогу обязан существовать: ссылка в никуда означает, что список молча
+    # уедет в хвост — то есть ровно тот отказ, ради которого поле и заведено.
+    for lid, after in DOMAIN_LIST_AFTER.items():
+        if after not in ids and after not in agg_ids:
+            errs.append(f"DOMAIN_LIST_AFTER: {lid!r} поставлен за {after!r}, "
+                        f"а такой записи нет")
+        src = ROOT / "sources" / "domains" / f"{lid.removeprefix('own_')}.lst"
+        if lid.startswith("own_") and not src.is_file():
+            errs.append(f"DOMAIN_LIST_AFTER: {lid!r} — нет файла {src.name} "
+                        f"в sources/domains, порядок задан для несуществующего списка")
+
     for new_id, olds in RENAMED_FROM.items():
         if new_id not in ids and new_id not in agg_ids:
             errs.append(f"RENAMED_FROM: цель {new_id!r} не существует")
