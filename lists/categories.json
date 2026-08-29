@@ -1,6 +1,6 @@
 {
-  "version": "2026-08-28",
-  "generated_at": "2026-08-28T15:42:23Z",
+  "version": "2026-08-29",
+  "generated_at": "2026-08-29T14:47:11Z",
   "base_url": "https://raw.githubusercontent.com/xyzmean/ru-bypass-ipsets/main/lists",
   "ipsum_min_count": 5000,
   "sources": {
@@ -16,8 +16,9 @@
       "77.88.8.8",
       "8.8.4.4"
     ],
-    "resolved_domains": 16301,
+    "resolved_domains": 16378,
     "resolved_domains_recent": [
+      16378,
       16301,
       16369,
       16443
@@ -26,7 +27,7 @@
       "total": 873,
       "in_domain_lists": 775,
       "prefix_only": 98,
-      "behind_shared_proxy": 55
+      "behind_shared_proxy": 62
     }
   },
   "aliases": [
@@ -159,8 +160,8 @@
       "file": "twitter_x.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 14,
-      "addresses": 26624
+      "count": 13,
+      "addresses": 26368
     },
     {
       "id": "youtube",
@@ -221,14 +222,34 @@
       "addresses": 159744
     },
     {
+      "id": "github",
+      "name_ru": "GitHub",
+      "description_ru": "GitHub: сайт, API, клон и релизные файлы. Официальный фид api.github.com/meta; адреса раннеров Actions в список не входят.",
+      "file": "github.lst",
+      "default_on": false,
+      "is_geoblock": false,
+      "count": 33,
+      "addresses": 11424
+    },
+    {
+      "id": "openwrt",
+      "name_ru": "OpenWrt",
+      "description_ru": "Обновление пакетов и прошивок самого роутера: downloads.openwrt.org, зеркала и остальные узлы проекта.",
+      "file": "openwrt.lst",
+      "default_on": false,
+      "is_geoblock": false,
+      "count": 4,
+      "addresses": 2048
+    },
+    {
       "id": "cloudflare",
       "name_ru": "Cloudflare CDN",
       "description_ru": "Все подсети Cloudflare: официальный фид ips-v4 плюс анонсы AS13335.",
       "file": "cloudflare.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 336,
-      "addresses": 1819392
+      "count": 337,
+      "addresses": 1821440
     },
     {
       "id": "cloudfront",
@@ -257,8 +278,8 @@
       "file": "fastly.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 111,
-      "addresses": 363520
+      "count": 112,
+      "addresses": 363776
     },
     {
       "id": "ddos_guard",
@@ -267,8 +288,8 @@
       "file": "ddos_guard.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 19,
-      "addresses": 8448
+      "count": 20,
+      "addresses": 8192
     },
     {
       "id": "qrator",
@@ -357,8 +378,8 @@
       "file": "aws.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 5673,
-      "addresses": 174873344
+      "count": 5674,
+      "addresses": 174775296
     },
     {
       "id": "rkn",
@@ -367,8 +388,8 @@
       "file": "rkn.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 11191,
-      "addresses": 6319904,
+      "count": 11235,
+      "addresses": 6307328,
       "renamed_from": [
         "streaming.lst",
         "social.lst",
@@ -388,8 +409,8 @@
       "file": "geoblock.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 416,
-      "addresses": 206080,
+      "count": 473,
+      "addresses": 202432,
       "renamed_from": [
         "streaming_GB.lst",
         "social_GB.lst",
@@ -864,8 +885,8 @@
       "file": "rkn_all.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 11176,
-      "addresses": 7315760,
+      "count": 11254,
+      "addresses": 7312256,
       "aggregate": true
     },
     {
@@ -875,8 +896,8 @@
       "file": "ipsum.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 11177,
-      "addresses": 7283248,
+      "count": 11222,
+      "addresses": 7270416,
       "aggregate": true
     },
     {
@@ -886,8 +907,8 @@
       "file": "all.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 11371,
-      "addresses": 7423808,
+      "count": 11539,
+      "addresses": 7435616,
       "aggregate": true
     },
     {
@@ -897,8 +918,8 @@
       "file": "hodca.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 6568,
-      "addresses": 202628176,
+      "count": 6573,
+      "addresses": 202564944,
       "aggregate": true
     }
   ],
@@ -973,7 +994,7 @@
       "is_geoblock": false,
       "is_infra": false,
       "prefixes_file": "twitter_x.lst",
-      "prefixes_count": 14,
+      "prefixes_count": 13,
       "domains_files": [
         "domains/svc_twitter.lst"
       ],
@@ -1058,6 +1079,30 @@
       "domains_count": 0
     },
     {
+      "id": "github",
+      "name_ru": "GitHub",
+      "description_ru": "GitHub: сайт, API, клон и релизные файлы. Официальный фид api.github.com/meta; адреса раннеров Actions в список не входят.",
+      "default_on": false,
+      "is_geoblock": false,
+      "is_infra": false,
+      "prefixes_file": "github.lst",
+      "prefixes_count": 33,
+      "domains_files": [],
+      "domains_count": 0
+    },
+    {
+      "id": "openwrt",
+      "name_ru": "OpenWrt",
+      "description_ru": "Обновление пакетов и прошивок самого роутера: downloads.openwrt.org, зеркала и остальные узлы проекта.",
+      "default_on": false,
+      "is_geoblock": false,
+      "is_infra": false,
+      "prefixes_file": "openwrt.lst",
+      "prefixes_count": 4,
+      "domains_files": [],
+      "domains_count": 0
+    },
+    {
       "id": "cloudflare",
       "name_ru": "Cloudflare CDN",
       "description_ru": "Все подсети Cloudflare: официальный фид ips-v4 плюс анонсы AS13335.",
@@ -1065,7 +1110,7 @@
       "is_geoblock": false,
       "is_infra": true,
       "prefixes_file": "cloudflare.lst",
-      "prefixes_count": 336,
+      "prefixes_count": 337,
       "domains_files": [
         "domains/svc_cloudflare.lst"
       ],
@@ -1105,7 +1150,7 @@
       "is_geoblock": false,
       "is_infra": true,
       "prefixes_file": "fastly.lst",
-      "prefixes_count": 111,
+      "prefixes_count": 112,
       "domains_files": [],
       "domains_count": 0
     },
@@ -1117,7 +1162,7 @@
       "is_geoblock": false,
       "is_infra": true,
       "prefixes_file": "ddos_guard.lst",
-      "prefixes_count": 19,
+      "prefixes_count": 20,
       "domains_files": [],
       "domains_count": 0
     },
@@ -1231,7 +1276,7 @@
       "is_geoblock": false,
       "is_infra": true,
       "prefixes_file": "aws.lst",
-      "prefixes_count": 5673,
+      "prefixes_count": 5674,
       "domains_files": [],
       "domains_count": 0
     }
