@@ -167,6 +167,39 @@ CATEGORIES = [
         "source": {"kind": "service", "files": [], "asn": True,
                    "extra_domains": ["netflix.com", "nflxvideo.net", "nflxext.com"]},
     },
+    {
+        "id": "github",
+        "name_ru": "GitHub",
+        "description_ru": "GitHub: сайт, API, клон и релизные файлы. Официальный фид "
+                          "api.github.com/meta; адреса раннеров Actions в список не входят.",
+        "default_on": False,
+        "is_geoblock": False,
+        # Вычитание инфраструктуры по этой категории НЕ гоняется, и причина измерена, а не
+        # предположена: 185.199.108.0/22 — это анонс Fastly (он лежит в fastly.lst), и
+        # ровно с этих адресов отдаются raw.githubusercontent.com и
+        # objects.githubusercontent.com. Вычитание сняло бы с GitHub ровно ту часть, ради
+        # которой список и заводится: у людей из splify2#15 закрыт именно этот хост.
+        #
+        # Плата известна и невелика: /22 — это 1024 адреса, и других жильцов, кроме
+        # GitHub Pages, у него нет; фид перечисляет его от имени самого GitHub.
+        "no_subtract": True,
+        "source": {"kind": "service", "files": ["github.lst"], "cdn": "github"},
+    },
+    {
+        "id": "openwrt",
+        "name_ru": "OpenWrt",
+        "description_ru": "Обновление пакетов и прошивок самого роутера: downloads.openwrt.org, "
+                          "зеркала и остальные узлы проекта.",
+        "default_on": False,
+        "is_geoblock": False,
+        # Ни ASN, ни фида: своей автономной системы у проекта нет, а инфраструктура
+        # размазана по хостерам (downloads — за Fastly, git — Hetzner, форум — DigitalOcean).
+        # Значит адресная часть получается резолвом имён, как у любого сервиса без своей
+        # сети: замерено — 14 доменов дают 14 префиксов /24. Вычитание инфраструктуры
+        # трогает только префиксы ШИРЕ /24, поэтому 151.101.130.0/24 (downloads за Fastly)
+        # вычитание Fastly переживает, а весь Fastly в туннель не уезжает.
+        "source": {"kind": "service", "files": ["openwrt.lst"]},
+    },
     # ─────────────── CDN и хостинги: по одному на провайдера ───────────────
     #
     # Раньше это был один ком «hodca» из пяти провайдеров. Разделены по двум причинам,
@@ -493,6 +526,8 @@ SERVICE_DOMAIN_LISTS = {
     "tiktok": ["svc_tiktok"],
     "roblox": ["svc_roblox"],
     "netflix": [],
+    "github": [],
+    "openwrt": [],
     "cloudflare": ["svc_cloudflare"],
     "cloudfront": ["svc_cloudfront"],
     "akamai": [],

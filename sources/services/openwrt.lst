@@ -1,0 +1,17 @@
+# OpenWrt: обновление пакетов и прошивок самого роутера.
+# Своей автономной системы у проекта нет, инфраструктура размазана по нескольким
+# хостерам, поэтому адресная часть категории получается резолвом этих имён.
+openwrt.org
+www.openwrt.org
+downloads.openwrt.org
+sources.openwrt.org
+archive.openwrt.org
+sysupgrade.openwrt.org
+firmware-selector.openwrt.org
+git.openwrt.org
+forum.openwrt.org
+bugs.openwrt.org
+lists.openwrt.org
+mirror-01.infra.openwrt.org
+mirror-02.infra.openwrt.org
+mirror-03.infra.openwrt.org

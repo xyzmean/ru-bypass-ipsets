@@ -30,6 +30,9 @@ HTTP_TIMEOUT = (10, 60)
 CLOUDFLARE_URL = "https://www.cloudflare.com/ips-v4"
 # AWS требует корректный User-Agent (иначе 403) и полный путь к JSON.
 AWS_RANGES_URL = "https://ip-ranges.amazonaws.com/ip-ranges.json"
+GITHUB_META_URL = "https://api.github.com/meta"
+# Снапшот фида GitHub рядом с остальными: см. pull_github.
+GITHUB_SNAPSHOT = ROOT / "sources" / "github" / "meta_snapshot.lst"
 UA = "ru-bypass-ipsets/1.0 (https://github.com/xyzmean/ru-bypass-ipsets)"
 
 
@@ -197,11 +200,66 @@ def pull_cloudfront() -> list[ipaddress.IPv4Network]:
         return []
 
 
+# Ключи api.github.com/meta, которые берём. Список именно такой, и это отбор, а не
+# «всё, что отдали».
+#
+# Берём то, к чему ходит РОУТЕР И ЧЕЛОВЕК ЗА НИМ: web и api (github.com, api.github.com),
+# git и packages (клон, релизные файлы), pages (185.199.108.0/22 — тот самый Fastly, с
+# которого отдаются raw.githubusercontent.com и objects.githubusercontent.com), hooks и
+# импортеры. Вместе — 142 префикса, после свёртки 76, около 51 тысячи адресов.
+#
+# НЕ берём `actions`: это исходящие адреса раннеров CI в Azure, 5625 префиксов и 28
+# миллионов адресов — четверть облака Microsoft. Роутеру они не нужны ни для установки,
+# ни для клона, а в туннель утащили бы всё, что живёт в тех же диапазонах. По той же
+# причине снаружи остались codespaces и copilot.
+GITHUB_META_KEYS = (
+    "hooks", "web", "api", "git", "packages", "pages",
+    "importer", "github_enterprise_importer",
+)
+
+
+def pull_github() -> list[ipaddress.IPv4Network]:
+    """Официальный фид адресов GitHub плюс снапшот на случай, когда фида не достать.
+
+    Снапшот здесь не роскошь, а условие работоспособности: этот список нужен ровно тем,
+    у кого GitHub закрыт (splify2#15), и собирается он на машине, которая в такой день
+    сама может не достучаться до api.github.com. Без памяти о последней удачной загрузке
+    сборка выпустила бы GitHub с нулём префиксов — то есть «категория включена, и в ней
+    ничего».
+    """
+    nets: list[ipaddress.IPv4Network] = []
+    try:
+        r = requests.get(GITHUB_META_URL, timeout=HTTP_TIMEOUT, headers={"User-Agent": UA})
+        r.raise_for_status()
+        data = r.json()
+        for key in GITHUB_META_KEYS:
+            for item in data.get(key, []):
+                if n := _valid_ipv4_prefix(str(item)):
+                    nets.append(n)
+        if nets:
+            GITHUB_SNAPSHOT.parent.mkdir(parents=True, exist_ok=True)
+            GITHUB_SNAPSHOT.write_text(
+                "\n".join(str(n) for n in sorted(nets, key=lambda x: int(x.network_address)))
+                + "\n",
+                encoding="utf-8",
+            )
+        log.info("GitHub: %d подсетей из api.github.com/meta", len(nets))
+        return nets
+    except Exception as exc:  # noqa: BLE001
+        log.warning("GitHub-фид провален: %s", exc)
+        if GITHUB_SNAPSHOT.is_file():
+            nets = _parse_prefix_lines(GITHUB_SNAPSHOT.read_text(encoding="utf-8"))
+            log.warning("GitHub: взят снапшот %s (%d подсетей)", GITHUB_SNAPSHOT.name, len(nets))
+        return nets
+
+
 def pull_cdn(kind: str) -> list[ipaddress.IPv4Network]:
     """Диспетчер CDN-фидов по идентификатору из categories_schema.
     Discord voice-фид убран (источник умер) — Discord покрывается по ASN 62041."""
     if kind == "cloudflare":
         return pull_cloudflare()
+    if kind == "github":
+        return pull_github()
     if kind in ("cloudfront", "hodca"):
         # "hodca" — имя из времён, когда все провайдеры лежали одной категорией. Когда их
         # разделили, категория стала звать фид как "cloudfront", а диспетчер по-прежнему
