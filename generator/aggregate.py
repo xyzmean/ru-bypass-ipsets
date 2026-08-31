@@ -494,6 +494,41 @@ def empty_shared_proxy(categories: list[dict], cat_networks: dict) -> list[str]:
             if c.get("is_shared_proxy") and not cat_networks.get(c["id"])]
 
 
+def no_subtract_cost(
+    nets: list[ipaddress.IPv4Network],
+    infra: list[ipaddress.IPv4Network],
+    proxy: list[ipaddress.IPv4Network],
+    is_service: bool,
+) -> tuple[int, int]:
+    """Цена `no_subtract`: сколько осталось в списке только потому, что вычитаний нет.
+
+    Отдаёт (адресов, сетей) — ровно ту разницу, которую вычитание сделало бы у любой
+    другой категории. Считается ИХ ЖЕ кодом и с их же условием (`subtract_infra` гоняется
+    только у сервисов): разойтись мере и работе, которую она описывает, достаточно одной
+    правки в одной из двух, а разойдясь, мера продолжит печатать число.
+
+    В АДРЕСАХ, а не в сетях, — по той же причине, по которой H-092 менял единственный
+    числовой гейт репозитория: число строк на просадке РАСТЁТ, и как мера покрытия оно
+    врёт в опасную сторону. И по ОБОИМ вычитаниям: `no_subtract` отключает и общие прокси,
+    и хостинги, а называлась половина. Замерено на выпущенном openwrt.lst — 5 сетей
+    общих прокси звучали как «5», тогда как список держит 2560 адресов в 10 сетях, из них
+    1280 у Fastly и 1280 у Hetzner с DigitalOcean, то есть 56% всего списка.
+
+    Схлопывание с обеих сторон обязательно: до `finalize` в списке лежат пересекающиеся
+    префиксы (ASN и резолв доменов дают одно и то же дважды), и сумма `num_addresses` по
+    ним считает общие адреса по разу на префикс.
+    """
+    if not nets:
+        return 0, 0
+    before = list(ipaddress.collapse_addresses(nets))
+    kept, _ = subtract_shared_proxy(list(nets), proxy)
+    if is_service:
+        kept, _ = subtract_infra(kept, infra)
+    after = list(ipaddress.collapse_addresses(kept)) if kept else []
+    return (category_addresses(before) - category_addresses(after),
+            len(before) - len(after))
+
+
 def subtract_infra(
     nets: list[ipaddress.IPv4Network], infra: list[ipaddress.IPv4Network]
 ) -> tuple[list[ipaddress.IPv4Network], int]:
@@ -868,17 +903,20 @@ def main():
                 proxy_nets += nets
         elif cat.get("no_subtract"):
             # Список берётся как есть — по решению владельца. Не молча: раз вычитание
-            # пропущено, в лог идёт, сколько адресов инфраструктуры в списке осталось,
-            # иначе «взяли как есть» и «случайно затащили половину Cloudflare» выглядят
-            # в сборке одинаково.
-            # Склейка диапазонов СЧИТАЕТСЯ ОДИН РАЗ, а не внутри перебора: в первой версии
-            # collapse_addresses стоял в генераторном выражении и пересчитывался на каждый
-            # префикс списка — 2 322 раза по трём тысячам диапазонов. Сборка не падала, она
-            # просто вставала намертво на этой строке.
-            proxy_ranges = list(ipaddress.collapse_addresses(proxy_nets)) if proxy_nets else []
-            left = sum(1 for n in nets if any(n.overlaps(r) for r in proxy_ranges))
-            log.info("%s: вычитания отключены (no_subtract), пересекается с общими прокси: %d",
-                     cid, left)
+            # пропущено, в лог идёт его цена, иначе «взяли как есть» и «случайно затащили
+            # половину Cloudflare» выглядят в сборке одинаково.
+            #
+            # Цену считает no_subtract_cost — кодом самих вычитаний и в адресах. Прежняя
+            # строка считала здесь СЕТИ и только у общих прокси: у openwrt это «5» при
+            # 2560 адресах в 10 сетях, из которых половина — хостинги, про которые не
+            # говорилось вовсе. Заодно ушёл перебор `any(n.overlaps(r) for r in ranges)` —
+            # тот самый, ради устранения которого заведён punch_out_counted (см. его
+            # док-строку): на входе discord это 2322 префикса против 1316 диапазонов и
+            # 2,07 с на каждой сборке, чтобы напечатать число 2.
+            addrs, nets_n = no_subtract_cost(nets, infra_nets, proxy_nets,
+                                             src["kind"] == "service")
+            log.info("%s: вычитания отключены (no_subtract), в списке осталось %d адрес(ов) "
+                     "в %d сет(ях), которые вычитание убрало бы", cid, addrs, nets_n)
         else:
             # Общие прокси вычитаются У ВСЕХ, включая тематические категории РКН: адрес
             # Cloudflare никогда не указывает на один сайт, поэтому он бесполезен как цель

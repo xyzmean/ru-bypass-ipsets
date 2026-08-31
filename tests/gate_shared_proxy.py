@@ -101,6 +101,63 @@ check(
     + " — вычитание этих провайдеров не выполнилось ни у одной категории",
 )
 
+# ── 3. Цена отключённого вычитания названа в той же мере, что и само вычитание ───
+#
+# `no_subtract` — единственное исключение из контракта выше: по такому списку не гоняются
+# НИ общие прокси, НИ хостинги. Исключение осознанное, поэтому единственное, что от него
+# требуется, — называть свою цену вслух; иначе «взяли как есть» и «случайно затащили
+# половину Cloudflare» выглядят в журнале сборки одинаково.
+#
+# Мера обязана совпадать с мерой самого вычитания, и это не педантизм. Считать сети вместо
+# адресов — ровно та ошибка, из-за которой H-092 менял единственный числовой гейт: на
+# просадке строк становится БОЛЬШЕ, а адресов меньше. А назвать одни прокси, когда
+# отключены обе половины, значит промолчать про вторую.
+#
+# Числа ниже посчитаны на выпущенном openwrt.lst (14 сетей, 4608 адресов): вычитание
+# оставило бы 4 сети и 2048 адресов, то есть цена отключения — 2560 адресов в 10 сетях,
+# из них 1280 у общих прокси (Fastly) и 1280 у хостингов (Hetzner, DigitalOcean).
+PROXY = [ipaddress.ip_network("185.199.108.0/22")]
+HOSTING = [ipaddress.ip_network("167.235.28.0/24")]
+SAMPLE = PROXY + HOSTING + [ipaddress.ip_network("45.140.183.0/24")]
+
+cost = getattr(aggregate, "no_subtract_cost", None)
+if cost is None:
+    fails.append("нет aggregate.no_subtract_cost: цена отключённого вычитания считается "
+                 "на месте и в сетях — той мерой, которую H-092 из репозитория убрал")
+    checks += 4
+else:
+    addrs, nets_n = cost(SAMPLE, PROXY + HOSTING, PROXY, True)
+    check(addrs == 1024 + 256,
+          f"цена у сервиса посчитана не в адресах или без хостингов: {addrs} вместо 1280")
+    check(nets_n == 2, f"сетей в цене у сервиса: {nets_n} вместо 2")
+
+    addrs, nets_n = cost(SAMPLE, PROXY + HOSTING, PROXY, False)
+    check(addrs == 1024,
+          "у не-сервиса вычитаются только общие прокси, а в цену попали хостинги: "
+          f"{addrs} вместо 1024")
+
+    check(cost([], PROXY + HOSTING, PROXY, True) == (0, 0),
+          "пустой список получил ненулевую цену")
+
+    # Выпущенные данные: цена каждой категории с no_subtract названа, и она не нулевая
+    # там, где список действительно держит края провайдеров.
+    infra_all = [n for c in schema.CATEGORIES if c.get("is_infra")
+                 for n in read_nets(LISTS / f"{c['id']}.lst")]
+    proxy_all = [n for c in schema.CATEGORIES if c.get("is_shared_proxy")
+                 for n in read_nets(LISTS / f"{c['id']}.lst")]
+    for cat in [c for c in schema.CATEGORIES if c.get("no_subtract")
+                and not c.get("is_infra")]:
+        cid = cat["id"]
+        addrs, nets_n = cost(read_nets(LISTS / f"{cid}.lst"), infra_all, proxy_all,
+                             cat["source"]["kind"] == "service")
+        check(addrs >= nets_n,
+              f"{cid}: адресов в цене меньше, чем сетей ({addrs} против {nets_n}) — "
+              "мера перепутана")
+        if cid == "openwrt":
+            check((addrs, nets_n) == (2560, 10),
+                  f"openwrt: цена отключённого вычитания {addrs} адрес(ов) в {nets_n} "
+                  "сет(ях), а на выпущенном списке это 2560 в 10")
+
 print(f"gate_shared_proxy: проверок {checks}, провалов {len(fails)}")
 for f in fails:
     print(f"  FAIL: {f}")
