@@ -1,6 +1,6 @@
 {
   "version": "2026-08-31",
-  "generated_at": "2026-08-31T06:49:26Z",
+  "generated_at": "2026-08-31T10:05:41Z",
   "base_url": "https://raw.githubusercontent.com/xyzmean/ru-bypass-ipsets/main/lists",
   "ipsum_min_count": 5000,
   "sources": {
@@ -16,8 +16,9 @@
       "77.88.8.8",
       "8.8.4.4"
     ],
-    "resolved_domains": 16324,
+    "resolved_domains": 16299,
     "resolved_domains_recent": [
+      16299,
       16324,
       16336,
       16250,
@@ -30,7 +31,7 @@
       "total": 873,
       "in_domain_lists": 775,
       "prefix_only": 98,
-      "behind_shared_proxy": 53
+      "behind_shared_proxy": 56
     }
   },
   "aliases": [
@@ -167,8 +168,8 @@
       "file": "twitter_x.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 13,
-      "addresses": 26368
+      "count": 14,
+      "addresses": 26624
     },
     {
       "id": "youtube",
@@ -205,8 +206,8 @@
       "file": "tiktok.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 7,
-      "addresses": 2816
+      "count": 8,
+      "addresses": 3072
     },
     {
       "id": "roblox",
@@ -398,8 +399,8 @@
       "file": "rkn.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 11178,
-      "addresses": 6344064,
+      "count": 11167,
+      "addresses": 6337072,
       "renamed_from": [
         "streaming.lst",
         "social.lst",
@@ -419,8 +420,8 @@
       "file": "geoblock.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 460,
-      "addresses": 198592,
+      "count": 431,
+      "addresses": 195520,
       "renamed_from": [
         "streaming_GB.lst",
         "social_GB.lst",
@@ -914,8 +915,8 @@
       "file": "rkn_all.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 11177,
-      "addresses": 7344736,
+      "count": 11167,
+      "addresses": 7337760,
       "aggregate": true
     },
     {
@@ -925,8 +926,8 @@
       "file": "ipsum.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 11165,
-      "addresses": 7307152,
+      "count": 11154,
+      "addresses": 7300160,
       "aggregate": true
     },
     {
@@ -936,8 +937,8 @@
       "file": "all.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 11442,
-      "addresses": 7462192,
+      "count": 11410,
+      "addresses": 7448560,
       "aggregate": true
     },
     {
@@ -1023,7 +1024,7 @@
       "is_geoblock": false,
       "is_infra": false,
       "prefixes_file": "twitter_x.lst",
-      "prefixes_count": 13,
+      "prefixes_count": 14,
       "domains_files": [
         "domains/svc_twitter.lst"
       ],
@@ -1075,7 +1076,7 @@
       "is_geoblock": false,
       "is_infra": false,
       "prefixes_file": "tiktok.lst",
-      "prefixes_count": 7,
+      "prefixes_count": 8,
       "domains_files": [
         "domains/svc_tiktok.lst"
       ],
