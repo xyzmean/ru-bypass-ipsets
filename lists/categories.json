@@ -1,6 +1,6 @@
 {
-  "version": "2026-08-29",
-  "generated_at": "2026-08-29T15:28:48Z",
+  "version": "2026-08-31",
+  "generated_at": "2026-08-31T06:49:26Z",
   "base_url": "https://raw.githubusercontent.com/xyzmean/ru-bypass-ipsets/main/lists",
   "ipsum_min_count": 5000,
   "sources": {
@@ -16,8 +16,9 @@
       "77.88.8.8",
       "8.8.4.4"
     ],
-    "resolved_domains": 16336,
+    "resolved_domains": 16324,
     "resolved_domains_recent": [
+      16324,
       16336,
       16250,
       16378,
@@ -29,7 +30,7 @@
       "total": 873,
       "in_domain_lists": 775,
       "prefix_only": 98,
-      "behind_shared_proxy": 56
+      "behind_shared_proxy": 53
     }
   },
   "aliases": [
@@ -204,8 +205,8 @@
       "file": "tiktok.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 8,
-      "addresses": 3072
+      "count": 7,
+      "addresses": 2816
     },
     {
       "id": "roblox",
@@ -244,8 +245,8 @@
       "file": "cloudflare.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 337,
-      "addresses": 1821440
+      "count": 339,
+      "addresses": 1821952
     },
     {
       "id": "cloudfront",
@@ -367,8 +368,8 @@
       "file": "ovh.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 619,
-      "addresses": 4599552
+      "count": 617,
+      "addresses": 4598784
     },
     {
       "id": "digitalocean",
@@ -387,8 +388,8 @@
       "file": "aws.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 5674,
-      "addresses": 174775296
+      "count": 5686,
+      "addresses": 174699520
     },
     {
       "id": "rkn",
@@ -397,8 +398,8 @@
       "file": "rkn.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 11245,
-      "addresses": 6321984,
+      "count": 11178,
+      "addresses": 6344064,
       "renamed_from": [
         "streaming.lst",
         "social.lst",
@@ -418,8 +419,8 @@
       "file": "geoblock.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 416,
-      "addresses": 186304,
+      "count": 460,
+      "addresses": 198592,
       "renamed_from": [
         "streaming_GB.lst",
         "social_GB.lst",
@@ -913,8 +914,8 @@
       "file": "rkn_all.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 11244,
-      "addresses": 7322656,
+      "count": 11177,
+      "addresses": 7344736,
       "aggregate": true
     },
     {
@@ -924,8 +925,8 @@
       "file": "ipsum.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 11232,
-      "addresses": 7285072,
+      "count": 11165,
+      "addresses": 7307152,
       "aggregate": true
     },
     {
@@ -935,8 +936,8 @@
       "file": "all.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 11487,
-      "addresses": 7434944,
+      "count": 11442,
+      "addresses": 7462192,
       "aggregate": true
     },
     {
@@ -946,8 +947,8 @@
       "file": "hodca.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 6600,
-      "addresses": 202574544,
+      "count": 6612,
+      "addresses": 202498512,
       "aggregate": true
     }
   ],
@@ -1074,7 +1075,7 @@
       "is_geoblock": false,
       "is_infra": false,
       "prefixes_file": "tiktok.lst",
-      "prefixes_count": 8,
+      "prefixes_count": 7,
       "domains_files": [
         "domains/svc_tiktok.lst"
       ],
@@ -1126,7 +1127,7 @@
       "is_geoblock": false,
       "is_infra": true,
       "prefixes_file": "cloudflare.lst",
-      "prefixes_count": 337,
+      "prefixes_count": 339,
       "domains_files": [
         "domains/svc_cloudflare.lst"
       ],
@@ -1276,7 +1277,7 @@
       "is_geoblock": false,
       "is_infra": true,
       "prefixes_file": "ovh.lst",
-      "prefixes_count": 619,
+      "prefixes_count": 617,
       "domains_files": [
         "domains/svc_ovh.lst"
       ],
@@ -1304,7 +1305,7 @@
       "is_geoblock": false,
       "is_infra": true,
       "prefixes_file": "aws.lst",
-      "prefixes_count": 5674,
+      "prefixes_count": 5686,
       "domains_files": [],
       "domains_count": 0
     }
