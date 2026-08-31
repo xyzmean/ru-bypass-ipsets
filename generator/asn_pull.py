@@ -244,13 +244,30 @@ def pull_github() -> list[ipaddress.IPv4Network]:
                 encoding="utf-8",
             )
         log.info("GitHub: %d подсетей из api.github.com/meta", len(nets))
-        return nets
     except Exception as exc:  # noqa: BLE001
         log.warning("GitHub-фид провален: %s", exc)
-        if GITHUB_SNAPSHOT.is_file():
-            nets = _parse_prefix_lines(GITHUB_SNAPSHOT.read_text(encoding="utf-8"))
-            log.warning("GitHub: взят снапшот %s (%d подсетей)", GITHUB_SNAPSHOT.name, len(nets))
+
+    if nets:
         return nets
+
+    # Снапшот подхватывается по РЕЗУЛЬТАТУ, а не по способу отказа. Пока он читался только
+    # в блоке `except`, обещание док-строки держалось для оборванной загрузки и не
+    # держалось для ответа 200, в котором нужных ключей нет: их переименовали, отдали
+    # частичный ответ, вернули страницу вместо JSON. Такой ответ проходил успешной веткой
+    # и возвращал пустой список.
+    #
+    # Ниже по течению это не всплывает. У `github_cdn` два источника, и анонсы AS36459
+    # остаются, — то есть список не пустой, и правило «был непустым, вышел пустым» молчит,
+    # а правило доли считается только у списков крупнее CATEGORY_DROP_MIN = 65 536 адресов
+    # против 10 672 у всей категории. Уносит же пустой фид ровно 185.199.108.0/22: это
+    # анонс Fastly, в AS36459 его нет, и с него отдаются raw.githubusercontent.com и
+    # objects.githubusercontent.com — тот самый хост из splify2#15.
+    if GITHUB_SNAPSHOT.is_file():
+        nets = _parse_prefix_lines(GITHUB_SNAPSHOT.read_text(encoding="utf-8", errors="replace"))
+        log.warning("GitHub: взят снапшот %s (%d подсетей)", GITHUB_SNAPSHOT.name, len(nets))
+    else:
+        log.error("GitHub: ни фида, ни снапшота — список останется пустым")
+    return nets
 
 
 def pull_cdn(kind: str) -> list[ipaddress.IPv4Network]:
