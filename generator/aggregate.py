@@ -286,6 +286,45 @@ def resolve_volume_collapsed(resolved: int, previous: int | None) -> bool:
     return resolved < previous * RESOLVE_DROP_GATE
 
 
+# Во сколько раз шире собственного разброса истории должна быть просадка, чтобы её НАЗВАЛИ,
+# хотя гейт её и пропустил.
+#
+# ЗАЧЕМ ТРЕТЬЕ СОСТОЯНИЕ. У гейта их было два: либо публикация отменена, либо молчание. Сборка
+# 1 сентября прошла с запасом 50 доменов из 11 481 — 0,44% — и опубликовала geoblock на 34,8%
+# короче при неизменной входной базе. Разброс восьми последних сборок был 16 250…16 443, то
+# есть ±0,6% от медианы: просадка на 29,7% в таком ряду не «на грани нормы», она вне нормы на
+# два порядка. И всё равно прошла, потому что порог 0,7 назначен, а не выведен из ряда,
+# который лежит рядом же (I-151).
+#
+# Порог гейта я не двигаю: запирать публикацию — решение владельца, и ошибка в ту сторону
+# оставляет все роутеры на прошлом снапшоте. А вот СКАЗАТЬ, что сборка аномальна, гейт обязан:
+# без этого аномалия попадает в историю молча и через восемь сборок становится нормой.
+RESOLVE_OUTLIER_SIGMAS = 3.0
+
+# Нижняя граница разброса для той же оценки: у ряда с разбросом 0,6% тройной разброс — это
+# 1,8%, и любая законная сборка попадала бы в «аномалию». Пять процентов — то, чего здоровые
+# сборки не дают ни разу за всю наблюдаемую историю.
+RESOLVE_OUTLIER_MIN = 0.05
+
+
+def resolve_outlier(resolved: int, history: list[int]) -> tuple[int, int] | None:
+    """Аномальна ли сборка на фоне СВОЕЙ истории. Возвращает (медиана, нижняя граница нормы)
+    или None, если аномалии нет либо истории мало.
+
+    Гейт от этого не срабатывает: это именно третье состояние — «опубликовано, но посмотрите».
+    """
+    vals = [v for v in history if isinstance(v, int) and v > 0]
+    if len(vals) < CATEGORY_HISTORY_MIN:
+        return None
+    base = resolve_baseline_of(vals)
+    if not base:
+        return None
+    spread = max(abs(v - base) for v in vals) / base
+    band = max(spread * RESOLVE_OUTLIER_SIGMAS, RESOLVE_OUTLIER_MIN)
+    floor = int(base * (1.0 - band))
+    return (base, floor) if resolved < floor else None
+
+
 def resolve_baseline_of(history: list[int]) -> int | None:
     """Медиана истории — планка гейта. None, если истории нет.
 
@@ -339,12 +378,101 @@ def next_resolve_history(resolved: int, history: list[int]) -> list[int]:
 # у суммы (geoblock ходит 171 456 ↔ 199 872 адресов, rkn — 6,07 ↔ 6,31 млн).
 CATEGORY_DROP_GATE = 0.5
 
-# Ниже этого покрытия доля не считается вовсе. У мелких списков она шумит на десятки
-# процентов по причинам, не имеющим отношения к беде: tiktok ходит 2 816 ↔ 4 864 адреса
-# между соседними ЗДОРОВЫМИ сборками, то есть падает на 42% сам по себе. Мелкие списки
-# при этом не остаются без охраны — правило «был непустым, стал пустым» ниже размера не
-# спрашивает, а именно так выглядела I-105.
+# Ниже этого покрытия доля не считается вовсе — ПОКА У СПИСКА НЕТ СВОЕЙ ИСТОРИИ. У мелких
+# списков доля шумит на десятки процентов по причинам, не имеющим отношения к беде: tiktok
+# ходит 2 816 ↔ 4 864 адреса между соседними ЗДОРОВЫМИ сборками, то есть падает на 42% сам
+# по себе. Мелкие списки при этом не остаются без охраны — правило «был непустым, стал
+# пустым» ниже размера не спрашивает, а именно так выглядела I-105.
+#
+# Изъятие по размеру осталось только запасным путём: у списка, набравшего историю, порог
+# считается по ЕГО СОБСТВЕННОМУ разбросу (см. category_band), и размер тогда ни при чём.
 CATEGORY_DROP_MIN = 65_536
+
+# ---- порог по собственному разбросу списка --------------------------------------
+#
+# ЗАЧЕМ. Один порог 0,5 на все списки перекошен в обе стороны, и оба плеча измерены.
+#
+# Плечо первое: изъятие по размеру не действует на 10 записей из 32 выпущенных (qrator 1 792,
+# tiktok 3 072, bunny 4 096, openwrt 4 608, sucuri 5 888, ddos_guard 8 192, github_cdn 10 672,
+# telegram 15 104, twitter_x 26 368, roblox 33 792), и три из них включены по умолчанию. Шум
+# замерен на tiktok, чей список собирается резолвом доменов за общим CDN, — там разброс и
+# должен быть; у telegram те же 15 104 адреса лежат в ВОСЬМИ префиксах из анонсов ASN, и такой
+# список между здоровыми сборками не шумит на десятки процентов вовсе (I-144).
+#
+# Плечо второе: для крупного списка 0,5 слишком грубо. geoblock за три сборки шёл 186 304 →
+# 198 592 → 195 520, то есть в пределах ±3%, а четвёртая дала 127 424 — минус 34,8% при
+# НЕИЗМЕННОЙ входной базе. Доля 0,65 выше порога, размер выше CATEGORY_DROP_MIN: правило
+# применимо и всё равно молчит (I-151).
+#
+# ЧТО ВМЕСТО. Тот же ряд, по которому уже считается планка гейта резолва, даёт КАЖДОМУ списку
+# его собственный шумовой пол: берём медиану истории и самое большое наблюдённое отклонение от
+# неё, удваиваем — и это допустимая просадка. Порог перестаёт быть назначенным числом и
+# становится измеренным.
+#
+# Границы обязательны с двух сторон. Снизу CATEGORY_BAND_MIN: у списка из восьми префиксов
+# разброс может быть нулевым, и без нижней границы гейт валил бы публикацию на одном адресе.
+# Сверху — прежний CATEGORY_DROP_GATE: список, который шумит на 60%, охранять «по его шуму»
+# бессмысленно, там и половина уже за пределами разумного.
+CATEGORY_BAND_MIN = 0.10
+
+# Сколько наблюдений нужно, чтобы разброс считался измеренным, а не угаданным. Четыре: при
+# сборке раз в три дня это около полутора недель, и одна странная сборка среди четырёх ещё не
+# перекашивает медиану.
+CATEGORY_HISTORY_MIN = 4
+
+# Сколько сборок помнит история покрытия одного списка. То же число, что у истории резолва, и
+# по той же причине: около трёх недель — достаточно, чтобы сползание не переписало планку под
+# себя, и мало, чтобы законный рост доехал до планки за пару сборок.
+CATEGORY_HISTORY_LEN = 8
+
+
+def category_band(history: list[int]) -> tuple[int, float] | None:
+    """Планка и допустимая просадка ОДНОГО списка по его собственной истории.
+
+    Возвращает (медиана, доля_допустимой_просадки) или None, если наблюдений мало.
+    Доля — сколько список имеет право потерять: 0,10 значит «минус 10% от медианы ещё
+    здорово, минус 11% — просадка».
+    """
+    vals = [v for v in history if isinstance(v, int) and v > 0]
+    if len(vals) < CATEGORY_HISTORY_MIN:
+        return None
+    base = resolve_baseline_of(vals)
+    if not base:
+        return None
+    spread = max(abs(v - base) for v in vals) / base
+    band = spread * 2
+    band = max(band, CATEGORY_BAND_MIN)
+    band = min(band, 1.0 - CATEGORY_DROP_GATE)
+    return base, band
+
+
+def next_addresses_history(now: int, history: list[int]) -> list[int]:
+    """История покрытия для манифеста этой сборки: свежее значение в голову, хвост обрезан."""
+    return ([now] + [v for v in history if isinstance(v, int) and v > 0])[:CATEGORY_HISTORY_LEN]
+
+
+def previous_category_history(manifest: Path | None = None) -> dict[str, list[int]]:
+    """История покрытия каждого списка по ОПУБЛИКОВАННЫМ сборкам — из манифеста на диске.
+
+    Как и у истории резолва, здесь только опубликованные сборки: отменённая гейтом манифест
+    не переписывает, поэтому просадка планку не задирает и запереть публикацию навсегда не
+    может. Ни файла, ни поля, ни разбираемого json — история пуста, и список охраняется
+    запасным правилом по размеру.
+    """
+    path = manifest if manifest is not None else LISTS / "categories.json"
+    try:
+        got = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:  # noqa: BLE001
+        return {}
+    out: dict[str, list[int]] = {}
+    for key in ("categories", "aggregates"):
+        for entry in got.get(key) or ():
+            cid, hist = entry.get("id"), entry.get("addresses_recent")
+            if isinstance(cid, str) and isinstance(hist, list):
+                vals = [v for v in hist if isinstance(v, int) and v > 0]
+                if vals:
+                    out[cid] = vals
+    return out
 
 
 def category_addresses(nets) -> int:
@@ -374,16 +502,32 @@ def previous_category_addresses(manifest: Path | None = None) -> dict[str, int]:
     return out
 
 
-def coverage_collapsed(current: dict[str, int], previous: dict[str, int]) -> list[str]:
-    """Какие списки просели относительно прошлой сборки настолько, что публиковать нельзя.
+def coverage_collapsed(current: dict[str, int], previous: dict[str, int],
+                       history: dict[str, list[int]] | None = None) -> list[str]:
+    """Какие списки просели настолько, что публиковать нельзя.
 
-    Правил два, потому что это две разные беды. «Был непустым, вышел пустым» — всегда
-    провал, каким бы маленьким список ни был: это I-105 дословно, и шумом такое не
-    бывает. Просадка доли считается только у списков крупнее CATEGORY_DROP_MIN.
+    Правил три, потому что это три разные беды.
+
+    1. «Был непустым, вышел пустым» — всегда провал, каким бы маленьким список ни был: это
+       I-105 дословно, и шумом такое не бывает. Размера не спрашивает.
+    2. Просадка ниже СВОЕГО разброса — у списка, набравшего историю (category_band). Порог
+       здесь измерен по его же ряду, а не назначен один на всех, и потому применим и к
+       мелким спискам, и к крупным с тесной историей: у geoblock ряд ±3%, и минус 34,8%
+       при неизменной входной базе прежним правилом проходил (I-151), а у telegram доля не
+       проверялась вовсе, потому что список мал (I-144).
+    3. Запасное правило по размеру — прежнее: доля ниже CATEGORY_DROP_GATE у списков крупнее
+       CATEGORY_DROP_MIN. Остаётся для списков БЕЗ истории: сразу после появления поля
+       addresses_recent история пуста у всех, и без запасного правила сборка осталась бы без
+       охраны на несколько дней.
+
+    Планка второго правила — медиана истории, а не прошлая сборка, и по той же причине, что
+    у гейта резолва: планка «от прошлой» ловит обвал и пропускает сползание, потому что
+    каждая сборка сравнивается с уже просевшей предыдущей.
 
     Списка нет в текущей сборке — это переименование или исключение из схемы, а не
     просадка: файл в таком случае удаляется целиком, и говорить о его покрытии не о чем.
     """
+    history = history or {}
     bad: list[str] = []
     for cid, prev in sorted(previous.items()):
         if prev <= 0 or cid not in current:
@@ -391,7 +535,16 @@ def coverage_collapsed(current: dict[str, int], previous: dict[str, int]) -> lis
         now = current[cid]
         if now == 0:
             bad.append(f"{cid}: 0 против {prev}")
-        elif prev >= CATEGORY_DROP_MIN and now < prev * CATEGORY_DROP_GATE:
+            continue
+        band = category_band(history.get(cid, []))
+        if band is not None:
+            base, share = band
+            floor = base * (1.0 - share)
+            if now < floor:
+                bad.append(f"{cid}: {now} против медианы {base} по своей истории "
+                           f"(допустимо не ниже {int(floor)}, то есть −{share * 100:.0f}%)")
+            continue
+        if prev >= CATEGORY_DROP_MIN and now < prev * CATEGORY_DROP_GATE:
             bad.append(f"{cid}: {now} против {prev}")
     return bad
 
@@ -417,6 +570,15 @@ def gate_inputs_missing(index: dict) -> list[str]:
         missing.append("sources.resolved_domains_recent")
     for key in ("categories", "aggregates"):
         for entry in index.get(key) or ():
+            # История покрытия проверяется наравне с самим числом: по ней считается СВОЙ порог
+            # каждого списка (category_band), и потеря поля при очередной перестройке
+            # build_index молча вернула бы один порог на всех — то есть ровно то, из чего
+            # вышли I-144 и I-151. Пустой список тоже негоден: свежее значение туда кладётся
+            # всегда, значит пустота означает потерянное поле, а не «истории пока нет».
+            hist = entry.get("addresses_recent")
+            if not isinstance(hist, list) or not hist \
+                    or not all(isinstance(v, int) for v in hist):
+                missing.append(f"{key}[{entry.get('id')}].addresses_recent")
             if not isinstance(entry.get("addresses"), int):
                 missing.append(f"{key}[{entry.get('id')}].addresses")
     return missing
@@ -638,6 +800,7 @@ def build_index(
     domain_entries: list[dict] | None = None,
     same_prefixes: dict[str, dict] | None = None,
     addresses: dict[str, int] | None = None,
+    addr_history: dict[str, list[int]] | None = None,
 ) -> dict:
     """Собрать манифест. `same_prefixes` — результат same_prefixes_groups() по
     собранным спискам; None означает «списков под рукой нет», и тогда берётся
@@ -647,6 +810,7 @@ def build_index(
     if same_prefixes is None:
         same_prefixes = schema.declared_same_prefixes()
     addresses = addresses or {}
+    addr_history = addr_history or {}
 
     def entry(c, aggregate=False):
         old = schema.RENAMED_FROM.get(c["id"], [])
@@ -666,6 +830,14 @@ def build_index(
             # /24 слипается в префикс), поэтому охранять покрытие им нельзя. Поле читает
             # покатегорийный гейт следующей сборки, см. coverage_collapsed().
             "addresses": addresses.get(c["id"], 0),
+            # История покрытия по опубликованным сборкам — рядом с самим числом. По ней
+            # покатегорийный гейт СЛЕДУЮЩЕЙ сборки считает списку его собственный шумовой
+            # пол (category_band): один порог на все списки перекошен в обе стороны сразу,
+            # и оба плеча измерены — I-144 и I-151. Хранится здесь, а не рядом с
+            # репозиторием, по той же причине, что и история резолва: манифест —
+            # единственное, что доезжает от сборки до сборки.
+            "addresses_recent": next_addresses_history(
+                addresses.get(c["id"], 0), addr_history.get(c["id"], [])),
             # Какие списки схлопнулись в этот. Потребитель по этому полю переносит
             # настройку молча вместо того, чтобы молча перестать обновлять файл.
             **({"renamed_from": [f"{o}.lst" for o in old]} if old else {}),
@@ -839,6 +1011,21 @@ def main():
         log.warning("просадка резолва не валит эту сборку (%s): %d против планки %d",
                     "SAMPLE" if sample else "ALLOW_SHRINK", resolved_domains, prev_resolved)
 
+    # ТРЕТЬЕ СОСТОЯНИЕ ГЕЙТА: «прошло, но это выброс». Прежде их было два — отменить или
+    # молчать, — и сборка, прошедшая с запасом 0,44% при собственном разбросе ряда ±0,6%,
+    # опубликовалась без единого слова (I-151). Публикацию это не отменяет: порог гейта —
+    # решение о том, когда запирать выпуск, и ошибка в ту сторону оставляет роутеры на
+    # прошлом снапшоте. Но сказано об этом должно быть громко и не только в журнале, иначе
+    # аномалия молча войдёт в историю и через восемь сборок станет нормой.
+    outlier = resolve_outlier(resolved_domains, resolve_history)
+    if outlier:
+        base, floor = outlier
+        log.warning("ВЫБРОС: доменов с адресами %d при медиане %d по своей истории — ниже "
+                    "нормы этого ряда (%d). Гейт не сработал: порог %.0f%% от медианы даёт "
+                    "%d. Публикация идёт, но эту сборку стоит посмотреть: история %s",
+                    resolved_domains, base, floor, RESOLVE_DROP_GATE * 100,
+                    int((prev_resolved or 0) * RESOLVE_DROP_GATE), resolve_history)
+
     # ASN-карта
     asn_map = asn_pull.load_asn_map()
 
@@ -963,7 +1150,10 @@ def main():
     # записи манифеста: пока манифест не переписан, на диске лежит прошлый, и сравнивать
     # есть с чем. Ступенькой ниже гейта резолва по цене отмены — списки к этому моменту
     # уже на диске, — но всё ещё до git, а роутеры берут списки оттуда.
-    shrunk = coverage_collapsed(addresses, previous_category_addresses())
+    # История покрытия читается ДО записи манифеста, пока на диске лежит прошлый: он и есть
+    # единственное место, где эта история хранится.
+    addr_history = previous_category_history()
+    shrunk = coverage_collapsed(addresses, previous_category_addresses(), addr_history)
     if shrunk and not sample and not shrink_allowed():
         log.error("GATE FAIL: покрытие просело у списков: %s — общее число доменов при "
                   "этом могло остаться здоровым, поэтому гейт резолва такого не видит "
@@ -1010,6 +1200,13 @@ def main():
         "resolved_domains_recent": next_resolve_history(
             resolved_domains,
             resolve_history or ([prev_resolved] if prev_resolved else [])),
+        # Признак «сборка прошла гейт, но по своему ряду она выброс». В манифесте, а не
+        # только в журнале: журнал сборки живёт девяносто дней, а вопрос «почему в этот день
+        # списки короче» задают позже. Поле появляется только у аномальной сборки — у
+        # здоровых его нет вовсе, и потребителю не нужно уметь его читать.
+        **({"resolved_domains_outlier": {
+            "median": outlier[0], "floor": outlier[1], "value": resolved_domains,
+        }} if outlier else {}),
     }
     # Домены публикуются как есть. Сбой здесь не должен ронять адресную сборку:
     # это независимая часть, и лучше выпустить манифест без доменных списков, чем не
@@ -1050,7 +1247,8 @@ def main():
     except Exception as exc:  # noqa: BLE001
         log.warning("проверка тематических сидов не выполнена: %s", exc)
 
-    index = build_index(counts, source_meta, domain_entries, same_prefixes, addresses)
+    index = build_index(counts, source_meta, domain_entries, same_prefixes, addresses,
+                        addr_history)
 
     # Последняя проверка перед записью — про сам манифест, а не про данные в нём: несёт
     # ли он то, по чему будут сравнивать гейты следующей сборки. Провал здесь означает

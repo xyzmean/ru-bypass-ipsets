@@ -150,8 +150,10 @@ check(idx["sources"].get("resolved_domains_recent") == [14381, 14512],
 # self-check'ом по уже опубликованному.
 good = {
     "sources": {"resolved_domains": 14381, "resolved_domains_recent": [14381, 14512]},
-    "categories": [{"id": "rkn", "addresses": 6_307_504}],
-    "aggregates": [{"id": "ipsum", "addresses": 7_272_640}],
+    "categories": [{"id": "rkn", "addresses": 6_307_504,
+                    "addresses_recent": [6_307_504, 6_069_680]}],
+    "aggregates": [{"id": "ipsum", "addresses": 7_272_640,
+                    "addresses_recent": [7_272_640]}],
 }
 check(aggregate.gate_inputs_missing(good) == [], "полный манифест назван неполным")
 
@@ -162,6 +164,12 @@ for drop, what in (
     (lambda d: d["sources"].pop("resolved_domains_recent"), "sources.resolved_domains_recent"),
     (lambda d: d["categories"][0].pop("addresses"), "addresses у категории"),
     (lambda d: d["aggregates"][0].pop("addresses"), "addresses у агрегата"),
+    # История покрытия — такая же планка, как история резолва, и уязвима так же: по ней
+    # считается СВОЙ порог каждого списка, и потеря поля молча вернула бы один порог на всех
+    # (I-144, I-151).
+    (lambda d: d["categories"][0].pop("addresses_recent"), "addresses_recent у категории"),
+    (lambda d: d["aggregates"][0].pop("addresses_recent"), "addresses_recent у агрегата"),
+    (lambda d: d["categories"][0].update(addresses_recent=[]), "пустая история у категории"),
 ):
     broken = copy.deepcopy(good)
     drop(broken)
