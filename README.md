@@ -17,31 +17,33 @@
 | Категория | Русское название | Описание | Префиксов | По умолч. |
 |---|---|---|---:|:--:|
 | `telegram` | Telegram | Мессенджер Telegram: домены и подсети по ASN. | 8 | ✅ |
-| `whatsapp` | WhatsApp | Мессенджер WhatsApp (Meta). Адресный список — тот же, что у Meta: общая AS32934. | 33 | ✅ |
+| `whatsapp` | WhatsApp | Мессенджер WhatsApp (Meta). Адресный список — тот же, что у Meta: общая автономная система AS32934. Различаются только доменные списки. | 33 | ✅ |
 | `discord` | Discord | Голосовой чат Discord: готовый ipset внешнего списка, без вычитаний. | 460 | ✅ |
-| `meta` | Meta (Facebook/Instagram) | Соцсети Facebook и Instagram. Адресный список — тот же, что у WhatsApp: общая AS32934. | 33 | ✅ |
+| `meta` | Meta (Facebook/Instagram) | Соцсети Facebook и Instagram. Адресный список — тот же, что у WhatsApp: общая автономная система AS32934. По адресам эти категории не различаются, различаются только доменные списки. | 33 | ✅ |
 | `twitter_x` | Twitter / X | Микроблоги Twitter и X. | 13 | ✅ |
-| `youtube` | YouTube | Видеохостинг YouTube и CDN (Google Video). Адресный список — тот же, что у `google`: общая AS15169. | 58 | ✅ |
-| `google` | Google (Meet/Play/AI) | Google Meet, Play и AI-сервисы (Bard/Gemini). Адресный список — тот же, что у `youtube`: общая AS15169. | 58 | ✅ |
-| `tiktok` | TikTok | Короткие видео TikTok (ByteDance). | 8 | ✅ |
+| `youtube` | YouTube | Видеохостинг YouTube и CDN (Google Video). Адресный список — тот же, что у категории Google: общая автономная система AS15169, поэтому включение YouTube уводит в туннель все адреса Google. | 58 | ✅ |
+| `google` | Google (Meet/Play/AI) | Google Meet, Play и AI-сервисы (Bard/Gemini). Адресный список — тот же, что у YouTube: общая автономная система AS15169. | 58 | ✅ |
+| `tiktok` | TikTok | Короткие видео TikTok (ByteDance). | 7 | ✅ |
 | `roblox` | Roblox | Игровая платформа Roblox. | 4 | ⬜ |
 | `netflix` 🌐 | Netflix | Видеостриминг Netflix (геоблокирует РФ). | 30 | ⬜ |
-| `cloudflare` | Cloudflare CDN | Все подсети Cloudflare: официальный фид ips-v4 плюс анонсы AS13335. | 340 | ⬜ |
+| `openwrt` | OpenWrt | Обновление пакетов и прошивок самого роутера: downloads.openwrt.org, зеркала и остальные узлы проекта. | 14 | ⬜ |
+| `cloudflare` | Cloudflare CDN | Все подсети Cloudflare: официальный фид ips-v4 плюс анонсы AS13335. | 339 | ⬜ |
 | `cloudfront` | AWS CloudFront | CDN Amazon CloudFront (официальный фид ip-ranges). | 180 | ⬜ |
-| `akamai` | Akamai CDN | Подсети Akamai по ASN 20940. | 119 | ⬜ |
-| `fastly` | Fastly CDN | Подсети Fastly по ASN 54113. Обратный прокси: за адресом тысячи сайтов. | 111 | ⬜ |
-| `ddos_guard` | DDoS-Guard | Подсети DDoS-Guard по ASN 57724. Обратный прокси, много российских сайтов. | 18 | ⬜ |
+| `akamai` | Akamai CDN | Подсети Akamai по ASN 20940. | 116 | ⬜ |
+| `github_cdn` | GitHub CDN | Все подсети GitHub: официальный фид api.github.com/meta плюс анонсы AS36459. Адреса раннеров Actions в список не входят — это арендованные диапазоны Azure, а не сеть GitHub. | 31 | ⬜ |
+| `fastly` | Fastly CDN | Подсети Fastly по ASN 54113. Обратный прокси: за адресом тысячи сайтов. | 112 | ⬜ |
+| `ddos_guard` | DDoS-Guard | Подсети DDoS-Guard по ASN 57724. Обратный прокси, много российских сайтов. | 20 | ⬜ |
 | `qrator` | Qrator | Подсети Qrator по ASN 197068. Обратный прокси. | 6 | ⬜ |
-| `gcore` | Gcore CDN | Подсети Gcore по ASN 199524. | 326 | ⬜ |
+| `gcore` | Gcore CDN | Подсети Gcore по ASN 199524. | 322 | ⬜ |
 | `bunny` | Bunny CDN | Подсети Bunny по ASN 200325. | 11 | ⬜ |
 | `sucuri` | Sucuri | Подсети Sucuri по ASN 30148. Обратный прокси с защитой сайтов. | 11 | ⬜ |
-| `imperva` | Imperva | Подсети Imperva (Incapsula) по ASN 19551. Обратный прокси. | 202 | ⬜ |
+| `imperva` | Imperva | Подсети Imperva (Incapsula) по ASN 19551. Обратный прокси. | 201 | ⬜ |
 | `hetzner` | Hetzner | Хостинг Hetzner по ASN 24940. | 80 | ⬜ |
-| `ovh` | OVH | Хостинг OVH по ASN 16276. | 619 | ⬜ |
+| `ovh` | OVH | Хостинг OVH по ASN 16276. | 612 | ⬜ |
 | `digitalocean` | DigitalOcean | Хостинг DigitalOcean по ASN 14061. | 167 | ⬜ |
-| `aws` | Amazon AWS | Подсети Amazon AWS по ASN 16509 (без CloudFront — он отдельно). | 5691 | ⬜ |
-| `rkn` | Заблокированное в РФ | Единый реестр заблокированного в РФ: тематика РКН и прочие ресурсы из снапшота. | 11923 | ✅ |
-| `geoblock` 🌐 | Геоблок (сервисы, режущие РФ) | Зарубежные сервисы, сами закрывающие доступ из РФ: AI, СМИ, стриминг, dev-инструменты. | 494 | ⬜ |
+| `aws` | Amazon AWS | Подсети Amazon AWS по ASN 16509 (без CloudFront — он отдельно). | 5682 | ⬜ |
+| `rkn` | Заблокированное в РФ | Единый реестр заблокированного в РФ: тематика РКН и прочие ресурсы из снапшота. | 11196 | ✅ |
+| `geoblock` 🌐 | Геоблок (сервисы, режущие РФ) | Зарубежные сервисы, сами закрывающие доступ из РФ: AI, СМИ, стриминг, dev-инструменты. | 266 | ⬜ |
 
 🌐 — геоблок: сервис сам ограничивает доступ из РФ, а не заблокирован в РФ. Это разные решения человека, поэтому и списка два: `rkn` обходит блокировку, `geoblock` прячет страну.
 
