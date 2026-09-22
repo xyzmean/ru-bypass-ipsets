@@ -1,6 +1,6 @@
 {
-  "version": "2026-09-16",
-  "generated_at": "2026-09-16T08:55:03Z",
+  "version": "2026-09-22",
+  "generated_at": "2026-09-22T08:53:48Z",
   "base_url": "https://raw.githubusercontent.com/xyzmean/ru-bypass-ipsets/main/lists",
   "ipsum_min_count": 5000,
   "sources": {
@@ -16,22 +16,22 @@
       "77.88.8.8",
       "8.8.4.4"
     ],
-    "resolved_domains": 16195,
+    "resolved_domains": 16153,
     "resolved_domains_recent": [
+      16153,
       16195,
       11481,
       16299,
       16324,
       16336,
       16250,
-      16378,
-      16301
+      16378
     ],
     "thematic_seeds": {
       "total": 873,
       "in_domain_lists": 775,
       "prefix_only": 98,
-      "behind_shared_proxy": 59
+      "behind_shared_proxy": 60
     }
   },
   "aliases": [
@@ -123,6 +123,7 @@
       "count": 8,
       "addresses": 15104,
       "addresses_recent": [
+        15104,
         15104
       ]
     },
@@ -133,9 +134,10 @@
       "file": "whatsapp.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 33,
-      "addresses": 444928,
+      "count": 34,
+      "addresses": 449024,
       "addresses_recent": [
+        449024,
         444928
       ],
       "same_prefixes_as": [
@@ -153,6 +155,7 @@
       "count": 460,
       "addresses": 1057696,
       "addresses_recent": [
+        1057696,
         1057696
       ]
     },
@@ -163,9 +166,10 @@
       "file": "meta.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 33,
-      "addresses": 444928,
+      "count": 34,
+      "addresses": 449024,
       "addresses_recent": [
+        449024,
         444928
       ],
       "same_prefixes_as": [
@@ -183,6 +187,7 @@
       "count": 13,
       "addresses": 26368,
       "addresses_recent": [
+        26368,
         26368
       ]
     },
@@ -196,6 +201,7 @@
       "count": 58,
       "addresses": 2615296,
       "addresses_recent": [
+        2615296,
         2615296
       ],
       "same_prefixes_as": [
@@ -213,6 +219,7 @@
       "count": 58,
       "addresses": 2615296,
       "addresses_recent": [
+        2615296,
         2615296
       ],
       "same_prefixes_as": [
@@ -230,6 +237,7 @@
       "count": 7,
       "addresses": 2816,
       "addresses_recent": [
+        2816,
         2816
       ]
     },
@@ -243,6 +251,7 @@
       "count": 4,
       "addresses": 33792,
       "addresses_recent": [
+        33792,
         33792
       ]
     },
@@ -256,6 +265,7 @@
       "count": 30,
       "addresses": 159744,
       "addresses_recent": [
+        159744,
         159744
       ]
     },
@@ -269,6 +279,7 @@
       "count": 14,
       "addresses": 4608,
       "addresses_recent": [
+        4608,
         4608
       ]
     },
@@ -279,9 +290,10 @@
       "file": "cloudflare.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 386,
-      "addresses": 1844480,
+      "count": 375,
+      "addresses": 1999872,
       "addresses_recent": [
+        1999872,
         1844480
       ]
     },
@@ -295,6 +307,7 @@
       "count": 180,
       "addresses": 4224672,
       "addresses_recent": [
+        4224672,
         4224672
       ]
     },
@@ -305,9 +318,10 @@
       "file": "akamai.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 117,
+      "count": 118,
       "addresses": 13880512,
       "addresses_recent": [
+        13880512,
         13880512
       ]
     },
@@ -321,6 +335,7 @@
       "count": 31,
       "addresses": 10672,
       "addresses_recent": [
+        10672,
         10672
       ],
       "renamed_from": [
@@ -335,8 +350,9 @@
       "default_on": false,
       "is_geoblock": false,
       "count": 110,
-      "addresses": 363776,
+      "addresses": 364288,
       "addresses_recent": [
+        364288,
         363776
       ]
     },
@@ -350,6 +366,7 @@
       "count": 21,
       "addresses": 8704,
       "addresses_recent": [
+        8704,
         8704
       ]
     },
@@ -363,6 +380,7 @@
       "count": 6,
       "addresses": 1792,
       "addresses_recent": [
+        1792,
         1792
       ]
     },
@@ -374,8 +392,9 @@
       "default_on": false,
       "is_geoblock": false,
       "count": 321,
-      "addresses": 122112,
+      "addresses": 122624,
       "addresses_recent": [
+        122624,
         122112
       ]
     },
@@ -389,6 +408,7 @@
       "count": 11,
       "addresses": 4096,
       "addresses_recent": [
+        4096,
         4096
       ]
     },
@@ -402,6 +422,7 @@
       "count": 11,
       "addresses": 5632,
       "addresses_recent": [
+        5632,
         5632
       ]
     },
@@ -412,9 +433,10 @@
       "file": "imperva.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 209,
-      "addresses": 233216,
+      "count": 210,
+      "addresses": 233472,
       "addresses_recent": [
+        233472,
         233216
       ]
     },
@@ -428,6 +450,7 @@
       "count": 80,
       "addresses": 3171584,
       "addresses_recent": [
+        3171584,
         3171584
       ]
     },
@@ -439,8 +462,9 @@
       "default_on": false,
       "is_geoblock": false,
       "count": 620,
-      "addresses": 4596736,
+      "addresses": 4629248,
       "addresses_recent": [
+        4629248,
         4596736
       ]
     },
@@ -454,6 +478,7 @@
       "count": 167,
       "addresses": 3140608,
       "addresses_recent": [
+        3140608,
         3140608
       ]
     },
@@ -464,9 +489,10 @@
       "file": "aws.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 5635,
-      "addresses": 174749184,
+      "count": 5650,
+      "addresses": 174763520,
       "addresses_recent": [
+        174763520,
         174749184
       ]
     },
@@ -477,9 +503,10 @@
       "file": "rkn.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 11281,
-      "addresses": 6258224,
+      "count": 11232,
+      "addresses": 6117360,
       "addresses_recent": [
+        6117360,
         6258224
       ],
       "renamed_from": [
@@ -501,9 +528,10 @@
       "file": "geoblock.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 452,
-      "addresses": 195264,
+      "count": 457,
+      "addresses": 202176,
       "addresses_recent": [
+        202176,
         195264
       ],
       "renamed_from": [
@@ -999,9 +1027,10 @@
       "file": "rkn_all.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 11280,
-      "addresses": 7258656,
+      "count": 11258,
+      "addresses": 7276512,
       "addresses_recent": [
+        7276512,
         7258656
       ],
       "aggregate": true
@@ -1013,9 +1042,10 @@
       "file": "ipsum.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 11268,
-      "addresses": 7221312,
+      "count": 11246,
+      "addresses": 7239168,
       "addresses_recent": [
+        7239168,
         7221312
       ],
       "aggregate": true
@@ -1027,9 +1057,10 @@
       "file": "all.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 11554,
-      "addresses": 7373312,
+      "count": 11538,
+      "addresses": 7404704,
       "addresses_recent": [
+        7404704,
         7373312
       ],
       "aggregate": true
@@ -1041,9 +1072,10 @@
       "file": "hodca.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 6685,
-      "addresses": 202561472,
+      "count": 6686,
+      "addresses": 202761408,
       "addresses_recent": [
+        202761408,
         202561472
       ],
       "aggregate": true
@@ -1072,7 +1104,7 @@
       "is_geoblock": false,
       "is_infra": false,
       "prefixes_file": "whatsapp.lst",
-      "prefixes_count": 33,
+      "prefixes_count": 34,
       "domains_files": [],
       "domains_count": 0,
       "same_prefixes_as": [
@@ -1102,7 +1134,7 @@
       "is_geoblock": false,
       "is_infra": false,
       "prefixes_file": "meta.lst",
-      "prefixes_count": 33,
+      "prefixes_count": 34,
       "domains_files": [
         "domains/svc_meta.lst"
       ],
@@ -1224,7 +1256,7 @@
       "is_geoblock": false,
       "is_infra": true,
       "prefixes_file": "cloudflare.lst",
-      "prefixes_count": 386,
+      "prefixes_count": 375,
       "domains_files": [
         "domains/svc_cloudflare.lst"
       ],
@@ -1252,7 +1284,7 @@
       "is_geoblock": false,
       "is_infra": true,
       "prefixes_file": "akamai.lst",
-      "prefixes_count": 117,
+      "prefixes_count": 118,
       "domains_files": [],
       "domains_count": 0
     },
@@ -1348,7 +1380,7 @@
       "is_geoblock": false,
       "is_infra": true,
       "prefixes_file": "imperva.lst",
-      "prefixes_count": 209,
+      "prefixes_count": 210,
       "domains_files": [],
       "domains_count": 0
     },
@@ -1402,7 +1434,7 @@
       "is_geoblock": false,
       "is_infra": true,
       "prefixes_file": "aws.lst",
-      "prefixes_count": 5635,
+      "prefixes_count": 5650,
       "domains_files": [],
       "domains_count": 0
     }
