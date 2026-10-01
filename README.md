@@ -27,23 +27,23 @@
 | `roblox` | Roblox | Игровая платформа Roblox. | 4 | ⬜ |
 | `netflix` 🌐 | Netflix | Видеостриминг Netflix (геоблокирует РФ). | 32 | ⬜ |
 | `openwrt` | OpenWrt | Обновление пакетов и прошивок самого роутера: downloads.openwrt.org, зеркала и остальные узлы проекта. | 14 | ⬜ |
-| `cloudflare` | Cloudflare CDN | Все подсети Cloudflare: официальный фид ips-v4 плюс анонсы AS13335. | 392 | ⬜ |
+| `cloudflare` | Cloudflare CDN | Все подсети Cloudflare: официальный фид ips-v4 плюс анонсы AS13335. | 404 | ⬜ |
 | `cloudfront` | AWS CloudFront | CDN Amazon CloudFront (официальный фид ip-ranges). | 180 | ⬜ |
-| `akamai` | Akamai CDN | Подсети Akamai по ASN 20940. | 118 | ⬜ |
+| `akamai` | Akamai CDN | Подсети Akamai по ASN 20940. | 117 | ⬜ |
 | `github_cdn` | GitHub CDN | Все подсети GitHub: официальный фид api.github.com/meta плюс анонсы AS36459. Адреса раннеров Actions в список не входят — это арендованные диапазоны Azure, а не сеть GitHub. | 31 | ⬜ |
-| `fastly` | Fastly CDN | Подсети Fastly по ASN 54113. Обратный прокси: за адресом тысячи сайтов. | 109 | ⬜ |
+| `fastly` | Fastly CDN | Подсети Fastly по ASN 54113. Обратный прокси: за адресом тысячи сайтов. | 111 | ⬜ |
 | `ddos_guard` | DDoS-Guard | Подсети DDoS-Guard по ASN 57724. Обратный прокси, много российских сайтов. | 21 | ⬜ |
 | `qrator` | Qrator | Подсети Qrator по ASN 197068. Обратный прокси. | 6 | ⬜ |
 | `gcore` | Gcore CDN | Подсети Gcore по ASN 199524. | 321 | ⬜ |
 | `bunny` | Bunny CDN | Подсети Bunny по ASN 200325. | 11 | ⬜ |
 | `sucuri` | Sucuri | Подсети Sucuri по ASN 30148. Обратный прокси с защитой сайтов. | 11 | ⬜ |
-| `imperva` | Imperva | Подсети Imperva (Incapsula) по ASN 19551. Обратный прокси. | 206 | ⬜ |
+| `imperva` | Imperva | Подсети Imperva (Incapsula) по ASN 19551. Обратный прокси. | 207 | ⬜ |
 | `hetzner` | Hetzner | Хостинг Hetzner по ASN 24940. | 81 | ⬜ |
-| `ovh` | OVH | Хостинг OVH по ASN 16276. | 611 | ⬜ |
+| `ovh` | OVH | Хостинг OVH по ASN 16276. | 613 | ⬜ |
 | `digitalocean` | DigitalOcean | Хостинг DigitalOcean по ASN 14061. | 167 | ⬜ |
-| `aws` | Amazon AWS | Подсети Amazon AWS по ASN 16509 (без CloudFront — он отдельно). | 5650 | ⬜ |
-| `rkn` | Заблокированное в РФ | Единый реестр заблокированного в РФ: тематика РКН и прочие ресурсы из снапшота. | 11337 | ✅ |
-| `geoblock` 🌐 | Геоблок (сервисы, режущие РФ) | Зарубежные сервисы, сами закрывающие доступ из РФ: AI, СМИ, стриминг, dev-инструменты. | 449 | ⬜ |
+| `aws` | Amazon AWS | Подсети Amazon AWS по ASN 16509 (без CloudFront — он отдельно). | 5649 | ⬜ |
+| `rkn` | Заблокированное в РФ | Единый реестр заблокированного в РФ: тематика РКН и прочие ресурсы из снапшота. | 11296 | ✅ |
+| `geoblock` 🌐 | Геоблок (сервисы, режущие РФ) | Зарубежные сервисы, сами закрывающие доступ из РФ: AI, СМИ, стриминг, dev-инструменты. | 459 | ⬜ |
 
 🌐 — геоблок: сервис сам ограничивает доступ из РФ, а не заблокирован в РФ. Это разные решения человека, поэтому и списка два: `rkn` обходит блокировку, `geoblock` прячет страну.
 
