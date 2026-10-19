@@ -1,6 +1,6 @@
 {
-  "version": "2026-10-16",
-  "generated_at": "2026-10-16T08:31:14Z",
+  "version": "2026-10-19",
+  "generated_at": "2026-10-19T09:13:54Z",
   "base_url": "https://raw.githubusercontent.com/xyzmean/ru-bypass-ipsets/main/lists",
   "ipsum_min_count": 5000,
   "sources": {
@@ -16,22 +16,22 @@
       "77.88.8.8",
       "8.8.4.4"
     ],
-    "resolved_domains": 16053,
+    "resolved_domains": 15963,
     "resolved_domains_recent": [
+      15963,
       16053,
       15992,
       15996,
       16091,
       16153,
       16195,
-      11481,
-      16299
+      11481
     ],
     "thematic_seeds": {
       "total": 873,
       "in_domain_lists": 775,
       "prefix_only": 98,
-      "behind_shared_proxy": 63
+      "behind_shared_proxy": 59
     }
   },
   "aliases": [
@@ -128,6 +128,7 @@
         15104,
         15104,
         15104,
+        15104,
         15104
       ]
     },
@@ -141,6 +142,7 @@
       "count": 34,
       "addresses": 449024,
       "addresses_recent": [
+        449024,
         449024,
         449024,
         449024,
@@ -168,6 +170,7 @@
         1057696,
         1057696,
         1057696,
+        1057696,
         1057696
       ]
     },
@@ -181,6 +184,7 @@
       "count": 34,
       "addresses": 449024,
       "addresses_recent": [
+        449024,
         449024,
         449024,
         449024,
@@ -205,6 +209,7 @@
       "addresses_recent": [
         26880,
         26880,
+        26880,
         26112,
         26112,
         26368,
@@ -221,6 +226,7 @@
       "count": 58,
       "addresses": 2615296,
       "addresses_recent": [
+        2615296,
         2615296,
         2615296,
         2615296,
@@ -248,6 +254,7 @@
         2615296,
         2615296,
         2615296,
+        2615296,
         2615296
       ],
       "same_prefixes_as": [
@@ -265,6 +272,7 @@
       "count": 7,
       "addresses": 2816,
       "addresses_recent": [
+        2816,
         2816,
         3072,
         2816,
@@ -288,6 +296,7 @@
         33792,
         33792,
         33792,
+        33792,
         33792
       ]
     },
@@ -301,6 +310,7 @@
       "count": 32,
       "addresses": 290816,
       "addresses_recent": [
+        290816,
         290816,
         290816,
         290816,
@@ -324,6 +334,7 @@
         4608,
         4608,
         4608,
+        4608,
         4608
       ]
     },
@@ -334,9 +345,10 @@
       "file": "cloudflare.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 566,
-      "addresses": 1917952,
+      "count": 567,
+      "addresses": 1918208,
       "addresses_recent": [
+        1918208,
         1917952,
         1916928,
         2019328,
@@ -355,6 +367,7 @@
       "count": 182,
       "addresses": 4225440,
       "addresses_recent": [
+        4225440,
         4225440,
         4224672,
         4224672,
@@ -376,6 +389,7 @@
         13880256,
         13880256,
         13880256,
+        13880256,
         13880512,
         13880512,
         13880512
@@ -391,6 +405,7 @@
       "count": 33,
       "addresses": 10720,
       "addresses_recent": [
+        10720,
         10720,
         10672,
         10672,
@@ -414,6 +429,7 @@
       "addresses_recent": [
         380928,
         380928,
+        380928,
         364800,
         364288,
         364288,
@@ -430,6 +446,7 @@
       "count": 20,
       "addresses": 8960,
       "addresses_recent": [
+        8960,
         8960,
         8960,
         8704,
@@ -453,6 +470,7 @@
         1792,
         1792,
         1792,
+        1792,
         1792
       ]
     },
@@ -463,9 +481,10 @@
       "file": "gcore.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 321,
-      "addresses": 122880,
+      "count": 320,
+      "addresses": 122624,
       "addresses_recent": [
+        122624,
         122880,
         122880,
         123136,
@@ -489,6 +508,7 @@
         4096,
         4096,
         4096,
+        4096,
         4096
       ]
     },
@@ -500,8 +520,9 @@
       "default_on": false,
       "is_geoblock": false,
       "count": 11,
-      "addresses": 5632,
+      "addresses": 5888,
       "addresses_recent": [
+        5888,
         5632,
         5632,
         5632,
@@ -520,6 +541,7 @@
       "count": 206,
       "addresses": 235264,
       "addresses_recent": [
+        235264,
         235264,
         234496,
         234496,
@@ -542,6 +564,7 @@
         3237120,
         3237120,
         3237120,
+        3237120,
         3171584,
         3171584
       ]
@@ -553,9 +576,10 @@
       "file": "ovh.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 639,
-      "addresses": 4651776,
+      "count": 638,
+      "addresses": 4652032,
       "addresses_recent": [
+        4652032,
         4651776,
         4647936,
         4643584,
@@ -575,6 +599,7 @@
       "addresses": 3142656,
       "addresses_recent": [
         3142656,
+        3142656,
         3141632,
         3140608,
         3140608,
@@ -589,9 +614,10 @@
       "file": "aws.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 5670,
-      "addresses": 174785536,
+      "count": 5677,
+      "addresses": 174855168,
       "addresses_recent": [
+        174855168,
         174785536,
         174776576,
         174758656,
@@ -607,9 +633,10 @@
       "file": "rkn.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 11330,
-      "addresses": 6272992,
+      "count": 11343,
+      "addresses": 6224976,
       "addresses_recent": [
+        6224976,
         6272992,
         6257392,
         6082864,
@@ -636,9 +663,10 @@
       "file": "geoblock.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 447,
-      "addresses": 192960,
+      "count": 429,
+      "addresses": 201664,
       "addresses_recent": [
+        201664,
         192960,
         185536,
         197312,
@@ -1139,9 +1167,10 @@
       "file": "rkn_all.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 11329,
-      "addresses": 7281616,
+      "count": 11342,
+      "addresses": 7233600,
       "addresses_recent": [
+        7233600,
         7281616,
         7266000,
         7242016,
@@ -1158,9 +1187,10 @@
       "file": "ipsum.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 11317,
-      "addresses": 7244272,
+      "count": 11330,
+      "addresses": 7196256,
       "addresses_recent": [
+        7196256,
         7244272,
         7228672,
         7204672,
@@ -1177,9 +1207,10 @@
       "file": "all.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 11601,
-      "addresses": 7531184,
+      "count": 11584,
+      "addresses": 7475744,
       "addresses_recent": [
+        7475744,
         7531184,
         7505088,
         7495872,
@@ -1196,9 +1227,10 @@
       "file": "hodca.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 6926,
-      "addresses": 202810608,
+      "count": 6932,
+      "addresses": 202880752,
       "addresses_recent": [
+        202880752,
         202810608,
         202794176,
         202864320,
@@ -1384,7 +1416,7 @@
       "is_geoblock": false,
       "is_infra": true,
       "prefixes_file": "cloudflare.lst",
-      "prefixes_count": 566,
+      "prefixes_count": 567,
       "domains_files": [
         "domains/svc_cloudflare.lst"
       ],
@@ -1472,7 +1504,7 @@
       "is_geoblock": false,
       "is_infra": true,
       "prefixes_file": "gcore.lst",
-      "prefixes_count": 321,
+      "prefixes_count": 320,
       "domains_files": [],
       "domains_count": 0
     },
@@ -1534,7 +1566,7 @@
       "is_geoblock": false,
       "is_infra": true,
       "prefixes_file": "ovh.lst",
-      "prefixes_count": 639,
+      "prefixes_count": 638,
       "domains_files": [
         "domains/svc_ovh.lst"
       ],
@@ -1562,7 +1594,7 @@
       "is_geoblock": false,
       "is_infra": true,
       "prefixes_file": "aws.lst",
-      "prefixes_count": 5670,
+      "prefixes_count": 5677,
       "domains_files": [],
       "domains_count": 0
     }
