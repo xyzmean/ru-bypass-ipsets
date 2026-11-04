@@ -1,6 +1,6 @@
 {
-  "version": "2026-11-01",
-  "generated_at": "2026-11-01T10:48:03Z",
+  "version": "2026-11-04",
+  "generated_at": "2026-11-04T11:03:48Z",
   "base_url": "https://raw.githubusercontent.com/xyzmean/ru-bypass-ipsets/main/lists",
   "ipsum_min_count": 5000,
   "sources": {
@@ -16,22 +16,22 @@
       "77.88.8.8",
       "8.8.4.4"
     ],
-    "resolved_domains": 15871,
+    "resolved_domains": 17527,
     "resolved_domains_recent": [
+      17527,
       15871,
       15891,
       15926,
       15963,
       16053,
       15992,
-      15996,
-      16091
+      15996
     ],
     "thematic_seeds": {
       "total": 873,
       "in_domain_lists": 775,
       "prefix_only": 98,
-      "behind_shared_proxy": 60
+      "behind_shared_proxy": 65
     }
   },
   "aliases": [
@@ -212,12 +212,12 @@
       "addresses": 26112,
       "addresses_recent": [
         26112,
+        26112,
         26624,
         26880,
         26880,
         26880,
         26880,
-        26112,
         26112
       ]
     },
@@ -233,7 +233,7 @@
       "addresses_recent": [
         2639616,
         2639616,
-        2615296,
+        2639616,
         2615296,
         2615296,
         2615296,
@@ -257,7 +257,7 @@
       "addresses_recent": [
         2639616,
         2639616,
-        2615296,
+        2639616,
         2615296,
         2615296,
         2615296,
@@ -276,16 +276,16 @@
       "file": "tiktok.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 7,
-      "addresses": 2816,
+      "count": 8,
+      "addresses": 3072,
       "addresses_recent": [
+        3072,
         2816,
         2816,
         2816,
         2816,
         2816,
         3072,
-        2816,
         2816
       ]
     },
@@ -356,17 +356,17 @@
       "file": "cloudflare.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 474,
-      "addresses": 1888512,
+      "count": 577,
+      "addresses": 1928448,
       "addresses_recent": [
+        1928448,
         1888512,
         1888512,
         1917184,
         1918208,
         1917952,
         1916928,
-        2019328,
-        2011392
+        2019328
       ]
     },
     {
@@ -381,10 +381,10 @@
       "addresses_recent": [
         4225472,
         4225472,
+        4225472,
         4225440,
         4225440,
         4225440,
-        4224672,
         4224672,
         4224672
       ]
@@ -401,12 +401,12 @@
       "addresses_recent": [
         13880000,
         13880000,
+        13880000,
         13880256,
         13880256,
         13880256,
         13880256,
-        13880256,
-        13880512
+        13880256
       ]
     },
     {
@@ -422,9 +422,9 @@
         10736,
         10736,
         10736,
+        10736,
         10720,
         10720,
-        10672,
         10672,
         10672
       ],
@@ -444,12 +444,12 @@
       "addresses_recent": [
         389632,
         389632,
+        389632,
         380928,
         380928,
         380928,
         380928,
-        364800,
-        364288
+        364800
       ]
     },
     {
@@ -468,7 +468,7 @@
         8960,
         8960,
         8960,
-        8704,
+        8960,
         8704
       ]
     },
@@ -499,17 +499,17 @@
       "file": "gcore.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 321,
-      "addresses": 122144,
+      "count": 322,
+      "addresses": 123168,
       "addresses_recent": [
+        123168,
         122144,
         122144,
         122368,
         122624,
         122880,
         122880,
-        123136,
-        122624
+        123136
       ]
     },
     {
@@ -544,9 +544,9 @@
       "addresses_recent": [
         6144,
         6144,
+        6144,
         5888,
         5888,
-        5632,
         5632,
         5632,
         5632
@@ -560,16 +560,16 @@
       "default_on": false,
       "is_geoblock": false,
       "count": 207,
-      "addresses": 235520,
+      "addresses": 234496,
       "addresses_recent": [
+        234496,
         235520,
         235520,
         235008,
         235264,
         235264,
         234496,
-        234496,
-        233728
+        234496
       ]
     },
     {
@@ -579,12 +579,12 @@
       "file": "hetzner.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 82,
-      "addresses": 3237376,
+      "count": 83,
+      "addresses": 3368448,
       "addresses_recent": [
+        3368448,
         3237376,
         3237376,
-        3237120,
         3237120,
         3237120,
         3237120,
@@ -599,17 +599,17 @@
       "file": "ovh.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 653,
-      "addresses": 4657408,
+      "count": 656,
+      "addresses": 4658176,
       "addresses_recent": [
+        4658176,
         4657408,
         4657152,
         4655360,
         4652032,
         4651776,
         4647936,
-        4643584,
-        4643072
+        4643584
       ]
     },
     {
@@ -619,16 +619,16 @@
       "file": "digitalocean.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 170,
-      "addresses": 3150848,
+      "count": 171,
+      "addresses": 3159040,
       "addresses_recent": [
+        3159040,
         3150848,
         3150848,
         3146752,
         3142656,
         3142656,
         3141632,
-        3140608,
         3140608
       ]
     },
@@ -639,17 +639,17 @@
       "file": "aws.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 5665,
-      "addresses": 174586624,
+      "count": 5673,
+      "addresses": 174575616,
       "addresses_recent": [
+        174575616,
         174586624,
         174586624,
         174596096,
         174855168,
         174785536,
         174776576,
-        174758656,
-        174763776
+        174758656
       ]
     },
     {
@@ -659,17 +659,17 @@
       "file": "rkn.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 11389,
-      "addresses": 6255952,
+      "count": 11425,
+      "addresses": 6426560,
       "addresses_recent": [
+        6426560,
         6255952,
         6237824,
         6277568,
         6224976,
         6272992,
         6257392,
-        6082864,
-        6115136
+        6082864
       ],
       "renamed_from": [
         "streaming.lst",
@@ -690,17 +690,17 @@
       "file": "geoblock.lst",
       "default_on": false,
       "is_geoblock": true,
-      "count": 402,
-      "addresses": 190400,
+      "count": 478,
+      "addresses": 222656,
       "addresses_recent": [
+        222656,
         190400,
         200640,
         189120,
         201664,
         192960,
         185536,
-        197312,
-        205248
+        197312
       ],
       "renamed_from": [
         "streaming_GB.lst",
@@ -1195,17 +1195,17 @@
       "file": "rkn_all.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 11390,
-      "addresses": 7288624,
+      "count": 11428,
+      "addresses": 7459504,
       "addresses_recent": [
+        7459504,
         7288624,
         7270512,
         7286448,
         7233600,
         7281616,
         7266000,
-        7242016,
-        7274016
+        7242016
       ],
       "aggregate": true
     },
@@ -1216,17 +1216,17 @@
       "file": "ipsum.lst",
       "default_on": true,
       "is_geoblock": false,
-      "count": 11380,
-      "addresses": 7251552,
+      "count": 11416,
+      "addresses": 7422160,
       "addresses_recent": [
+        7422160,
         7251552,
         7233424,
         7248848,
         7196256,
         7244272,
         7228672,
-        7204672,
-        7236944
+        7204672
       ],
       "aggregate": true
     },
@@ -1237,17 +1237,17 @@
       "file": "all.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 11621,
-      "addresses": 7525680,
+      "count": 11721,
+      "addresses": 7724688,
       "addresses_recent": [
+        7724688,
         7525680,
         7506784,
         7520160,
         7475744,
         7531184,
         7505088,
-        7495872,
-        7530224
+        7495872
       ],
       "aggregate": true
     },
@@ -1258,17 +1258,17 @@
       "file": "hodca.lst",
       "default_on": false,
       "is_geoblock": false,
-      "count": 6867,
-      "addresses": 202600512,
+      "count": 6978,
+      "addresses": 202781504,
       "addresses_recent": [
+        202781504,
         202600512,
         202600256,
         202627328,
         202880752,
         202810608,
         202794176,
-        202864320,
-        202856128
+        202864320
       ],
       "aggregate": true
     }
@@ -1396,7 +1396,7 @@
       "is_geoblock": false,
       "is_infra": false,
       "prefixes_file": "tiktok.lst",
-      "prefixes_count": 7,
+      "prefixes_count": 8,
       "domains_files": [
         "domains/svc_tiktok.lst"
       ],
@@ -1448,7 +1448,7 @@
       "is_geoblock": false,
       "is_infra": true,
       "prefixes_file": "cloudflare.lst",
-      "prefixes_count": 474,
+      "prefixes_count": 577,
       "domains_files": [
         "domains/svc_cloudflare.lst"
       ],
@@ -1536,7 +1536,7 @@
       "is_geoblock": false,
       "is_infra": true,
       "prefixes_file": "gcore.lst",
-      "prefixes_count": 321,
+      "prefixes_count": 322,
       "domains_files": [],
       "domains_count": 0
     },
@@ -1584,7 +1584,7 @@
       "is_geoblock": false,
       "is_infra": true,
       "prefixes_file": "hetzner.lst",
-      "prefixes_count": 82,
+      "prefixes_count": 83,
       "domains_files": [
         "domains/svc_hetzner.lst"
       ],
@@ -1598,7 +1598,7 @@
       "is_geoblock": false,
       "is_infra": true,
       "prefixes_file": "ovh.lst",
-      "prefixes_count": 653,
+      "prefixes_count": 656,
       "domains_files": [
         "domains/svc_ovh.lst"
       ],
@@ -1612,7 +1612,7 @@
       "is_geoblock": false,
       "is_infra": true,
       "prefixes_file": "digitalocean.lst",
-      "prefixes_count": 170,
+      "prefixes_count": 171,
       "domains_files": [
         "domains/svc_digitalocean.lst"
       ],
@@ -1626,7 +1626,7 @@
       "is_geoblock": false,
       "is_infra": true,
       "prefixes_file": "aws.lst",
-      "prefixes_count": 5665,
+      "prefixes_count": 5673,
       "domains_files": [],
       "domains_count": 0
     }
